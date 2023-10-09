@@ -27,10 +27,12 @@ app = Flask(__name__,static_folder='static')
 app.secret_key="Caines"
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_URL'] = 'mysql://root:EGbhqZ172cup7cdvvTgn@containers-us-west-210.railway.app:5983/railway'
+app.config['MYSQL_DATABASE_HOST'] = 'containers-us-west-210.railway.app'
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'
-app.config['MYSQL_DATABASE_DB']='caines'
+app.config['MYSQL_DATABASE_PORT'] = 5983
+app.config['MYSQL_DATABASE_PASSWORD'] = 'EGbhqZ172cup7cdvvTgn'
+app.config['MYSQL_DATABASE_DB']='railway'
 mysql.init_app(app)
 
 
@@ -683,7 +685,7 @@ def pdf_template(table_data_json):
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-mode = "prod"
+mode = "dev"
 
 if __name__ == '__main__':
      
