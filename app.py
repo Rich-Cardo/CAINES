@@ -690,7 +690,7 @@ def pdf_template(table_data_json):
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-mode = "prod"
+mode = "dev"
 
 if __name__ == '__main__':
      
