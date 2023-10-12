@@ -1,0 +1,157 @@
+{% include 'header.html' %}
+
+
+
+
+
+
+        <form class="form-inline" method="post" action="/buscar_usuario" enctype="multipart/form-data">
+
+        <a href="{{url_for('create_user') }}" id="boton-ingresar" class="btn btn-success">Registrar</a>
+
+        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar especialistas..." required>
+
+        <button id="boton-buscar" class="btn btn-info">Buscar</button>
+
+        <!-- Este input oculto contiene el tipo de usuario para que sirva el boton Buscar -->
+        <input type="hidden" value="especialista" name="tipo_usuario" id="tipo_usuario">
+
+        </form>
+
+        <br>  
+
+        <table id="horario" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas border border-secondary rounded m-auto" style="margin:10px; width:auto;" cellspacing="0">
+            <thead class="thead-light">
+
+              <tr>
+                <th>Hora</th>
+                <th>Lunes</th>
+                <th>Martes</th>
+                <th>Miércoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+              </tr>
+              
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+
+        </table>
+    
+    <script>
+
+      // Hacer el horario HTML con una funcion para ahorrar codigo
+
+      //Selecciona el cuerpo de la tabla con id "horario" y lo almacena en la variable "tbody"
+      var tbody = document.querySelector('#horario tbody');
+
+      // Inicia un bucle for que recorre las horas de 7:00 a.m. a 4:00 p.m.
+      // y la variable "hora" se va incrementando en cada iteración.
+
+      for (var hora = 7; hora <= 16; hora++) {
+
+        // Crea una nueva fila de tabla y la almacena en la variable "row".
+        var row = document.createElement('tr');
+
+        // Crea una nueva celda de tabla y la almacena en la variable "timeCell".        
+        var timeCell = document.createElement('td');
+
+        // Calcula la hora en formato de 12 horas (en lugar de 24 horas)
+        // la almacena en la variable "hora12".
+        var hora12 = hora > 12 ? hora - 12 : hora;
+
+        // Determina si es "a.m." o "p.m." y lo almacena
+        // en la variable "amPm".
+        var amPm = hora >= 12 ? 'p.m.' : 'a.m.';
+
+        // Agrega el texto de la hora y el am/pm a la celda "timeCell".
+        timeCell.textContent = hora12 + ':00 ' + amPm;
+
+        // Agrega la celda "timeCell" a la fila "row".
+        row.appendChild(timeCell);
+        
+        // Y esto es Lo mismo de arriba pero con los dias
+        for (var dia = 1; dia <= 5; dia++) {
+          var cell = document.createElement('td');
+          cell.textContent = '';
+          row.appendChild(cell);
+        }
+        
+        tbody.appendChild(row);
+        
+        // Mismo procedimiento para las filas de media hora
+        var mediaHoraRow = document.createElement('tr');
+        
+        var mediaHoraCell = document.createElement('td');
+        var hora12media = hora > 12 ? hora - 12 : hora;
+        var amPmMedia = hora >= 12 ? 'p.m.' : 'a.m.';
+        mediaHoraCell.textContent = hora12media + ':30 ' + amPmMedia;
+        mediaHoraRow.appendChild(mediaHoraCell);
+
+        //Lo mismo para las filas de los dias de media hora        
+        for (var dia = 1; dia <= 5; dia++) {
+          var cell = document.createElement('td');
+          cell.textContent = '';
+          mediaHoraRow.appendChild(cell);
+        }
+        
+        tbody.appendChild(mediaHoraRow);
+      }
+
+      // Agregar la ultima fila para las 5:00 p.m, siendo
+      // esto necesario porque sino, llegaría hasta las
+      // 5:30 pm en lugar de las 5:00pm que es lo que se requiere.
+      var ultimaHoraRow = document.createElement('tr');
+
+      var ultimaHoraCell = document.createElement('td');
+      ultimaHoraCell.textContent = '5:00 p.m.';
+      ultimaHoraRow.appendChild(ultimaHoraCell);
+
+      for (var dia = 1; dia <= 5; dia++) {
+        var cell = document.createElement('td');
+        cell.textContent = '';
+        ultimaHoraRow.appendChild(cell);
+      }
+
+      tbody.appendChild(ultimaHoraRow);
+
+    </script>
+          
+
+            
+
+
+
+        
+
+
+
+
+  
+
+
+
+    
+        
+
+
+
+
+
+
+
+    
+    </div>
+
+
+
+
+
+
+
+
+
+{% include 'footer.html' %}

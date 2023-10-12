@@ -27,10 +27,12 @@ app = Flask(__name__,static_folder='static')
 app.secret_key="Caines"
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_URL'] = 'mysql://root:EGbhqZ172cup7cdvvTgn@containers-us-west-210.railway.app:5983/railway'
+app.config['MYSQL_DATABASE_HOST'] = 'containers-us-west-210.railway.app'
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'
-app.config['MYSQL_DATABASE_DB']='caines'
+app.config['MYSQL_DATABASE_PORT'] = 5983
+app.config['MYSQL_DATABASE_PASSWORD'] = 'EGbhqZ172cup7cdvvTgn'
+app.config['MYSQL_DATABASE_DB']='railway'
 mysql.init_app(app)
 
 
@@ -203,9 +205,15 @@ def menu():
 def recuperar_contrasena():
     return render_template('/caines/contrasena.html')
 
-@app.route('/factura')
-def factura():
-    return render_template('/factura.html')
+@app.route('/horario')
+def horario():
+    return render_template('/caines/horario.html')
+
+@app.route('/horariom')
+def horariom():
+    return render_template('/caines/horario_manual.html')
+
+
 
 @app.route('/create_factura')
 def create_factura():
@@ -215,8 +223,8 @@ def create_factura():
 def login():
     return render_template('caines/login.html')
 
-@app.route('/principal')
-def principal():
+@app.route('/')
+def index():
     return render_template('caines/principal.html')
 
 @app.route('/registro')
@@ -349,7 +357,7 @@ def store_user(from_page):
     result = cursor.fetchone()
     if result is not None:
         # La cedula ya existe, mostrar mensaje de flash y redirigir a la página anterior
-        flash('El usuario ya existe', 'error')
+        flash('El usuario ya está registrado', 'error')
         return redirect(request.referrer)
 
     # La cedula no existe, insertar el nuevo registro
@@ -386,9 +394,8 @@ def store_user(from_page):
 @app.route('/buscar_usuario', methods=['POST'])
 def buscar_usuario():
     _busqueda = request.form['buscar']
-    _tipo_usuario = request.form['tipo_usuario']  # Add this line to get the user type from the form
+    _tipo_usuario = request.form['tipo_usuario']  # Saber que tipo de usuario es
 
-    # Construct the SQL query with a parameter for 'tipo_usuario'
     sql = "SELECT r.*, t.telefono FROM usuarios r LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario WHERE r.tipo_usuario = %s AND r.nombre LIKE %s ORDER BY r.id_usuario DESC;"
 
     conn = mysql.connect()
@@ -690,5 +697,5 @@ if __name__ == '__main__':
     if mode == "dev":
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
-        serve(app,host='0.0.0.0',port=5000,threads=2)
+        serve(app,host='0.0.0.0',port=5000,threads=6)
 

@@ -1,0 +1,245 @@
+{% include 'header.html' %}
+
+
+
+
+
+
+        <form class="form-inline" method="post" action="/buscar_usuario" enctype="multipart/form-data">
+
+        <a href="{{url_for('create_user') }}" id="boton-ingresar" class="btn btn-success">Registrar</a>
+
+        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar especialistas..." required>
+
+        <button id="boton-buscar" class="btn btn-info">Buscar</button>
+
+        <!-- Este input oculto contiene el tipo de usuario para que sirva el boton Buscar -->
+        <input type="hidden" value="especialista" name="tipo_usuario" id="tipo_usuario">
+
+        </form>
+        
+
+
+
+
+
+
+
+
+
+        <!-- <br> -->
+
+
+
+        
+
+
+        <table id="tabla_rep" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas border border-secondary rounded m-auto" style="margin:10px; width:auto;" cellspacing="0">
+            <thead class="thead-light">
+              <tr>
+                <th>Hora</th>
+                <th>Lunes</th>
+                <th>Martes</th>
+                <th>Miércoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>7:00am - 7:30am</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>7:30am - 8:00am</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>8:00am - 8:30am</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>8:30am - 9:00am</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>9:00am - 9:30am</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <td>9:30am - 10:00am</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>10:00am - 10:30am</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>10:30am - 11:00am</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>11:00am - 11:30am</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>11:30am - 12:00pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+             <tr>
+              <td>12:00pm - 12:30pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr> 
+            <tr>  
+              <td>12:30pm - 1:00pm</td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+            </tr> 
+            <tr>  
+              <td>1:00pm - 1:30pm</td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+            </tr> 
+            <tr>  
+              <td>1:30pm - 2:00pm</td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+            </tr> 
+            <tr>  
+              <td>2:00pm - 2:30pm</td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+            </tr> 
+            <tr>  
+              <td>2:30pm - 3:00pm</td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+              <td></td>  
+            </tr>
+            <tr>
+              <td>3:00pm - 3:30pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>3:30pm - 4:00pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>4:00pm - 4:30pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>4:30pm - 5:00pm</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+        </table>
+          
+          
+
+            
+
+
+
+        
+
+
+
+
+  
+
+
+
+    
+        
+
+
+
+
+
+
+
+    
+    </div>
+
+
+
+
+
+
+
+
+
+{% include 'footer.html' %}
