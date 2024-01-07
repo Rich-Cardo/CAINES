@@ -11,7 +11,7 @@ import pdfkit
 import json
 
 #Librería para enviar solicitudes al servidor
-from flask import jsonify
+from flask import  jsonify
 
 #Librería para servidor de producción
 from waitress import serve
@@ -75,7 +75,116 @@ def load_user(user_id):
     return User.get(user_id)
 
 
+#Clase Niño para el manejo de datos de los niños
+class Nino():
+    def __init__(self, id, representante, nombre, edad, fecha_nac):
+        self.id = id
+        self.reprsentante = representante
+        self.nombre = nombre
+        self.edad = edad
+        self.fecha_nac = fecha_nac
 
+    #Obtener los datos del niño
+    def get(id):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        sql = "SELECT * FROM ninos WHERE id_nino = %s"
+        cursor.execute(sql, (id,))
+        nino = cursor.fetchone()
+        if nino:
+            return Nino(id=nino[0], representante=nino[1], nombre=nino[2], edad=nino[3], fecha_nac=nino[4])
+        return None
+    
+    # #Obtener los datos del Horario del niño
+    # def getHorario(id):
+    #     conn = mysql.connect()
+    #     cursor = conn.cursor()
+    #     cursor.execute("""
+    #         SELECT aux_horarios.*, usuarios.nombre AS nombre_especialista, terapias.nombre AS nombre_terapia
+    #         FROM aux_horarios
+    #         JOIN usuarios ON aux_horarios.id_especialista = usuarios.id_usuario
+    #         JOIN terapias ON aux_horarios.id_terapia = terapias.id_terapia
+    #         WHERE aux_horarios.id_nino = %s
+    #     """, (id,))
+
+    #     nino = cursor.fetchall()
+
+
+    #     conn.close()
+
+        
+    #     if nino:
+    #         return Nino(id=nino[0], representante=nino[1], nombre=nino[2], edad=nino[3], fecha_nac=nino[4])
+    #     return None
+
+
+#Clase Representante para el manejo de datos
+class Representante():
+    def __init__(self, id, cedula, nombre, apellido, direccion, correo, telefono):
+        self.id = id
+        self.cedula = cedula
+        self.nombre = nombre
+        self.apellido = apellido
+        self.direccion = direccion
+        self.correo = correo
+        self.telefono = telefono
+
+        # Obtener los hijos del representante
+        # self.hijos = self.get_hijos()
+
+
+
+    #Obtener los datos del representante
+    def get(id):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        sql = """
+            SELECT u.*, t.telefono 
+            FROM usuarios u 
+            LEFT JOIN telefonos_usuario t ON u.id_usuario = t.id_usuario 
+            WHERE u.id_usuario = %s
+        """
+        cursor.execute(sql, (id,))
+        representante = cursor.fetchone()
+        print(representante)
+        if representante:
+            return Representante(id=representante[0], cedula=representante[2], nombre=representante[3], apellido=representante[4], direccion=representante[5], correo=representante[6], telefono=representante[8])
+        return None
+    
+    # Obtener los hijos del representante
+    # def get_hijos(self):
+    #     conn = mysql.connect() 
+    #     cursor = conn.cursor() 
+    #     sql = "SELECT * FROM ninos WHERE id_usuario = %s"
+    #     cursor.execute(sql, (self.id,)) 
+    #     hijos = cursor.fetchall()
+    #     print("Hijos es: ", hijos)
+    #     lista_hijos = []
+    #     for hijo in hijos:
+    #         lista_hijos.append(Nino(id=hijo[0], nombre=hijo[2], apellido=hijo[3], edad=hijo[4], fecha_nacimiento=hijo[5], lugar_nacimiento=hijo[6], num_hermanos=hijo[7], escolaridad=hijo[8]))
+    #     return lista_hijos
+
+#Clase Especialista para el manejo de datos de los mismos
+class Especialista():
+    def __init__(self, id, cedula, nombre, apellido, direccion, correo):
+        self.id = id
+        self.cedula = cedula
+        self.nombre = nombre
+        self.apellido = apellido
+        self.direccion = direccion
+        self.correo = correo
+
+
+    #Obtener los datos del especialista
+    def get(id):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        sql = "SELECT * FROM usuarios WHERE id_usuario = %s"
+        cursor.execute(sql, (id,))
+        especialista = cursor.fetchone()
+        if especialista:
+            return Especialista(id=especialista[0], cedula=especialista[1], nombre=especialista[2], apellido=especialista[3], direccion=especialista[4], correo=especialista[5])
+        return None
 
 
 
@@ -88,14 +197,14 @@ def load_user(user_id):
 def verificar_cedula():
 
     cedula = request.form['txtCedula']
-    print(cedula)
+
 
     # Hacemos la conexión a la base de datos
     conn = mysql.connect() 
     cursor = conn.cursor() 
 
     # Ejecutamos la consulta SQL
-    cursor.execute("SELECT nombre, apellido, direccion FROM usuarios WHERE cedula = %s", (cedula,))
+    cursor.execute("SELECT nombre, apellido, direccion, id_usuario FROM usuarios WHERE cedula = %s", (cedula,))
 
     resultado = cursor.fetchone()
 
@@ -103,14 +212,15 @@ def verificar_cedula():
     conn.close()
 
     if resultado:
-        nombre, apellido, direccion = resultado
+        nombre, apellido, direccion, id_usuario = resultado
     else:
-        nombre, apellido, direccion = "", "", ""
+        nombre, apellido, direccion, id_usuario = "", "", "", ""
 
     response = {
         'nombre': nombre,
         'apellido': apellido,
-        'direccion': direccion
+        'direccion': direccion,
+        'id': id_usuario
     }
 
     return jsonify(response)
@@ -122,14 +232,14 @@ def verificar_cedula():
 def verificar_terapia():
 
     terapia = request.form['txtTerapia']
-    print(terapia)
+
 
     # Hacemos la conexión a la base de datos
     conn = mysql.connect() 
     cursor = conn.cursor() 
 
     # Ejecutamos la consulta SQL
-    cursor.execute("SELECT precio FROM terapias WHERE terapia = %s", (terapia,))
+    cursor.execute("SELECT precio FROM terapias WHERE nombre = %s", (terapia,))
 
     resultado = cursor.fetchone()
 
@@ -192,20 +302,388 @@ def cerrar_sesion():
 
     return redirect('/login')  # Redirigir al inicio de sesión
 
+@app.route('/ag_citas/<int:id>')
+def agendar_citas(id):
 
+    representante = Representante.get(id)
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    # Obtener las citas de la base de datos
+    cursor.execute("SELECT * FROM citas WHERE id_representante = %s", (id,))
+    cita = cursor.fetchone()
+
+
+    if cita is not None:
+        print("Cita es: ", cita)
+
+    # La cita ya existe, mostrar mensaje de flash y redirigir a la página anterior
+
+        return render_template('/caines/ag_citas.html', representante = representante, cita = cita)
+    
+    return render_template('/caines/ag_citas.html', representante = representante)
+
+@app.route('/eliminar_cita/<int:id>')
+def eliminar_cita(id):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+ 
+
+
+    # Consultar las terapias existentes en el día y hora para eliminarlos
+    sql = "DELETE FROM citas WHERE id_cita = %s"
+
+
+    cursor.execute("DELETE FROM citas WHERE id_cita = %s",(id))
+
+
+    conn.commit()
+
+    conn.close() 
+
+    flash('¡Su cita fue anulada exitosamente!', 'error')
+
+
+    return redirect('/menu')
 
 @app.route('/menu')
 @login_required
 def menu():
     return render_template('/caines/menu.html')
 
+@app.route('/gestfacturas')
+@login_required
+def gestfacturas():
+
+    conn = mysql.connect() 
+    cursor = conn.cursor()
+
+    #Condición para que muestre solamente las facturas asociadas al representante
+    if current_user.rol == 'representante':
+        cursor.execute("SELECT * FROM facturas WHERE id_usuario = %s", (current_user.id,))
+    
+        facturas = cursor.fetchall() 
+    
+        conn.commit() 
+    
+        return render_template('caines/ninos.html', facturas=facturas)
+    
+
+    #Sino, que muestre todas las facturas registradas.
+    else: 
+        cursor.execute("SELECT * FROM facturas")
+    
+        facturas = cursor.fetchall() 
+    
+        conn.commit() 
+    
+        return render_template('caines/gestfacturas.html', facturas=facturas)
+
+
+
+
 @app.route('/recuperar_contrasena')
 def recuperar_contrasena():
     return render_template('/caines/contrasena.html')
 
-@app.route('/factura')
-def factura():
-    return render_template('/factura.html')
+#Pasar los datos de los horarios del niño seleccionado a horario.html
+
+@app.route('/horario/<int:id>')
+def horario(id):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    nino = Nino.get(id)
+
+    # Obtener terapias desde la base de datos
+    cursor.execute("SELECT id_terapia, nombre FROM terapias")
+    terapias = cursor.fetchall()
+
+    # Obtener los especialistas desde la base de datos
+    cursor.execute("SELECT id_usuario, nombre FROM usuarios WHERE tipo_usuario = 'especialista' ")
+    especialistas = cursor.fetchall()
+
+
+    return render_template('/caines/horario.html', especialistas = especialistas,  terapias = terapias, nino = nino)
+
+@app.route('/datos_horario/<int:id>')
+def datos_horario(id):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT aux_horarios.*, usuarios.nombre AS nombre_especialista, terapias.nombre AS nombre_terapia
+        FROM aux_horarios
+        JOIN usuarios ON aux_horarios.id_especialista = usuarios.id_usuario
+        JOIN terapias ON aux_horarios.id_terapia = terapias.id_terapia
+        WHERE aux_horarios.id_nino = %s
+    """, (id,))
+
+    ninos = cursor.fetchall()
+
+    # cursor.execute("""
+    # SELECT * FROM aux_horarios WHERE id_especialista = %s
+    # """, (id,))
+
+    # ninos = cursor.fetchall()
+
+
+
+
+
+    conn.close()
+
+    # Convertir los datos a formato JSON y devolverlos
+    return jsonify(ninos)
+
+
+
+#Pasar los datos de los horarios del especialista seleccionado a horario_esp.html
+
+@app.route('/horario_esp/<int:id>')
+def horario_esp(id):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    nino = Nino.get(id)
+    especialista = Especialista.get(id)
+
+    # Obtener terapias desde la base de datos
+    cursor.execute("SELECT id_terapia, nombre FROM terapias")
+    terapias = cursor.fetchall()
+
+    # Obtener los niños desde la base de datos
+    cursor.execute("SELECT id_nino, nombre FROM ninos ")
+    ninos = cursor.fetchall()
+
+
+    return render_template('/caines/horario_esp.html', nino = nino, terapias = terapias, especialista = especialista)
+
+@app.route('/datos_horario_esp/<int:id>')
+def datos_horario_esp(id):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT aux_horarios.*, 
+            usuarios.nombre AS nombre_especialista, 
+            terapias.nombre AS nombre_terapia, 
+            ninos.nombre AS nombre_nino
+        FROM aux_horarios 
+        JOIN usuarios ON aux_horarios.id_especialista = usuarios.id_usuario 
+        JOIN terapias ON aux_horarios.id_terapia = terapias.id_terapia 
+        JOIN ninos ON aux_horarios.id_nino = ninos.id_nino
+        WHERE aux_horarios.id_especialista = %s
+    """, (id,))
+
+    ninos = cursor.fetchall()
+
+    print(ninos)
+
+    # cursor.execute("""
+    # SELECT * FROM aux_horarios WHERE id_especialista = %s
+    # """, (id,))
+
+    # ninos = cursor.fetchall()
+
+
+
+
+
+    conn.close()
+
+    # Convertir los datos a formato JSON y devolverlos
+    return jsonify(ninos)
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/agregar_cita', methods=['POST'])  
+def agregar_cita():
+
+    _fecha = request.form['txtFecha'] 
+    _id = request.form['txtID']
+    # _id_nino = request.form['txtNino']
+    # _cedula = request.form['txtCedula'] 
+    # _nombre = request.form['txtNombre'] 
+    # _apellido = request.form['txtApellido'] 
+    # _direccion = request.form['txtDireccion'] 
+    # _correo = request.form['txtCorreo'] 
+    # _telefono = request.form['txtTelefono'] 
+
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+
+    # Consultar si la cita ya existe en la base de datos
+
+    sql = "SELECT * FROM citas WHERE id_representante = %s"
+    cursor.execute(sql, (_id,))
+    result = cursor.fetchone()
+    if result is not None:
+
+        # La cita ya existe, mostrar mensaje de flash y redirigir a la página anterior
+        flash('Ya posee una cita en proceso', 'error')
+        return redirect(request.referrer)
+
+    # La cita no existe, insertar el nuevo registro (por ahora, sin niño)
+    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado) VALUES (NULL, %s,  %s, 'pendiente');" 
+
+    datos=(_id,_fecha) 
+
+    cursor.execute(sql,datos) 
+    conn.commit() 
+
+    # if from_page == 'registro':
+    #     flash('¡Registro exitoso!') 
+    #     return redirect('/login') 
+    # elif from_page == 'create_user': 
+    #     return redirect(redireccionamiento(_tipo_usuario))
+
+    flash('¡Su cita fue agendada exitosamente!', 'error')
+
+    return redirect('/menu')
+
+
+
+
+
+
+@app.route('/agregar_terapia', methods=['POST'])
+def agregar_terapia():
+    _id_nino = request.form['txtId']
+    _dia = request.form['txtDia']
+    _hora = request.form['txtHora']
+    _especialista = request.form['txtEspecialista']
+    _terapia = request.form['txtTerapia']
+    _duracion = request.form['txtDuracion']
+
+    # CODIGO PARA CALCULAR LA HORA FIN:
+
+    # Dividir la cadena de la hora en horas y minutos
+    horas, minutos = _hora.split(':')
+
+    # Convertir horas y minutos en enteros
+    horas = int(horas)
+    minutos = int(minutos)
+
+    # Sumar 30 minutos
+    minutos += 30
+
+    # Verificar si se ha excedido el límite de 60 minutos
+    if minutos >= 60:
+        minutos -= 60
+        horas += 1
+
+    # Verificar si se ha excedido el límite de 12 horas
+    if horas >= 13:
+        horas -= 12
+
+    # Ajustar el formato de horas y minutos (agregar un cero si es necesario)
+    horas = str(horas)
+    minutos = str(minutos).zfill(2)
+
+    # Crear la hora modificada en formato de cadena 'HH:MM'
+    _hora_fin = f"{horas}:{minutos}"
+
+    # print("La hora de fin es: ", _hora_fin)
+
+    #FIN DEL CODIGO PARA CALCULAR LA HORA FIN
+
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+
+
+    if _duracion == '60':
+
+        # Consultar las terapias existentes en el día y hora modificados
+        sql = "SELECT COUNT(*) FROM aux_horarios WHERE dia = %s AND hora = %s"
+        datos = (_dia, _hora_fin)
+        cursor.execute(sql, datos)
+        cantidad_terapias = cursor.fetchone()[0]
+
+        if cantidad_terapias > 0:
+            flash("No se puede insertar la terapia en ese horario debido a una colisión.")
+            return redirect('/horario/' + _id_nino)
+        
+    # Verificar si el especialista está disponible a esa hora
+    sql_especialista_disponible = """
+        SELECT COUNT(*) 
+        FROM aux_horarios 
+        WHERE id_especialista = %s 
+        AND dia = %s 
+        AND (
+            (hora <= %s AND hora_fin > %s) 
+            OR (hora < %s AND hora_fin >= %s) 
+            OR (hora >= %s AND hora_fin <= %s)
+        )
+    """
+    datos_especialista = (_especialista, _dia, _hora, _hora_fin, _hora, _hora_fin, _hora, _hora_fin)
+    cursor.execute(sql_especialista_disponible, datos_especialista)
+    especialista_ocupado = cursor.fetchone()[0]
+
+    if especialista_ocupado > 0:
+        flash("El especialista no está disponible en la hora seleccionada.")
+        return redirect('/horario/' + _id_nino)
+            
+    
+    #Introducir los datos
+
+    sql = "INSERT INTO aux_horarios (id_nino, dia, id_especialista, hora, hora_fin, id_terapia, duracion) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+    datos = (_id_nino, _dia, _especialista, _hora, _hora_fin, _terapia, _duracion)
+    cursor.execute(sql, datos)
+    conn.commit()
+
+    return redirect('/horario/' + _id_nino)
+
+
+
+
+@app.route('/eliminar_terapia', methods=['POST'])
+def eliminar_terapia():
+    _id_nino = request.form['txtId_ocupado']
+    _dia = request.form['txtDia_ocupado']
+    _hora = request.form['txtHora_ocupado']
+
+
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    a = cursor.execute("SHOW GRANTS")
+    print(a)
+    
+
+
+    # Consultar las terapias existentes en el día y hora para eliminarlos
+    sql = "DELETE FROM aux_horarios WHERE id_nino = %s AND dia = %s AND hora = %s"
+    datos = (_id_nino, _dia, _hora)
+
+
+    cursor.execute(sql, datos)
+
+
+    conn.commit()
+
+    conn.close() 
+
+
+    return redirect('/horario/' + _id_nino)
+
+
 
 @app.route('/create_factura')
 def create_factura():
@@ -215,8 +693,8 @@ def create_factura():
 def login():
     return render_template('caines/login.html')
 
-@app.route('/principal')
-def principal():
+@app.route('/')
+def index():
     return render_template('caines/principal.html')
 
 @app.route('/registro')
@@ -349,7 +827,7 @@ def store_user(from_page):
     result = cursor.fetchone()
     if result is not None:
         # La cedula ya existe, mostrar mensaje de flash y redirigir a la página anterior
-        flash('El usuario ya existe', 'error')
+        flash('El usuario ya está registrado', 'error')
         return redirect(request.referrer)
 
     # La cedula no existe, insertar el nuevo registro
@@ -386,9 +864,8 @@ def store_user(from_page):
 @app.route('/buscar_usuario', methods=['POST'])
 def buscar_usuario():
     _busqueda = request.form['buscar']
-    _tipo_usuario = request.form['tipo_usuario']  # Add this line to get the user type from the form
+    _tipo_usuario = request.form['tipo_usuario']  # Saber que tipo de usuario es
 
-    # Construct the SQL query with a parameter for 'tipo_usuario'
     sql = "SELECT r.*, t.telefono FROM usuarios r LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario WHERE r.tipo_usuario = %s AND r.nombre LIKE %s ORDER BY r.id_usuario DESC;"
 
     conn = mysql.connect()
@@ -675,20 +1152,149 @@ def pdf_template(table_data_json):
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
 
+    # #Guardar la factura en la base de datos
+
+    print("Table data es: ", table_data)
+
+    terapias = []
+    cantidades = []
+    precios = []
+    subtotales = []
+
+    for item in table_data:
+        cantidad = item["cantidad"]
+        cantidades.append(cantidad)
+        producto = item["producto"]
+        terapias.append(producto)
+        precio = item["precio"]
+        precios.append(precio)
+        subtotal = item["subtotal"]
+        subtotales.append(subtotal)
+        total_a_pagar = item["total_a_pagar"]
+
+        representante = item["representante"]
+        id_usuario = representante["id_representante"]
+        cedula = representante["cedula"]
+        fecha = representante["fecha"]
+
+
+    
+    # Aquí puedes procesar los datos como necesites
+
+    print("cantidad es: ", cantidades[0],
+          "producto es: ", terapias[0],
+          "precio es: ", precio,
+          "subtotal es: ", subtotales[0],
+          "total_a_pagar es: ", total_a_pagar,
+          "cedula es: ", cedula,
+          "id es: ", id_usuario)
+
+
+ 
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+ 
+    #Guardar los datos en la tabla facturas
+
+    sql = "INSERT INTO facturas (id_factura, id_usuario, fecha, total) VALUES (NULL, %s, %s, %s);" 
+ 
+    datos=(id_usuario, fecha, total_a_pagar)
+    cursor.execute(sql,datos)
+    # conn.commit()
+
+    # Obtener el id_factura generado por el autoincrementable
+    id_factura = cursor.lastrowid
+
+    #Guardar los datos en la tabla aux_facturas
+
+    # Iterar sobre las terapias y cantidades y guardar cada registro en la tabla aux_facturas
+    for i in range(len(terapias)):
+        sql = "INSERT INTO aux_facturas (id_factura, terapia, cantidad, precio, subtotal) VALUES (%s, %s, %s, %s, %s);"
+        datos = (id_factura, terapias[i], cantidades[i], precios[i] ,subtotales[i])
+        cursor.execute(sql, datos)
+        conn.commit()
+
+
+
+    return response
+
+
+@app.route('/ver_factura/<int:id_factura>')
+def ver_factura(id_factura):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    # Obtener los datos de la factura desde la base de datos
+    sql = "SELECT * FROM facturas WHERE id_factura = %s"
+    cursor.execute(sql, (id_factura,))
+    factura = cursor.fetchone()
+
+    # Obtener los detalles de la factura desde la tabla aux_facturas
+    sql = "SELECT * FROM aux_facturas WHERE id_factura = %s"
+    cursor.execute(sql, (id_factura,))
+    detalles_factura = cursor.fetchall()
+
+
+
+    # Crear una lista con los datos de cada terapia
+    terapias = []
+    cantidades = []
+    precios = []
+    subtotales = []
+    for detalle in detalles_factura:
+        terapias.append(detalle[1])
+        cantidades.append(detalle[2])
+        precios.append(detalle[3])
+        subtotales.append(int(detalle[4]))
+
+    # Calcular el total a pagar
+    total_a_pagar = sum(subtotales)
+
+    # Obtener los datos del representante asociado a la factura
+    sql = "SELECT * FROM usuarios WHERE id_usuario = %s"
+    cursor.execute(sql, (factura[1],))
+    representante = cursor.fetchone()
+
+    # Crear un diccionario con todos los datos necesarios para la plantilla
+
+    terapias_detalles = list(zip(cantidades, terapias, precios, subtotales))
+    data = {
+        'representante': representante,
+        'fecha': factura[2],
+        'cedula': representante[2],
+        'nombre': representante[3],
+        'apellido': representante[4],
+        'direccion': representante[5],
+        'terapias_detalles': terapias_detalles,  # La lista de tuplas combinadas
+        'total_a_pagar': total_a_pagar
+    }
+
+    # Generar el PDF a partir de la plantilla y los datos
+
+
+    print("Table_data es: ", data)
+
+    rendered = render_template('/ver_factura.html', table_data=data)
+    pdf = pdfkit.from_string(rendered, False, css='static/css/style.css', options={"enable-local-file-access": ""})
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=factura_{}.pdf'.format(id_factura)
+
     return response
 
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
 
-mode = "prod"
+
+
+mode = "dev"
 
 if __name__ == '__main__':
      
     if mode == "dev":
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
-        serve(app,host='0.0.0.0',port=5000,threads=2)
+        serve(app,host='0.0.0.0',port=5000,threads=6)
 

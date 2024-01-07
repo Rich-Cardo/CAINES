@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">  
 
+    <!-- Bootstrap 4.0 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        
+ 
+    <!-- CSS ubicado en la carpeta static/css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     <title>CAINES</title>
@@ -27,7 +31,7 @@
       <span class="navbar-toggler-icon"></span> 
     </button> 
 
-    <a class="" href="/principal"> 
+    <a class="" href="/"> 
 
       <img src="{{ url_for('static', filename='img/small2a.png') }}"> 
 
@@ -120,7 +124,7 @@
               <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a class="" href="/principal">
+            <a class="" href="/">
               
               <img src="{{ url_for('static', filename='img/small2a.png') }}">
 

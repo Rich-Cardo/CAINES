@@ -22,7 +22,7 @@
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Representante</label>
-            <input id="txtCedula" class="form-control col-8" type="text" name="txtCedula" pattern="[0-9]+" placeholder="Cedula del representante..." required>
+            <input id="txtCedula" class="form-control col-8" type="text" name="txtCedula" pattern="[0-9]+" title="Sólo se permiten números" placeholder="Cedula del representante..." required>
         </div>
 
         {% endif %}
@@ -33,17 +33,17 @@
         </div>
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Apellido</label>
-            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" required>
+            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="txtFecha_Nac" class="col-3">Fecha de Nacimiento</label>
-            <input id="txtFecha_Nac" class="form-control col-8" type="date" name="txtFecha_Nac">
+            <input id="txtFecha_Nac" class="form-control col-8" type="date" name="txtFecha_Nac" onchange ="calcularEdad()">
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="txtEdad" class="col-3">Edad</label>
-            <input id="txtEdad" class="form-control col-8" type="txtEdad" name="txtEdad" pattern="[0-9]+" title="Sólo se permiten números">
+            <input id="txtEdad" class="form-control col-8" type="text" name="txtEdad" pattern="[0-9]+" title="Sólo se permiten números">
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
@@ -66,7 +66,7 @@
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="txtNum_Hermanos" class="col-3">Num. Hermanos</label>
-            <input id="txtNum_Hermanos" class="form-control col-8" type="text" name="txtNum_Hermanos">
+            <input id="txtNum_Hermanos" class="form-control col-8" type="text" name="txtNum_Hermanos" pattern="[0-9]+" title="Sólo se permiten números" required>
         </div>
 
 
@@ -76,6 +76,20 @@
         <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
     </form>
 
+    <!-- <script>
+
+
+    var edadInput = document.getElementById('txtEdad');
+
+    edadInput.addEventListener('keydown', function(event) { 
+    var keyCode = event.keyCode || event.which; 
+    console.log(keyCode); // Verifica si se está ejecutando la función 
+    if (keyCode < 48 || keyCode > 57) { 
+        event.preventDefault(); 
+    } 
+});
+
+    </script> -->
     
 
     

@@ -5,11 +5,11 @@
 
 
 
-        <form class="form-inline" method="post" action="/buscar_esp" enctype="multipart/form-data">
+        <form class="form-inline" method="post" action="/buscar_usuario" enctype="multipart/form-data">
 
         <a href="{{url_for('create_user')}}" id="boton-ingresar" class="btn btn-success">Registrar</a> 
 
-        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar usuarios...">
+        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar administradores..." required>
 
         <button id="boton-buscar" class="btn btn-info">Buscar</button> 
 
@@ -60,8 +60,8 @@
                         <td> 
                             <div class="btn-group col">
                                 <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{usuarios[0]}}">Ver</a>
-                                <a class="btn btn-warning" href="/edit_esp/{{usuarios[0]}}">Editar</a>
-                                <a class="btn btn-danger" href="/destroy_esp/{{usuarios[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Eliminar</a>
+                                <a class="btn btn-warning" href="/edit_user/{{usuarios[0]}}">Editar</a>
+                                <a class="btn btn-danger" href="/destroy_user/{{usuarios[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Eliminar</a>
                    
                             </div>           
                         </td>
@@ -87,7 +87,7 @@
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Datos del especialista</h4>
+                    <h4 class="modal-title" id="myModalLabel">Datos del contador</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
                   <div class="modal-body">

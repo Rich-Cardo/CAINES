@@ -1,5 +1,13 @@
 {% include 'header.html' %}
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
     <!--CONTENT START!-->
 
         <div class="row">
@@ -23,11 +31,7 @@
                     NIÑOS
                 </a>
 
-                <a class="boton banner" href="#">
-                    HORARIOS
-                </a>
-
-                <a class="boton banner" href="#">
+                <a class="boton banner" href="/ag_citas/{{current_user.id}}">
                     CITAS
                 </a>
 
@@ -39,7 +43,7 @@
                     CREAR FACTURA
                 </a>
 
-                <a class="boton banner" href="#">
+                <a class="boton banner" href="/gestfacturas">
                     FACTURAS
                 </a>
 
@@ -55,9 +59,6 @@
                     REPRESENTANTES
                 </a>
 
-                <a class="boton banner" href="#">
-                    HORARIOS
-                </a>
 
                 {% endif %}
                 
@@ -71,9 +72,10 @@
                     AVANCES
                 </a>
 
-                <a class="boton banner" href="#">
-                    HORARIOS
+                <a class="boton banner" href="/horario_esp/{{current_user.id}}">
+                    HORARIO
                 </a>
+
 
                 {% endif %}
 
@@ -104,9 +106,6 @@
                     AVANCES
                 </a>
 
-                <a class="boton banner" href="#">
-                    HORARIOS
-                </a>
 
                 <a class="boton banner" href="#">
                     CITAS

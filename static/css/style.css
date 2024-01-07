@@ -8,9 +8,7 @@
     padding-top:95px; 
     
     /* Este Padding necesario para que la barra de navegacion del
-     header no se superponga sobre los elementos */
-
-    
+     header no se superponga sobre los elementos */    
 }
 
 
@@ -69,6 +67,8 @@
 .table-wrapper-scroll-y {
     display: block;
 }
+
+
 
 
 /* Inicio del codigo CSS DE ARIANA */
@@ -435,6 +435,7 @@ footer{
     bottom: 0;
     width: 100%;
     text-align: center;
+    display:none;
 }
 
 /* Modal del header */

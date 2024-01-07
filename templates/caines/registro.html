@@ -48,22 +48,17 @@
             <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion">
 
         </div>
-
+            
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Teléfono</label>
-            <select class="form-select form-select-lg" id="cod_numero" name="cod_numero"
-            style="margin-right:6px">
-
-                <option value="1">0412</option>
-                <option value="2">0414</option>
-                <option value="3">0416</option>
-                <option value="4">0424</option>
-                <option value="5">0426</option>
+            <select class="form-select form-select-lg" id="cod_numero" style="margin-right:6px" name="cod_numero">
+                <option value="0412">0412</option>
+                <option value="0414">0414</option>
+                <option value="0416">0416</option>
+                <option value="0424">0424</option>
+                <option value="0426">0426</option>
             </select>
-
-
-            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono">
-
+            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" required>
         </div>
 
         <div class="row" style="margin-bottom: 10px;">

@@ -20,11 +20,21 @@
             <input type="text" class="form-control" id="txtCedula" name="txtCedula" placeholder="Cédula..." pattern="[0-9]+" title="Sólo se permiten números">
 
         </div>
-        <div class="form-floating">
-            <label for="floatingPassword" class="fantasma">Contraseña</label>
-            <input type="password" class="form-control" id="txtContrasena" name="txtContrasena"placeholder="Password">
 
-        </div>
+        <div class="form-floating">
+          <label for="floatingPassword" class="fantasma">Contraseña</label>
+          <div class="input-group">
+              <input type="password" class="form-control" id="txtContrasena" name="txtContrasena" placeholder="Password">
+
+              <!-- Ojo para mostrar la contraseña -->
+              <span class="input-group-text" onclick="togglePassword()" id="togglePassword">
+
+                <img src="{{ url_for('static', filename='img/view.png') }}" alt="" id="toggleEye">
+
+              </span>
+
+          </div>
+      </div>
 
         <!-- <div class="form-check text-start my-3">
             <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
@@ -40,6 +50,24 @@
             <a href="/recuperar_contrasena">¿Olvidó su contraseña?</a>
         </div>
     </form>
+
+
+
+    <!-- Script para que el ojo muestre la contraseña al hacer click -->
+    <script>
+            function togglePassword() {
+              var passwordInput = document.getElementById("txtContrasena");
+              var eyeImage = document.getElementById("toggleEye");
+              
+              if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeImage.src = "{{ url_for('static', filename='img/hide.png') }}";
+              } else {
+                passwordInput.type = "password";
+                eyeImage.src = "{{ url_for('static', filename='img/view.png') }}";
+              }
+            }
+    </script>
 
 
         
