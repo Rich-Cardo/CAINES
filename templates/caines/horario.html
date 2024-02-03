@@ -87,7 +87,7 @@
               
       
               <button type="submit" id="Agregar" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal">Cancelar</button> 
+              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal" onclick="goBack()">Cancelar</button> 
             </form>  
 
 
@@ -146,7 +146,7 @@
               {% if current_user.rol == 'secretaria' or current_user.rol == 'director' %}
 
               <button type="submit" id="Eliminar" class="btn button-login w-100" style="background-color:red; margin-bottom:6px; margin-top:15px;">Eliminar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal">Cancelar</button>
+              <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()" data-dismiss="modal">Cancelar</button>
 
               {% endif %}
 

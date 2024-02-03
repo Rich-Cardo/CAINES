@@ -11,14 +11,15 @@
 <form class="form-login m-auto" method="post" action="/agregar_cita" enctype="multipart/form-data"> 
  
  
+    <!-- Esta linea de codigo sirve para saber primero si existe una cita o no hay una cita -->
     {% if cita %}
     {% if cita[4] == 'pendiente' %}
 
-
-
     <!-- Codigo para cuando sí haya una cita en proceso -->
 
-        <h1 class="h3 mb-3 fw-normal text-center">Cita en proceso</h1>
+        <h1 class="h3 mb-3 fw-normal text-center">Solicitud en proceso</h1>
+
+        <p class="text-center">Ya posee una solicitud en proceso, por favor espere su aprobación.</p>
 
         <div class="row" style="margin-bottom: 10px;">
 
@@ -67,34 +68,17 @@
             <label for="txtCorreo" class="col-3">Correo</label>
             <input id="txtCorreo" value="{{representante.correo}}" class="form-control col-8" type="email" name="txtCorreo" placeholder="correo@ejemplo.com" readonly>
         </div>
-
-        
-        <!-- CONTENEDORES QUE APARECEN CUANDO EL CAMPO "REPRESENTANTE" ESTÁ SELECCIONADO -->
-        <!-- <div id="Representante_Ocupacion" class="row" style="margin-bottom: 10px;">
-            <label for="floatingInput" class="col-3">Ocupación</label>
-            <input id="txtOcupacion" class="form-control col-8" type="text" name="txtOcupacion">
-        </div>
-        
-        <div id="Representante_Empresa" class="row" style= "margin-bottom:10px;">
-            <label for= "floatingInput"class= "col-3">Empresa</label>
-            <input id= "txtEmpresa"class= "form-control col-8"type= "text"name= "txtEmpresa"placeholder= "Empresa donde trabaja...">
-        </div> -->
-
-        <!-- <div class="row" style="margin-bottom: 10px;">
-            <label for="floatingInput" class="col-3">Niño</label>
-            <input id="txtNino" class="form-control col-8" type="text" name="txtNino">
-        </div> -->
         
 
-        <a class="btn button-login w-100" href="/eliminar_cita/{{cita[0]}}" style="background-color:red; margin-bottom:6px; margin-top:15px;">Anular Cita</a>
-        <a class="btn button-login w-100" style="background-color: brown;" href="/menu">Cancelar</a>
+        <a class="btn button-login w-100" href="/eliminar_cita/{{cita[0]}}" onclick="return confirm('¿Desea borrar el registro?')" style="background-color:brown; margin-bottom:6px; margin-top:15px;">Anular Cita</a>
+        <a class="btn button-login w-100" style="background-color: green;" href="/menu">Cancelar</a>
 
     </form>
     {% endif %}
 
 
     {% else %}
-        <!-- Codigo para cuando no haya una cita registrada -->
+        <!-- Codigo para cuando NO haya una cita registrada -->
 
         <h1 class="h3 mb-3 fw-normal text-center">Agendar Cita</h1>
 
@@ -147,22 +131,6 @@
         </div>
 
         
-        <!-- CONTENEDORES QUE APARECEN CUANDO EL CAMPO "REPRESENTANTE" ESTÁ SELECCIONADO -->
-        <!-- <div id="Representante_Ocupacion" class="row" style="margin-bottom: 10px;">
-            <label for="floatingInput" class="col-3">Ocupación</label>
-            <input id="txtOcupacion" class="form-control col-8" type="text" name="txtOcupacion">
-        </div>
-        
-        <div id="Representante_Empresa" class="row" style= "margin-bottom:10px;">
-            <label for= "floatingInput"class= "col-3">Empresa</label>
-            <input id= "txtEmpresa"class= "form-control col-8"type= "text"name= "txtEmpresa"placeholder= "Empresa donde trabaja...">
-        </div> -->
-
-        <!-- <div class="row" style="margin-bottom: 10px;">
-            <label for="floatingInput" class="col-3">Niño</label>
-            <input id="txtNino" class="form-control col-8" type="text" name="txtNino">
-        </div> -->
-        
 
         <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Solicitar Cita</button>
         <a class="btn button-login w-100" style="background-color: brown;" href="/menu">Cancelar</a> 
@@ -171,11 +139,43 @@
     {% endif %}
 
 
+    <!-- Esta linea de codigo sirve para saber primero si existe una cita o no hay una cita -->
+    {% if cita %}
+    {% if cita[4] == 'aprobado' %}
+
+    <!-- Codigo para cuando la cita este APROBADA por el Director -->
+
+        <h1 class="h3 mb-3 fw-normal text-center">¡Su cita fue aprobada!</h1>
+
+        <p class="text-center">Por favor, diríjase al Centro de Atención en la fecha y hora indicados a continuación: </p>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Fecha</label>
+            <input id="txtFecha" class="form-control col-8" type="date" name="txtFecha" required readonly>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Hora</label>
+            <input id="txtFecha" class="form-control col-8" type="text" name="txtHora" value="{{cita[6]}}" required readonly>
+        </div>
+
+        <a class="btn button-login w-100" href="/menu" style="background-color:green; margin-bottom:6px; margin-top:15px;">Volver</a>
+        <a class="btn button-login w-100" style="background-color: brown;" href="/eliminar_cita/{{cita[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Anular Cita</a>
+
+    </form>
+    {% endif %}
+    {% endif %}
+
+
+
+
+
     
 
 </form>
 
 <script>
+
     // Codigo para que el input fecha salga con la fecha actual
     var campoFecha = document.getElementById("txtFecha");
 
@@ -184,6 +184,20 @@
 
     // Asignar la fecha actual al campo de fecha
     campoFecha.value = fechaActual;
+
+        // Codigo para que el input fecha salga con la fecha actual 
+        var campoFecha = document.getElementById("txtFecha");
+    
+    // //ATENCION: Se realizó un cambio para obtener la fecha en formato DD-MM-YYYY. 
+    // // Obtener la fecha actual en el formato YYYY-MM-DD 
+    // var fechaActual = new Date().toISOString().slice(0, 10); 
+
+    // // Convertir la fecha actual al formato DD-MM-YYYY
+    // var fechaActualFormateada = fechaActual.split("-").reverse().join("-"); 
+
+    // // Asignar la fecha actual formateada al campo de fecha 
+    // campoFecha.value = fechaActualFormateada; 
+
 </script>
 
 {% include 'footer.html' %}

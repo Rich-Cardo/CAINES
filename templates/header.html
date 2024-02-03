@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shorcut icon" href="{{ url_for('static', filename='img/small2a.png') }}"">
 
     <!-- Bootstrap 4.0 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -17,6 +18,7 @@
 
 
 <body class="fondo">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
   {% if current_user.is_authenticated %}
   <!-- Codigo del header para el usuario logeado -->
@@ -45,13 +47,23 @@
         <a class="nav-link active" href="/menu">Menu</a> 
       </li> 
       <li class="nav-item"> 
-        <a class="nav-link active" href="#" data-toggle="modal" data-target="#Modal_Usuario">Perfil</a> 
+        <a class="nav-link active" href="#" data-toggle="modal" data-target="#Modal_Usuario" id="Mouse3">Perfil</a> 
       </li> 
 
     </ul> 
   </div> 
 
 </nav> 
+
+
+<script>
+  document.getElementById("Mouse3").addEventListener("auxclick", function(event) {
+    // Verificar si el botón del ratón presionado es el botón 2 (clic de la rueda del ratón)
+    if (event.button === 1) {
+      event.preventDefault(); // Evitar el comportamiento predeterminado del enlace
+    }
+  });
+</script>
 
     <!-- Modal del usuario --> 
 
@@ -74,7 +86,12 @@
             <a class="btn btn-info" href="/edit_user/{{current_user.id}}">Modificar Usuario</a>
 
 
+
           </div> 
+
+          <div class="modal-body">
+          <a class="btn btn-info" href="/edit_password/{{current_user.id}}">Modificar Contraseña</a>
+          </div>
 
           <div class="modal-footer"> 
             <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button> -->

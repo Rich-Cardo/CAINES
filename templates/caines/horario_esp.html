@@ -113,10 +113,10 @@
           <div class="modal-body">
             <form id="formHorarioOcupado" class="" method="post" action="/eliminar_terapia" enctype="multipart/form-data">
 
-              <div class="row" style="margin-bottom: 10px;">
-                <!-- <label for="floatingInput" class="col-3">IdNino</label> -->
+              <!-- <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">IdNino</label>
                 <input id="id_ocupado" class="form-control col-8" type="hidden" name="txtId_ocupado" value="{{nino.id}}" readonly>
-              </div>
+              </div> -->
 
               <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Terapia</label>
@@ -290,15 +290,21 @@ fila.appendChild(horaCell);
     inputDia.value = nombreColumna;
 
 
-    //Obtener los valores del especialista y la terapia
+    //Obtener los valores del especialista, la terapia y el niño
     var contenidoCelda = this.textContent; // Obtener el contenido de la celda
     var partesContenido = contenidoCelda.split(" "); // Separar por espacio en blanco
+
     var terapia = partesContenido[0]; // Obtener la primera parte (terapia)
     var especialista = partesContenido[1]; // Obtener la segunda parte (especialista)
 
     // Configurar el valor del input "Terapia" en el modal
     var inputTerapia = document.getElementById("txtTerapia_ocupado");
     inputTerapia.value = partesContenido[0];
+
+    // Configurar el valor del input "Niño" en el modal
+    var inputNino = document.getElementById("txtNino_ocupado");
+    inputNino.value = partesContenido[2];
+
 
 
 
@@ -324,15 +330,14 @@ fila.appendChild(horaCell);
     .then(ninos => { 
       console.log(ninos)
 
-    const cells = [];  
-
-    
+    const cells = [];      
 
     for (let i = 0; i < ninos.length; i++) { 
       const nino = ninos[i];
       const dia = nino[1];
       const terapia = nino[9];
       const especialista = nino[8];
+      const nombre_nino = nino[10];
       const aula = nino[5];
       const duracion = nino[7]
       const hora = parseInt(nino[3].split(':')[0]);
@@ -342,9 +347,8 @@ fila.appendChild(horaCell);
         hora += 12; 
       } 
 
-    // Configurar el valor del input "Especialista" en el modal
-    var inputNino = document.getElementById("txtNino_ocupado");
-    inputNino.value = nino[10];
+
+    
 
       const fila = hora >= 7 && hora < 13 ? (hora - 7) * 2 + Math.floor(minutos / 30) : (hora + 5) * 2 + Math.floor(minutos / 30);
 
@@ -364,31 +368,13 @@ fila.appendChild(horaCell);
         // console.log("fila1 es : ",fila1)
         var fila2 = fila1 + 1;
 
-        // Verificar si alguna celda dentro del rango de tiempo ya contiene una terapia
-
-
-        // for (i = fila1; i <= fila2; i++) {
-        //   row = tbody.children[i];
-        //   console.log("Row es: ", row)
-        //   cell = row.children[colIndex];
-        //   console.log("Cell es: ", cell)
-
-        //   if (cell.textContent !== '') {
-        //     // Si alguna celda dentro del rango ya contiene
-        //     // una terapia, mostrar un mensaje de error
-        //     alert("La terapia se superpone con una terapia existente. Por favor, seleccione otro horario.");
-
-        //     return;
-        //   }
-        // }
-
         // Si no hay superposición, agregar la terapia
 
         var row1 = tbody.children[fila1]; 
         var cell1 = row1.children[colIndex];
         cell1.setAttribute('rowspan', 2); 
         cells.push(cell1); 
-        cell1.textContent = terapia + ' \n' + especialista;
+        cell1.textContent = terapia + ' \n' + especialista + nombre_nino;
         cell1.classList.add('terapia-cell');
 
       } 
@@ -399,7 +385,7 @@ fila.appendChild(horaCell);
               
               cells.push(cell); 
 
-              cell.textContent = terapia + ' \n' + especialista;
+              cell.textContent = terapia + ' \n' + especialista + ' \n' + nombre_nino;
               //Agregarle la clase terapia-cell a la celda creada.
               cell.classList.add('terapia-cell');
 

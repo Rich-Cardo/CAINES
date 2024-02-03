@@ -1,15 +1,19 @@
 {% include 'header.html' %}
 
-        <form class="form-inline" method="post" action="/buscar_ninos" enctype="multipart/form-data">
 
-        <a href="{{url_for('create_nino') }}" id="boton-ingresar" class="btn btn-success">Registrar</a>
 
-        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar ninos..." required>
+          <div class="formulario">
 
-        <button id="boton-buscar" class="btn btn-info">Buscar</button>
+            {% if current_user.rol != 'especialista' %}
+            <a href="{{url_for('create_nino') }}" id="boton-ingresar" class="btn btn-success"  style="margin: 0px 10px;">Registrar</a>
+            {%endif%}
 
-        </form>
+            <input type="text" id="searchInput" title="Type in a name" placeholder="Buscar ninos..." required class="form-control ml-auto">
+            <button onclick="searchTable()"  class="btn btn-info"  style="margin: 0px 10px;">Buscar</button>
 
+          </div>
+
+          {% include 'buscar.html' %}
 
         
             <table id="tabla_ninos" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas
@@ -26,7 +30,7 @@
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Edad</th>
-                        <th>Escolaridad</th>
+                        <th>Escolaridad</th>                 
 
                         <th class="w-100">Acciones</th>
 
@@ -53,8 +57,14 @@
                         <td>
                             <div class="btn-group col">
                                 <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{ninos[0]}}">Ver</a>
+                                {% if current_user.rol != 'especialista' %}
                                 <a class="btn btn-warning" href="/edit_nino/{{ninos[0]}}">Editar</a>
                                 <a class="btn btn-danger" href="/destroy_nino/{{ninos[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Eliminar</a>
+                                {% endif %}
+
+                                {% if current_user.rol != 'representante' %}
+                                <a class="btn btn-warning" href="/avances/42" style="background-color: #0790ff; border-color: #0790ff;">Avances</a>                               
+                                {% endif %}
                    
                             </div>           
                         </td>

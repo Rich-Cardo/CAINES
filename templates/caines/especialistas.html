@@ -4,25 +4,16 @@
 
 
 
+<div class="formulario">
 
-        <form class="form-inline" method="post" action="/buscar_usuario" enctype="multipart/form-data">
+  <a href="{{url_for('create_user') }}"  id="boton-ingresar" class="btn btn-success" style="margin: 0px 10px;">Registrar</a>
+  <input type="text" id="searchInput" title="Type in a name" placeholder="Buscar especialista..." required class="form-control ml-auto">
+  <button onclick="searchTable()"  class="btn btn-info" style="margin: 0px 10px;">Buscar</button>
+  <input type="hidden" value="especialista" name="tipo_usuario" id="tipo_usuario">
 
-        <a href="{{url_for('create_user') }}" id="boton-ingresar" class="btn btn-success">Registrar</a>
+</div>
 
-        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar especialistas..." required>
-
-        <button id="boton-buscar" class="btn btn-info">Buscar</button>
-
-        <!-- Este input oculto contiene el tipo de usuario para que sirva el boton Buscar -->
-        <input type="hidden" value="especialista" name="tipo_usuario" id="tipo_usuario">
-
-        </form>
-        
-
-
-
-
-
+{% include 'buscar.html' %}
 
 
 

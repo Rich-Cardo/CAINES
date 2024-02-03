@@ -2,31 +2,19 @@
 
 
 
+<div class="formulario">
 
+  <a href="{{url_for('create_user')}}"   id="boton-ingresar" class="btn btn-success" style="margin: 0px 10px;">Registrar</a>
+  <input type="text" id="searchInput" title="Type in a name" placeholder="Buscar administradores..." required class="form-control ml-auto">
+  <button onclick="searchTable()"  class="btn btn-info" style="margin: 0px 10px;">Buscar</button>
 
+</div>
 
-        <form class="form-inline" method="post" action="/buscar_usuario" enctype="multipart/form-data">
-
-        <a href="{{url_for('create_user')}}" id="boton-ingresar" class="btn btn-success">Registrar</a> 
-
-        <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar administradores..." required>
-
-        <button id="boton-buscar" class="btn btn-info">Buscar</button> 
-
-        </form>
+{% include 'buscar.html' %}
         
 
 
-
-
-
-
-
-
-
         <!-- <br> -->
-
-
 
         
             <table id="tabla_rep" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas

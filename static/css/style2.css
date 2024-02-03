@@ -1,32 +1,14 @@
-* {
-	
-	box-sizing: border-box;
-}
-
-body{
-	min-height: 100vh;
-    display:flex;
-	flex-direction: column;
-
-}
-
-
 .fondo {    
 
-   
+    background-image: url('../img/tijeras.jpg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     min-height:100vh;
     padding-top:95px; 
-		 background-image: url('../img/tijeras.jpg');
-	box-sizing: border-box;
-    position: relative;
     
     /* Este Padding necesario para que la barra de navegacion del
-     header no se superponga sobre los elementos */
-
-    
+     header no se superponga sobre los elementos */    
 }
 
 
@@ -65,12 +47,12 @@ body{
 
 }
 
-.btn-success {min-width: max-content;}
 
 
 .tablas{
 
-    width: min-content;
+    max-width: 1052px;
+    margin: 0 auto;
 
 }
 
@@ -87,20 +69,18 @@ body{
 }
 
 
+
+
 /* Inicio del codigo CSS DE ARIANA */
 
-.formulario {
-    max-width: 500px; 
-    display: flex;
-}
 
 .form-login{
 	padding: 20px;
-	border-radius: 10px;
-	background-color: white;
-	box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-	margin-bottom:20px;
-	max-width:500px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
+    margin-bottom:20px;
+    width:600px;
 }
 
 
@@ -139,41 +119,40 @@ body{
 
 .contenedor-terapia{
 
-padding: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: beige;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
+    margin-bottom:20px;
 
-border-radius: 10px;
+    margin:10px;
 
-background-color: beige;
+    justify-content: center;
+    align-items: center;
 
-box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
 
-margin-bottom:20px;
-
-margin:10px;
-
-width: 30%;
-
-justify-content: center;
-
-align-items: center;
 }
 
-.principal {
-    background-image: url('../img/ninos.jpg');
+.principal {    
+
+    /* background-image: url('../img/ninos.jpg'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 10px;
-    
+    position:relative;
     
     
    
     /* Codigo para oscurecer sólo la imagen y no el texto dentro */
-    text-align: -webkit-center;
     background-image: linear-gradient(rgba(0, 0, 0, 0.4),
     rgba(0, 0, 0, 0.4)), url("../img/ninos.jpg");
+
+    height:50vh;
     margin: 1vh;
-    }
+
+
+}
 
 .contenedor-terapia h4{
 
@@ -211,24 +190,22 @@ align-items: center;
 
 }
 
-.texto-principal{color: white;font-size:30px;margin:35px;font-style: italic;}
+.texto-principal{
 
-.boton-principal{margin-bottom: 10px; /* Espacio opcional para separar el botón del contenido de la sección */margin-left: 10px; /* Espacio opcional para separar el botón del borde de la sección */}
+    color: white;
+    font-size:30px;
+    margin:35px;
+    font-style: italic;
 
-.form-inline {
-    max-width: 540px;
 }
 
+.boton-principal{
 
-
-.container {
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-
-    margin-right: auto;
-    margin-left: auto;
-    text-align: -webkit-center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 10px; /* Espacio opcional para separar el botón del contenido de la sección */
+    margin-left: 10px; /* Espacio opcional para separar el botón del borde de la sección */
 }
 
 
@@ -419,7 +396,6 @@ color: #fff;
 	box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
 	margin: 20px;
 	padding: 20px;
-    text-align: -webkit-center;
 }
 
 .boton{
@@ -455,11 +431,11 @@ footer{
 	background-color: #2c2c2c;
 	padding: 10px;
 	color: white;
-
+	position: fixed;
     bottom: 0;
     width: 100%;
-	text-align: center;
-	margin-top: auto;
+    text-align: center;
+    display:none;
 }
 
 /* Modal del header */
@@ -471,47 +447,4 @@ footer{
     top: 0;
     height: 100%;
     width: 50%; /* Puedes ajustar el valor según el ancho deseado */
-}
-
-@media screen and (max-width: 1025px){
-
-	.contenedor-terapia {
-		width: 100%;
-	}
-	
-}
-
-@media screen and (max-width: 768px){
-
-	.titulo {
-		font-size: 2em;
-	}
-
-	.texto-principal{
-		font-size: 1.5em;
-	}
-	.container {
-    min-width: 100%;
-	}
-
-	.form-login{
-		width: 100%;
-	}
-}
-
-
-@media screen and (max-width:  480px){
-
-	.titulo {
-		font-size: 1.5em;
-	}
-
-	.texto-principal{
-		font-size: 1.3em;
-	}
-
-	.form-login {
-		width:max-content
-	}
-
 }

@@ -27,10 +27,12 @@ app = Flask(__name__,static_folder='static')
 app.secret_key="Caines"
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_URL'] = 'mysql://root:Dh6f3ceFHab56fe-4AhF3h6-CEHb-Dg5@roundhouse.proxy.rlwy.net:42056/railway'
+app.config['MYSQL_DATABASE_HOST'] = 'roundhouse.proxy.rlwy.net'
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'
-app.config['MYSQL_DATABASE_DB']='caines'
+app.config['MYSQL_DATABASE_PORT'] = 42056
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Dh6f3ceFHab56fe-4AhF3h6-CEHb-Dg5'
+app.config['MYSQL_DATABASE_DB']='railway'
 mysql.init_app(app)
 
 
@@ -75,12 +77,36 @@ def load_user(user_id):
     return User.get(user_id)
 
 
+#Clase Citas para el manejo de datos de las Citas
+class Citas():
+    def __init__(self, id, id_representante, id_nino, fecha, estado, nueva_fecha, hora):
+        self.id = id
+        self.representante = id_representante
+        self.id_nino = id_nino
+        self.fecha = fecha
+        self.estado = estado
+        self.nueva_fecha = nueva_fecha
+        self.hora = hora
+
+    #Obtener los datos de la cita
+    def get(id):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        sql = "SELECT * FROM citas WHERE id_cita = %s"
+        cursor.execute(sql, (id,))
+        cita = cursor.fetchone()
+        if cita:
+            return cita(id=cita[0], id_representante=cita[1], id_nino=cita[2], fecha=cita[3], estado=cita[4], nueva_fecha=cita[5], hora=cita[6])
+        return None
+
+
 #Clase Niño para el manejo de datos de los niños
 class Nino():
-    def __init__(self, id, representante, nombre, edad, fecha_nac):
+    def __init__(self, id, representante, nombre, apellido, edad, fecha_nac):
         self.id = id
         self.reprsentante = representante
         self.nombre = nombre
+        self.apellido = apellido
         self.edad = edad
         self.fecha_nac = fecha_nac
 
@@ -92,7 +118,7 @@ class Nino():
         cursor.execute(sql, (id,))
         nino = cursor.fetchone()
         if nino:
-            return Nino(id=nino[0], representante=nino[1], nombre=nino[2], edad=nino[3], fecha_nac=nino[4])
+            return Nino(id=nino[0], representante=nino[1], nombre=nino[2], apellido=nino[3],edad=nino[4], fecha_nac=nino[5])
         return None
     
     # #Obtener los datos del Horario del niño
@@ -185,6 +211,31 @@ class Especialista():
         if especialista:
             return Especialista(id=especialista[0], cedula=especialista[1], nombre=especialista[2], apellido=especialista[3], direccion=especialista[4], correo=especialista[5])
         return None
+    
+# #Clase Avance para el manejo de datos de los mismos
+# class Avance():
+#     def __init__(self, id, especialista, nino, fecha_in, fecha_fin, objetivo, observacion, resultado, recomendacion):
+#         self.id = id
+#         self.especialista = especialista
+#         self.nino = nino
+#         self.fecha_in = fecha_in
+#         self.fecha_fin = fecha_fin
+#         self.objetivo = objetivo
+#         self.observacion = observacion
+#         self.resultado = resultado
+#         self.recomendacion = recomendacion
+
+
+#     #Obtener los datos del Avance
+#     def get(id):
+#         conn = mysql.connect()
+#         cursor = conn.cursor()
+#         sql = "SELECT * FROM avances WHERE id_avance = %s"
+#         cursor.execute(sql, (id,))
+#         Avance = cursor.fetchone()
+#         if Avance:
+#             return Avance(id=Avance[0], cedula=Avance[1], nombre=Avance[2], apellido=Avance[3], direccion=Avance[4], correo=Avance[5])
+#         return None
 
 
 
@@ -341,12 +392,18 @@ def eliminar_cita(id):
 
     conn.commit()
 
-    conn.close() 
+    conn.close()
 
-    flash('¡Su cita fue anulada exitosamente!', 'error')
+    if current_user.rol == 'representante':
 
+        flash('¡Su cita fue anulada exitosamente!', 'error')
 
-    return redirect('/menu')
+        return redirect('/menu')
+    
+    #Si es el director o cualquier otro rol entonces vuelve a la pagina de Citas
+    return redirect('/citas')
+    
+
 
 @app.route('/menu')
 @login_required
@@ -693,6 +750,54 @@ def create_factura():
 def login():
     return render_template('caines/login.html')
 
+@app.route('/citas')
+def citas():
+
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+    cursor.execute("""
+                   
+        SELECT citas.*, usuarios.nombre, usuarios.apellido, usuarios.cedula, telefonos_usuario.telefono 
+        FROM citas 
+        INNER JOIN usuarios ON citas.id_representante = usuarios.id_usuario 
+        INNER JOIN telefonos_usuario ON usuarios.id_usuario = telefonos_usuario.id_usuario;
+
+                   
+                   """)
+ 
+    citas = cursor.fetchall()
+    print(citas)
+ 
+    conn.commit() 
+
+    return render_template('caines/citas.html', citas = citas)
+
+# @app.route('/citas')
+# def citas():
+
+#     citas = Citas.get(id)
+
+#     conn = mysql.connect() 
+#     cursor = conn.cursor() 
+
+#     # cursor.execute("""
+                   
+#     #     SELECT citas.*, usuarios.nombre, usuarios.apellido, usuarios.cedula, telefonos_usuario.telefono 
+#     #     FROM citas 
+#     #     INNER JOIN usuarios ON citas.id_representante = usuarios.id_usuario 
+#     #     INNER JOIN telefonos_usuario ON usuarios.id_usuario = telefonos_usuario.id_usuario;
+                   
+#     #                """)
+ 
+#     # citas = cursor.fetchall()
+#     print(citas)
+ 
+#     conn.commit() 
+
+#     return render_template('caines/citas.html', citas = citas)
+
+
+
 @app.route('/')
 def index():
     return render_template('caines/principal.html')
@@ -746,7 +851,7 @@ def administradores():
  
     return render_template('caines/administradores.html', usuarios=usuarios)
 
-#Ir a la página principal de director
+#Ir a la página principal de secretaria
 
 @app.route('/secretarias') 
 def secretarias(): 
@@ -918,6 +1023,19 @@ def edit_user(id):
 
     return render_template("caines/edit_user.html", usuarios=usuarios)
 
+@app.route('/edit_password/<int:id>')  
+def edit_password(id):  
+    conn = mysql.connect()  
+    cursor = conn.cursor() 
+  
+    # Consulta para obtener los datos del usuario y sus teléfonos 
+    cursor.execute("SELECT r.*, t.telefono FROM usuarios r LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario WHERE r.id_usuario=%s",(id))  
+    usuarios = cursor.fetchall() 
+  
+    conn.commit() 
+
+    return render_template("caines/edit_password.html", usuarios=usuarios)
+
 
 
 #Funcion para guardar los cambios en el usuario editado
@@ -930,12 +1048,12 @@ def update_user():
     _direccion = request.form['txtDireccion']
     _correo = request.form['txtCorreo']
     usuario_id = request.form['txtID']
-    _password = request.form['txtPassword']
+    # _password = request.form['txtPassword']
 
 
     # Update los datos del usuario en la tabla 'usuarios'
-    sql_usuario = "UPDATE usuarios SET cedula=%s, nombre=%s, apellido=%s, direccion=%s, correo=%s, clave=%s WHERE id_usuario=%s"
-    datos_usuario = (_cedula, _nombre, _apellido, _direccion, _correo, _password, usuario_id)
+    sql_usuario = "UPDATE usuarios SET cedula=%s, nombre=%s, apellido=%s, direccion=%s, correo=%s WHERE id_usuario=%s"
+    datos_usuario = (_cedula, _nombre, _apellido, _direccion, _correo, usuario_id)
   
     # Actualizar los teléfonos en la tabla 'telefonos_usuario'
     telefonos = []
@@ -976,6 +1094,31 @@ def update_user():
         cursor.close()
         conn.close()
 
+#Funcion para cambiar contraseña desde el menu usuarios
+
+@app.route('/update_password', methods=['POST'])
+def update_password():
+
+    usuario_id = request.form['txtID']
+    _password = request.form['txtPassword']
+
+
+    # Update los datos del usuario en la tabla 'usuarios'
+    sql_usuario = "UPDATE usuarios SET clave=%s WHERE id_usuario=%s"
+    datos_usuario = (_password, usuario_id)
+  
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute(sql_usuario, datos_usuario)
+
+    conn.commit()
+
+    flash('¡Contraseña modificada exitosamente!', 'error') 
+
+    return redirect('/menu')
+  
+
 #Fin del código para manipular los usuarios
 
 
@@ -1001,6 +1144,21 @@ def ninos():
     
         return render_template('caines/ninos.html', ninos=ninos)
     
+    elif current_user.rol == 'especialista': 
+        cursor.execute("""
+            SELECT DISTINCT n.*
+            FROM ninos n
+            INNER JOIN aux_horarios h ON n.id_nino = h.id_nino
+            WHERE h.id_especialista = %s
+        """, (current_user.id,))
+    
+        ninos = cursor.fetchall()  
+        print(ninos)
+    
+        conn.commit()  
+    
+        return render_template('caines/ninos.html', ninos=ninos)
+    
 
     #Sino, que muestre todos los niños totales registrados.
     else: 
@@ -1011,7 +1169,7 @@ def ninos():
         conn.commit() 
     
         return render_template('caines/ninos.html', ninos=ninos)
-
+    
 #Ir a la plantilla HTML crear_nino
 @app.route('/create_nino')
 def create_nino():
@@ -1134,6 +1292,131 @@ def buscar_ninos():
 
  
     return render_template('caines/ninos.html', ninos=ninos)
+
+@app.route('/avances/<int:id>') 
+@login_required
+def avances(id): 
+    
+    conn = mysql.connect() 
+    cursor = conn.cursor()
+    
+
+    cursor.execute(" SELECT * FROM avances WHERE id_nino = %s",(id,))
+    avances = cursor.fetchall()  
+
+    conn.commit()
+    
+    nino = Nino.get(id)
+
+    
+    return render_template('caines/avances.html', avances=avances, nino = nino)
+
+
+#Funcion para eliminar avance
+@app.route('/destroy_avance/<int:id>')
+def destroy_avance(id):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+
+    # Delete the user from the database
+    cursor.execute("DELETE FROM avances WHERE id_avance = %s", (id,))
+
+    conn.commit()
+
+
+    return redirect('/ninos')
+
+#Formulario de Edicion de avances
+@app.route('/edit_avance/<int:id>')  
+def edit_avance(id):  
+
+
+    conn = mysql.connect()  
+    cursor = conn.cursor() 
+  
+    # Consulta para obtener los datos de avances de un niño especifico
+    cursor.execute("SELECT * FROM avances WHERE id_avance=%s",(id))  
+    avance = cursor.fetchall() 
+  
+    conn.commit() 
+
+    # nino = Nino.get(id)
+
+    return render_template("caines/edit_avance.html", avance=avance)
+
+
+#Funcion para actualizar avance después de su edición
+
+@app.route('/update_avance', methods=['POST'])
+def update_avance():
+
+
+    _id_avance = request.form['txtID']
+    _fecha_in = request.form['txtFecha_In']
+    _fecha_fin = request.form['txtFecha_Fin']
+    _objetivo = request.form['txtObjetivo'] 
+    _resultado = request.form['txtResultado'] 
+    _observacion = request.form['txtObservacion'] 
+    _recomendacion = request.form['txtRecomendacion'] 
+
+    sql = "UPDATE avances SET fecha_inicio = %s, fecha_fin = %s, objetivos = %s, resultados = %s, observaciones = %s, recomendaciones = %s WHERE id_avance = %s;"
+
+    datos=(_fecha_in, _fecha_fin, _objetivo, _resultado, _observacion, _recomendacion, _id_avance)   
+
+  
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(sql,datos)
+    conn.commit()
+
+    return redirect('/ninos')
+
+#Funcion para registrar avance
+@app.route('/registrar_avance/<int:id>') 
+def registrar_avance(id): 
+ 
+    conn = mysql.connect() 
+    cursor = conn.cursor()
+ 
+    # Consulta para obtener los datos del niño
+    cursor.execute("SELECT * FROM ninos WHERE id_nino = %s ",(id)) 
+    ninos = cursor.fetchall()
+ 
+    conn.commit()
+
+    return render_template("caines/create_avance.html", ninos=ninos)
+
+#Funcion para agregar avance
+@app.route('/agregar_avance', methods=['POST']) 
+def agregar_avance(): 
+
+    _id_especialista = current_user.id
+
+    _id_nino = request.form['txtID']
+
+    # _nombre = request.form['txtNombre'] 
+    # _apellido = request.form['txtApellido'] 
+
+    _fecha_in = request.form['txtFecha_In']
+    _fecha_fin = request.form['txtFecha_Fin']
+    _objetivo = request.form['txtObjetivo'] 
+    _resultado = request.form['txtResultado'] 
+    _observacion = request.form['txtObservacion'] 
+    _recomendacion = request.form['txtRecomendacion'] 
+
+ 
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+ 
+    sql = "INSERT INTO avances (id_avance, id_especialista, id_nino, fecha_inicio, fecha_fin, objetivos, observaciones, resultados, recomendaciones) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s);" 
+ 
+    datos=(_id_especialista, _id_nino, _fecha_in, _fecha_fin, _objetivo, _observacion, _resultado, _recomendacion) 
+ 
+    cursor.execute(sql,datos) 
+    conn.commit() 
+ 
+    return redirect('/ninos')
 
 
 #Inicio del codigo de Facturacion
@@ -1284,12 +1567,72 @@ def ver_factura(id_factura):
     return response
 
 
+#Funcion para actualizar cita después de aprobarla
+
+@app.route('/actualizar_cita', methods=['POST'])
+def actualizar_cita():
+
+    _idCita = request.form['txtId']
+    # _fecha = request.form['txtFecha']
+    # _cedula = request.form['txtCedula']
+    # _nombre = request.form['txtNombre']
+    # _apellido = request.form['txtApellido']
+    # _telefono = request.form['txtTelefono']
+    _estado = 'aprobado'
+    _nuevaFecha = request.form['txtNuevaFecha']
+    _hora = request.form['txtHora']
+
+    sql = "UPDATE citas SET estado = %s, fecha_cita = %s, hora = %s WHERE id_cita = %s;"
+
+    datos=(_estado, _nuevaFecha, _hora, _idCita)   
+
+  
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(sql,datos)
+    conn.commit()
+
+    return redirect('/citas')
+
+#Funcion para buscar una cita en la base de datos a partir de los 
+# caracteres ingresados en el input Buscar
+
+@app.route('/buscar_cita', methods=['POST']) 
+def buscar_cita(): 
+    _busqueda = '%' + request.form['buscar'] + '%'  # Agregar % alrededor del valor de búsqueda
+    # _tipo_usuario = request.form['tipo_usuario']  # Saber que tipo de usuario es 
+ 
+    #Buscar por nombre o por cedula 
+
+    #ATENCION: Este codigo se puede mejorar en un futuro ya que no se utilizan los datos de la tabla telefonos.
+    #Sin embargo, se colocó para que devuelva exactamente los mismos valores en el mismo orden que en la funcion Citas()
+    #y la funcion Buscar_Cita() los devuelva igual. Sino, se alteran los valores en la tabla de Citas.html.
+    
+    sql = """  
+    SELECT citas.*, usuarios.nombre, usuarios.apellido, usuarios.cedula, telefonos_usuario.telefono 
+    FROM citas   
+    INNER JOIN usuarios ON citas.id_representante = usuarios.id_usuario   
+    INNER JOIN telefonos_usuario ON usuarios.id_usuario = telefonos_usuario.id_usuario
+    WHERE usuarios.cedula LIKE %s OR usuarios.nombre LIKE %s;  
+    """
+
+ 
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+    cursor.execute(sql, (_busqueda, _busqueda))  # Pasar una tupla con los valores de búsqueda
+ 
+    citas = cursor.fetchall()
+ 
+    conn.commit() 
+
+    return render_template('caines/citas.html', citas = citas)
 
 
 
 
 
-mode = "dev"
+
+mode = "prod"
 
 if __name__ == '__main__':
      

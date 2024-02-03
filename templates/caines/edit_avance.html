@@ -1,0 +1,54 @@
+{% include 'header.html' %}
+
+{% for avance in avance %}
+    <form class="form-login m-auto" method="post" action="/update_avance" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 fw-normal text-center">Editar Avance</h1>
+
+
+            <input id="txtID" value={{avance[0]}} class="form-control col-8" type="hidden" name="txtID" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+
+
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="txtFecha_In" class="col-3">Fecha de Inicio</label>
+            <input id="txtFecha_In" value="{{avance[3]}}"  class="form-control col-8" type="date" name="txtFecha_In" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="txtFecha_Fin" class="col-3">Fecha de Fin</label>
+            <input id="txtFecha_Fin" value="{{avance[4]}}"  class="form-control col-8" type="date" name="txtFecha_Fin" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;"> 
+            <label for="txtObjetivo" class="col-3">Objetivo</label> 
+            <input id="txtObjetivo" value="{{avance[5]}}" class="form-control col-8" type="text" name="txtObjetivo" required> 
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="txtResultado" class="col-3">Resultado</label>
+            <input id="txtResultado" value="{{avance[7]}}" class="form-control col-8" type="text" name="txtResultado" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Observación</label>
+            <input id="txtObservacion" value="{{avance[6]}}"   class="form-control col-8" type="text" name="txtObservacion" required> 
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="txtRecomendacion" class="col-3">Recomendación</label>
+            <input id="txtRecomendacion" value="{{avance[8]}}" class="form-control col-8" type="text" name="txtRecomendacion" required>
+        </div>
+
+
+               
+
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Modificar</button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+    </form>
+
+    
+
+    
+
+{% endfor %}
+{% include 'footer.html' %}
