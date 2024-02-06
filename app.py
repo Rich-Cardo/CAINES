@@ -27,11 +27,11 @@ app = Flask(__name__,static_folder='static')
 app.secret_key="Caines"
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_URL'] = 'mysql://root:Dh6f3ceFHab56fe-4AhF3h6-CEHb-Dg5@roundhouse.proxy.rlwy.net:42056/railway'
-app.config['MYSQL_DATABASE_HOST'] = 'roundhouse.proxy.rlwy.net'
+app.config['MYSQL_DATABASE_URL'] = 'mysql://root:Daf6146FhA44ea2e6CD-Bh2efBcFC12E@viaduct.proxy.rlwy.net:12335/railway'
+app.config['MYSQL_DATABASE_HOST'] = 'viaduct.proxy.rlwy.net'
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PORT'] = 42056
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Dh6f3ceFHab56fe-4AhF3h6-CEHb-Dg5'
+app.config['MYSQL_DATABASE_PORT'] = 12335
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Daf6146FhA44ea2e6CD-Bh2efBcFC12E'
 app.config['MYSQL_DATABASE_DB']='railway'
 mysql.init_app(app)
 
@@ -933,6 +933,7 @@ def store_user(from_page):
     if result is not None:
         # La cedula ya existe, mostrar mensaje de flash y redirigir a la página anterior
         flash('El usuario ya está registrado', 'error')
+        flash('El usuario ya está registrado', 'error')
         return redirect(request.referrer)
 
     # La cedula no existe, insertar el nuevo registro
@@ -969,6 +970,7 @@ def store_user(from_page):
 @app.route('/buscar_usuario', methods=['POST'])
 def buscar_usuario():
     _busqueda = request.form['buscar']
+    _tipo_usuario = request.form['tipo_usuario']  # Saber que tipo de usuario es
     _tipo_usuario = request.form['tipo_usuario']  # Saber que tipo de usuario es
 
     sql = "SELECT r.*, t.telefono FROM usuarios r LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario WHERE r.tipo_usuario = %s AND r.nombre LIKE %s ORDER BY r.id_usuario DESC;"
@@ -1639,5 +1641,6 @@ if __name__ == '__main__':
     if mode == "dev":
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
+        serve(app,host='0.0.0.0',port=5000,threads=6)
         serve(app,host='0.0.0.0',port=5000,threads=6)
 

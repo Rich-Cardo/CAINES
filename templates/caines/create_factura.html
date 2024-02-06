@@ -2,6 +2,8 @@
 
 <div id="mensaje" class="text-center" style="color: red; margin-bottom:10px;"></div>
 
+<div id="mensaje" class="text-center" style="color: red; margin-bottom:10px;"></div>
+
 <div class="row text-center">
     <form class="form-factura" method="post" action="/verificar_cedula" enctype="multipart/form-data"> 
     
@@ -62,6 +64,7 @@
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Precio</label>
                 <input id="txtPrecio" class="form-control col-5" type="text" name="txtPrecio" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
+                <input id="txtPrecio" class="form-control col-5" type="text" name="txtPrecio" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
             </div>
             <div>
                 <a class="btn btn-success" href="#" onclick="agregarProducto()">Agregar</a>
@@ -95,6 +98,7 @@
     </div>
     <br>
     <div class="text-center">
+        <a class="btn btn-info" href="/menu" onclick="goBack()">Volver</a>
         <a class="btn btn-info" href="/menu" onclick="goBack()">Volver</a>
         <a class="btn btn-success" href="#" onclick="guardarPDF()">Guardar</a>
         <a class="btn btn-warning" href="#"  onclick="limpiarTabla()">Limpiar</a>
@@ -159,9 +163,20 @@
 
         function agregarProducto() {
 
+        function agregarProducto() {
+
             // Capturar valores de los campos de entrada 
             var terapia = document.getElementById("txtTerapia").value; 
             var cantidad = document.getElementById("txtCantidad").value; 
+            var precio = document.getElementById("txtPrecio").value;
+            
+
+            //Evitar la ejecución de la función si el usuario no ha seleccionado
+            //una terapia válida o ha ingresado una cantidad válida
+
+            if( terapia == 'null' || cantidad == ''){
+                return
+            }
             var precio = document.getElementById("txtPrecio").value;
             
 
@@ -358,10 +373,15 @@ function guardarPDF() {
 
     // Verificar si hay filas en la tabla
     if (tableData.length === 0) {
+    // Verificar si hay filas en la tabla
+    if (tableData.length === 0) {
     // console.log('No se han introducido filas en la tabla.');
     return; // Salir de la función si no hay filas
     }
+    }
 
+    // Realizar la petición AJAX 
+    fetch('/generar_pdf/' + JSON.stringify(tableData)) 
     // Realizar la petición AJAX 
     fetch('/generar_pdf/' + JSON.stringify(tableData)) 
     .then(response => response.blob()) 
@@ -371,8 +391,14 @@ function guardarPDF() {
         
         // Abrir el PDF en una nueva ventana 
         window.open(url, '_blank'); 
+        // Generar la URL del objeto Blob 
+        const url = window.URL.createObjectURL(blob); 
+        
+        // Abrir el PDF en una nueva ventana 
+        window.open(url, '_blank'); 
     }) 
     .catch(error => console.error('Error:', error)); 
+    }
     }
 
 

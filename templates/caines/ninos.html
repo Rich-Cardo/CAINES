@@ -23,7 +23,12 @@
                     <tr>
                       <!-- Ocultarle el ID del niño al representante -->
                       {% if current_user.rol != 'representante' %}
+                      <!-- Ocultarle el ID del niño al representante -->
+                      {% if current_user.rol != 'representante' %}
                         <th>ID</th>
+
+                      {% endif%}
+
 
                       {% endif%}
 
@@ -45,7 +50,13 @@
                       <!-- Ocultarle el ID del niño al representante -->
 
                       {% if current_user.rol != 'representante' %}
+                      <!-- Ocultarle el ID del niño al representante -->
+
+                      {% if current_user.rol != 'representante' %}
                         <td>{{ninos[0] }}</td>
+
+                      {% endif %}
+
 
                       {% endif %}
 
