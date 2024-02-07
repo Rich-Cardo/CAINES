@@ -589,7 +589,7 @@ def agregar_cita():
         return redirect(request.referrer)
 
     # La cita no existe, insertar el nuevo registro (por ahora, sin niño)
-    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado) VALUES (NULL, %s,  %s, 'pendiente');" 
+    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado, fecha_cita, hora) VALUES (NULL, %s,  %s, 'pendiente', '0', '0');" 
 
     datos=(_id,_fecha) 
 
@@ -1621,11 +1621,11 @@ def buscar_cita():
 
 
 
-mode = "prod"
+mode = "dev"
 
 if __name__ == '__main__':
      
-    if mode == "dev":
+    if mode == "prod":
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
         serve(app,host='0.0.0.0',port=5000,threads=6)
