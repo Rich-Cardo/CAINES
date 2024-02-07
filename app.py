@@ -1625,7 +1625,7 @@ def buscar_cita():
 
 
 
-mode = "dev"
+mode = "prod"
 
 if __name__ == '__main__':
      
