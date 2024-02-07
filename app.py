@@ -589,7 +589,7 @@ def agregar_cita():
         return redirect(request.referrer)
 
     # La cita no existe, insertar el nuevo registro (por ahora, sin niño)
-    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado) VALUES (NULL, %s,  %s, 'pendiente');" 
+    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado, fecha_cita, hora) VALUES (NULL, %s,  %s, 'pendiente', '0', '0');" 
 
     datos=(_id,_fecha) 
 
@@ -1294,8 +1294,12 @@ def avances(id):
     avances = cursor.fetchall()  
 
     conn.commit()
+
+    print(id)
     
     nino = Nino.get(id)
+
+    print(nino.id)
 
     
     return render_template('caines/avances.html', avances=avances, nino = nino)
@@ -1621,7 +1625,7 @@ def buscar_cita():
 
 
 
-mode = "prod"
+mode = "dev"
 
 if __name__ == '__main__':
      

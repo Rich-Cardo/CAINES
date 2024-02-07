@@ -33,37 +33,37 @@
         
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Nombre</label>
-            <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+            <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" maxlength="30" title="Sólo se permiten caracteres" required>
 
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Apellido</label>
-            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido"  pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido"  pattern="[a-zA-Z\s]+" maxlength="30" title="Sólo se permiten caracteres" required>
 
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Dirección</label>
-            <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion">
+            <input id="txtDireccion" class="form-control col-8" type="text" maxlength="30" name="txtDireccion">
 
         </div>
             
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Teléfono</label>
-            <select class="form-select form-select-lg" id="cod_numero" style="margin-right:6px" name="cod_numero">
+            <select class="form-select form-select-lg" id="cod_numero" style="margin-right:6px" maxlength="30" name="cod_numero">
                 <option value="0412">0412</option>
                 <option value="0414">0414</option>
                 <option value="0416">0416</option>
                 <option value="0424">0424</option>
                 <option value="0426">0426</option>
             </select>
-            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" maxlength="30" pattern="[0-9\s]+" title="Sólo se permiten números" required>
         </div>
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Correo</label>
-            <input id="txtCorreo" class="form-control col-8" type="text" name="txtCorreo" placeholder="correo@ejemplo.com" required>
+            <input id="txtCorreo" class="form-control col-8" type="text" name="txtCorreo" maxlength="30" placeholder="correo@ejemplo.com" required>
 
         </div>
 
