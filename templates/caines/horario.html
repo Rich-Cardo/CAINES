@@ -87,7 +87,7 @@
               
       
               <button type="submit" id="Agregar" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal" onclick="goBack()">Cancelar</button> 
+              <button type="button" class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
             </form>  
 
 
@@ -146,7 +146,7 @@
               {% if current_user.rol == 'secretaria' or current_user.rol == 'director' %}
 
               <button type="submit" id="Eliminar" class="btn button-login w-100" style="background-color:red; margin-bottom:6px; margin-top:15px;">Eliminar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()" data-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button>
 
               {% endif %}
 
@@ -363,12 +363,13 @@ fila.appendChild(horaCell);
     const cells = [];  
 
     for (let i = 0; i < ninos.length; i++) { 
+      console.log(ninos)
       const nino = ninos[i];
       const dia = nino[1];
-      const terapia = nino[9];
-      const especialista = nino[8];
-      const aula = nino[5];
-      const duracion = nino[7]
+      const terapia = nino[8];
+      const especialista = nino[7];
+      // const aula = nino[5];
+      const duracion = nino[6]
       const hora = parseInt(nino[3].split(':')[0]);
       const minutos = parseInt(nino[3].split(':')[1].replace(/[^\d]/g, '')); 
       const amPm = nino[3].split(' ')[1]; 

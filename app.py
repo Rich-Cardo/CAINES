@@ -27,11 +27,11 @@ app = Flask(__name__,static_folder='static')
 app.secret_key="Caines"
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_URL'] = 'mysql://root:Daf6146FhA44ea2e6CD-Bh2efBcFC12E@viaduct.proxy.rlwy.net:12335/railway'
+app.config['MYSQL_DATABASE_URL'] = 'mysql://root:FB61FFCfce16HeFb44Fb1fAH4fC-3ebG@viaduct.proxy.rlwy.net:55736/railway'
 app.config['MYSQL_DATABASE_HOST'] = 'viaduct.proxy.rlwy.net'
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PORT'] = 12335
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Daf6146FhA44ea2e6CD-Bh2efBcFC12E'
+app.config['MYSQL_DATABASE_PORT'] = 55736
+app.config['MYSQL_DATABASE_PASSWORD'] = 'FB61FFCfce16HeFb44Fb1fAH4fC-3ebG'
 app.config['MYSQL_DATABASE_DB']='railway'
 mysql.init_app(app)
 
@@ -573,13 +573,6 @@ def agregar_cita():
 
     _fecha = request.form['txtFecha'] 
     _id = request.form['txtID']
-    # _id_nino = request.form['txtNino']
-    # _cedula = request.form['txtCedula'] 
-    # _nombre = request.form['txtNombre'] 
-    # _apellido = request.form['txtApellido'] 
-    # _direccion = request.form['txtDireccion'] 
-    # _correo = request.form['txtCorreo'] 
-    # _telefono = request.form['txtTelefono'] 
 
     conn = mysql.connect() 
     cursor = conn.cursor() 
@@ -602,12 +595,6 @@ def agregar_cita():
 
     cursor.execute(sql,datos) 
     conn.commit() 
-
-    # if from_page == 'registro':
-    #     flash('¡Registro exitoso!') 
-    #     return redirect('/login') 
-    # elif from_page == 'create_user': 
-    #     return redirect(redireccionamiento(_tipo_usuario))
 
     flash('¡Su cita fue agendada exitosamente!', 'error')
 
