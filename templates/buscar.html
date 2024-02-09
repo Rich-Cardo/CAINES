@@ -19,7 +19,11 @@
           }
         }
       }
-      tr[i].style.display = rowDisplay;
+      if (found) {
+      rows[i].style.display = '';
+    } else {
+      rows[i].style.display = 'none';
+    }
     }
   }
 </script>
