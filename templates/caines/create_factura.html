@@ -64,7 +64,6 @@
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Precio</label>
                 <input id="txtPrecio" class="form-control col-5" type="text" name="txtPrecio" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
-                <input id="txtPrecio" class="form-control col-5" type="text" name="txtPrecio" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
             </div>
             <div>
                 <a class="btn btn-success" href="#" onclick="agregarProducto()">Agregar</a>
@@ -98,7 +97,6 @@
     </div>
     <br>
     <div class="text-center">
-        <a class="btn btn-info" href="/menu" onclick="goBack()">Volver</a>
         <a class="btn btn-info" href="/menu" onclick="goBack()">Volver</a>
         <a class="btn btn-success" href="#" onclick="guardarPDF()">Guardar</a>
         <a class="btn btn-warning" href="#"  onclick="limpiarTabla()">Limpiar</a>
@@ -160,8 +158,6 @@
         });
 
         // Codigo para agregar productos a la factura
-
-        function agregarProducto() {
 
         function agregarProducto() {
 
@@ -391,15 +387,10 @@ function guardarPDF() {
         
         // Abrir el PDF en una nueva ventana 
         window.open(url, '_blank'); 
-        // Generar la URL del objeto Blob 
-        const url = window.URL.createObjectURL(blob); 
-        
-        // Abrir el PDF en una nueva ventana 
-        window.open(url, '_blank'); 
     }) 
     .catch(error => console.error('Error:', error)); 
     }
-    }
+ 
 
 
 

@@ -425,7 +425,7 @@ def gestfacturas():
     
         conn.commit() 
     
-        return render_template('caines/ninos.html', facturas=facturas)
+        return render_template('caines/gestfacturas.html', facturas=facturas)
     
 
     #Sino, que muestre todas las facturas registradas.
@@ -1422,7 +1422,7 @@ def pdf_template(table_data_json):
 
     table_data = json.loads(table_data_json)
     rendered = render_template('/factura.html',table_data=table_data)
-    pdf = pdfkit.from_string(rendered,False,css='static/css/style.css', options={"enable-local-file-access": ""})
+    pdf = pdfkit.from_string(rendered,False,css='static/css/style2.css', options={"enable-local-file-access": ""})
 
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
@@ -1494,6 +1494,21 @@ def pdf_template(table_data_json):
 
     return response
 
+#Funcion para eliminar factura
+@app.route('/destroy_factura/<int:id>')
+def destroy_factura(id):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+
+    # Delete the user from the database
+    cursor.execute("DELETE FROM facturas WHERE id_factura = %s", (id,))
+
+    conn.commit()
+
+
+    return redirect('/gestfacturas')
+
 
 @app.route('/ver_factura/<int:id_factura>')
 def ver_factura(id_factura):
@@ -1551,7 +1566,7 @@ def ver_factura(id_factura):
     print("Table_data es: ", data)
 
     rendered = render_template('/ver_factura.html', table_data=data)
-    pdf = pdfkit.from_string(rendered, False, css='static/css/style.css', options={"enable-local-file-access": ""})
+    pdf = pdfkit.from_string(rendered, False, css='static/css/style2.css', options={"enable-local-file-access": ""})
 
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'

@@ -200,13 +200,6 @@ if (currentTemplate === 'create_factura') {
         }
     });
 
-    edadInput.addEventListener('keypress', function(event) { 
-        var keyCode = event.keyCode || event.which; 
-
-        if (keyCode < 48 || keyCode > 57) { 
-            event.preventDefault(); 
-        } 
-    });
 }
 
 function calcularEdad() {
