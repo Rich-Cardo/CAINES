@@ -13,7 +13,7 @@
  
     <!-- Esta linea de codigo sirve para saber primero si existe una cita o no hay una cita -->
     {% if cita %}
-    {% if cita[4] == 'pendiente' %}
+    {% if cita[3] == 'pendiente' %}
 
     <!-- Codigo para cuando sí haya una cita en proceso -->
 
@@ -141,7 +141,7 @@
 
     <!-- Esta linea de codigo sirve para saber primero si existe una cita o no hay una cita -->
     {% if cita %}
-    {% if cita[4] == 'aprobado' %}
+    {% if cita[3] == 'aprobado' %}
 
     <!-- Codigo para cuando la cita este APROBADA por el Director -->
 
@@ -156,7 +156,7 @@
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Hora</label>
-            <input id="txtFecha" class="form-control col-8" type="text" name="txtHora" value="{{cita[6]}}" required readonly>
+            <input id="txtFecha" class="form-control col-8" type="text" name="txtHora" value="{{cita[5]}}" required readonly>
         </div>
 
         <a class="btn button-login w-100" href="/menu" style="background-color:green; margin-bottom:6px; margin-top:15px;">Volver</a>
