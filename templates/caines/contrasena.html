@@ -1,0 +1,43 @@
+{% include 'header.html' %}
+
+<main class="form-signin w-100 m-auto" style="width: 600px!important;">
+    <form class="form-login">
+    <!-- <img style="width:100%;" src="{{ url_for('static', filename='img/small2.png') }}" alt=""> -->
+        <h1 class="h3 mb-3 fw-normal text-center">Recuperar Contraseña</h1>
+
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Cédula</label>
+            
+            <select class="form-select form-select-lg" id="cod_cedula"
+            style="margin-right:14px">
+                <option value="1">V</option>
+                <option value="1">J</option>
+                <option value="1">E</option>
+
+            </select>
+
+            <input id="txtCedula" class="form-control col-7" type="text" name="txtCedula">
+
+        </div>
+        
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Correo</label>
+            <input id="txtCorreo" class="form-control col-8" type="text" name="txtCorreo" placeholder="correo@ejemplo.com">
+
+        </div>
+
+        <div>
+            <a href="#" class="button-login w-100">Enviar</a>
+            <a href="/login" class="button-login w-100" style="background-color: brown">Cancelar</a>
+        </div>
+        
+    </form>
+
+
+
+    
+</main>
+
+{% include 'footer.html' %}

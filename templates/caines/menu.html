@@ -1,0 +1,136 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+    <!--CONTENT START!-->
+
+        <div class="row">
+
+            <section class="m-auto">
+
+                <!--Container!-->
+                &nbsp
+                <div class="main">
+                &nbsp
+                <h2 style="color: #404040;", class="text-center">
+                    ¡Bienvenido, {{current_user.nombre}}!
+                </h2>
+                &nbsp
+
+
+
+                {% if current_user.rol == 'representante' %}
+
+                <a class="boton banner" href="/ninos">
+                    NIÑOS
+                </a>
+
+                <a class="boton banner" href="/ag_citas/{{current_user.id}}">
+                    CITAS
+                </a>
+
+                <a class="boton banner" href="/gestfacturas">
+                    FACTURAS
+                </a>
+
+                {% endif %}
+
+                {% if current_user.rol == 'administrador' %}
+
+                <a class="boton banner" href="/create_factura">
+                    CREAR FACTURA
+                </a>
+
+                <a class="boton banner" href="/gestfacturas">
+                    FACTURAS
+                </a>
+
+                {% endif %}
+
+                {% if current_user.rol == 'secretaria' %}
+
+                <a class="boton banner" href="/ninos">
+                    NIÑOS
+                </a>
+
+                <a class="boton banner" href="/representantes">
+                    REPRESENTANTES
+                </a>
+
+
+                {% endif %}
+                
+                {% if current_user.rol == 'especialista' %}
+
+                <a class="boton banner" href="/ninos">
+                    NIÑOS
+                </a>
+ 
+
+                <a class="boton banner" href="/horario_esp/{{current_user.id}}">
+                    HORARIO
+                </a>
+
+
+                {% endif %}
+
+                
+                {% if current_user.rol == 'director' %}
+
+                <a class="boton banner" href="/ninos">
+                    NIÑOS
+                </a>
+
+                <a class="boton banner" href="/representantes">
+                    REPRESENTANTES
+                </a>
+
+                <a class="boton banner" href="/especialistas">
+                    ESPECIALISTAS
+                </a>
+
+                <a class="boton banner" href="/administradores">
+                    ADMINISTRADOR
+                </a>
+
+                <a class="boton banner" href="/secretarias">
+                    SECRETARIAS
+                </a>
+
+                <a class="boton banner" href="/gestfacturas">
+                    FACTURAS
+                </a>
+
+                <a class="boton banner" href="/citas">
+                    CITAS
+                </a>
+
+                {% endif %}
+
+                &nbsp
+
+                &nbsp
+                <!--Container!-->
+
+            </section>
+
+
+        </div>
+
+
+    <!--CONTENT START!-->
+
+
+      <!--FOOTER START!-->
+
+{% include 'footer.html' %}
+
+  <!--FOOTER END!-->
+
+

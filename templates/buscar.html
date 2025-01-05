@@ -1,0 +1,34 @@
+<script>
+   function searchTable() {
+  const input = document.getElementById('searchInput');
+  const filter = input.value.toUpperCase();
+  const table = document.getElementById('myTable');
+  const rows = table.getElementsByTagName('tr');
+
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].getElementsByTagName('td');
+    let found = false;
+    
+    // Aquí verificamos si la fila actual contiene el término de búsqueda en alguna celda <td>
+    for (let j = 0; j < cells.length; j++) {
+      const cell = cells[j];
+      if (cell) {
+        const textValue = cell.textContent || cell.innerText;
+        if (textValue.toUpperCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+    }
+    
+    // Aquí controlamos la visibilidad de la fila para que las filas que se ocultan no sean las que contienen <th>
+    if (rows[i].getElementsByTagName('th').length === 0) {
+      if (found) {
+        rows[i].style.display = '';
+      } else {
+        rows[i].style.display = 'none';
+      }
+    }
+  }
+}
+  </script>

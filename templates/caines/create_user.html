@@ -1,0 +1,102 @@
+{% include 'header.html' %}
+<form class="form-login m-auto" method="post" action="/store_user/create_user" enctype="multipart/form-data"> 
+ 
+ 
+ 
+    <form class="form-login m-auto" method="post" action="/store_user" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 fw-normal">Nuevo Registro</h1>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Cédula</label>
+            <select class="form-select form-select-lg" id="cod_cedula" style="margin-right:14px">
+                <option value="1">V</option>
+                <option value="2">J</option>
+                <option value="3">E</option>
+            </select>
+            <input id="txtCedula" class="form-control col-7" type="text" name="txtCedula" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Nombre</label>
+            <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Apellido</label>
+            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" required>
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Dirección</label>
+            <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres">
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Teléfono</label>
+            <select class="form-select form-select-lg" id="cod_numero" style="margin-right:6px" name="cod_numero">
+                <option value="0412">0412</option>
+                <option value="0414">0414</option>
+                <option value="0416">0416</option>
+                <option value="0424">0424</option>
+                <option value="0426">0426</option>
+            </select>
+            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="txtCorreo" class="col-3">Correo</label>
+            <input id="txtCorreo" class="form-control col-8" type="email" name="txtCorreo" placeholder="correo@ejemplo.com">
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+
+            <label for="floatingInput" class="col-3">Usuario</label>
+
+            <select class="form-select form-select-lg" id="tipo_usuario" style="margin-right:6px" name="tipo_usuario" onchange="showContent(this.value)">
+                <option value="representante">Representante</option>
+                <option value="especialista">Especialista</option>
+                <option value="secretaria">Secretaria</option>
+                <option value="administrador">Administrador</option>
+                <option value="director">Director</option>
+            </select>
+
+        </div>
+        
+        <!-- CONTENEDORES QUE APARECEN CUANDO EL CAMPO "REPRESENTANTE" ESTÁ SELECCIONADO -->
+        <div id="Representante_Ocupacion" class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Ocupación</label>
+            <input id="txtOcupacion" class="form-control col-8" type="text" name="txtOcupacion">
+        </div>
+        
+        <div id="Representante_Empresa" class="row" style= "margin-bottom:10px;">
+            <label for= "floatingInput"class= "col-3">Empresa</label>
+            <input id= "txtEmpresa"class= "form-control col-8"type= "text"name= "txtEmpresa"placeholder= "Empresa donde trabaja...">
+        </div>
+        
+        <script>
+            function showContent(option) {
+                var Representante_Ocupacion = document.getElementById("Representante_Ocupacion");
+                var Representante_Empresa = document.getElementById("Representante_Empresa");
+
+
+
+        
+                if (option === "representante") {
+                    Representante_Ocupacion.style.display = "flex";
+                    Representante_Empresa.style.display = "flex";
+                } else {
+                    Representante_Ocupacion.style.display = "none";
+                    Representante_Empresa.style.display = "none";
+                }
+            }
+        </script>
+
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Contraseña</label>
+            <input id="txtPassword" class="form-control col-8" type="password" name="txtPassword" style="margin-bottom:15px;">
+        </div>
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+    </form>
+
+    
+
+    
+
+</form>
+{% include 'footer.html' %}

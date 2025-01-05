@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/style2.css">
+
+    <title>CAINES</title>
+</head>
+
+
+
+    <div class="container">
+        <img id="logo" src="http://127.0.0.1:5000/static/img/small2.png" alt="" /> 
+        <div id="logo-section">
+            <div>
+                <h1 id="title" class="title">CAINES</h1>
+                <p id="paragraph">Centro de Atención para Niños con Necesidades Especiales</p>
+                <p>Av. Los Próceres sector Palma Real en la U.E Alejandro Fuenmayor
+                <br>
+                Telf. 0416-3247807 / 0414-772391 </p>
+                <p id="rif">Rif.J-406376965</p>
+
+
+            </div>
+        
+
+
+        </div>
+        <br><br>
+
+        <div class="container-parrafo"> 
+            <div class="row col"> 
+                <div class="col-6">
+                    <p> <strong> Fecha: </strong> {{table_data.fecha}} </p> 
+                </div>
+                <div class="col-6 text-right">
+                    <p> <strong> Cedula: </strong>  {{ table_data.cedula }}  </p> 
+                </div>
+            </div> 
+        
+            <div class="row col"> 
+                <div class="col-6">
+                    <p> <strong> Nombre: </strong>  {{ table_data.nombre }} {{ table_data.apellido }} </p> 
+                </div>
+                <div class="col-6 text-right">
+                    <p> <strong> Direccion: </strong>  {{ table_data.direccion }}  </p> 
+                </div>
+            </div> 
+        </div>
+
+        <br><br>
+
+
+
+
+    <!-- factura.html -->
+    <table id="tabla_factura" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas border border-secondary rounded w-100" style="height: auto;" cellspacing="0">
+        <thead class="thead-light">
+            <tr>
+                <th style="text-align: center;">Cantidad</th>
+                <th style="width: 50%; text-align: center;">Producto</th>
+                <th style="width: 30%; text-align: center;">Precio/U</th>
+                <th style="width: 30%; text-align: center;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cantidad, terapia, precio, subtotal in table_data.terapias_detalles %}
+            <tr>
+                <td class="centrado">{{ cantidad }}</td>
+                <td class="centrado">{{ terapia }}</td>
+                <td class="centrado">{{ precio }}</td>
+                <td class="centrado">{{ subtotal }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" style="font-size:20px;"><strong>Total a Pagar</strong></td>
+                <td class="centrado"> <strong>{{ table_data.total_a_pagar }}</strong> </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+
+
+        </table>
+
+        </div>
+
+
+
+
+
+
+
+

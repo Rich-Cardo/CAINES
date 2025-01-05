@@ -1,0 +1,154 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+
+    <form class="form-login w-100 m-auto" style="width: 600px!important;" method="post" action="/store_user/registro" enctype="multipart/form-data">
+    <!-- <img style="width:100%;" src="{{ url_for('static', filename='img/small2.png') }}" alt=""> -->
+        <h1 class="h3 mb-3 fw-normal text-center">Registro</h1>
+
+        <input type="hidden" value="representante" name="tipo_usuario" id="tipo_usuario">
+
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Cédula</label>
+            
+            <select class="form-select form-select-lg" id="cod_cedula"
+            style="margin-right:14px">
+                <option value="1">V</option>
+                <option value="1">J</option>
+                <option value="1">E</option>
+
+            </select>
+
+            <input id="txtCedula" class="form-control col-7" type="text" name="txtCedula" required>
+
+        </div>
+        
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Nombre</label>
+            <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" maxlength="30" title="Sólo se permiten caracteres" required>
+
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Apellido</label>
+            <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido"  pattern="[a-zA-Z\s]+" maxlength="30" title="Sólo se permiten caracteres" required>
+
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Dirección</label>
+            <input id="txtDireccion" class="form-control col-8" type="text" maxlength="30" name="txtDireccion">
+
+        </div>
+            
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Teléfono</label>
+            <select class="form-select form-select-lg" id="cod_numero" style="margin-right:6px" maxlength="30" name="cod_numero">
+                <option value="0412">0412</option>
+                <option value="0414">0414</option>
+                <option value="0416">0416</option>
+                <option value="0424">0424</option>
+                <option value="0426">0426</option>
+            </select>
+            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" maxlength="30" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Correo</label>
+            <input id="txtCorreo" class="form-control col-8" type="text" name="txtCorreo" maxlength="30" placeholder="correo@ejemplo.com" required>
+
+        </div>
+
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Contraseña</label>
+            <input id="txtPassword" class="form-control col-8" type="password" name="txtPassword" minlength="8" required>
+
+        </div>
+
+        <!-- Radiobutton -->
+        <!-- <div class="form-check form-check-inline 
+        d-flex flex-row justify-content-center alig-items-center"
+        style="margin: 15px;">
+
+                <input type="radio" class="form-check-input" id="option1" name="radioExam" value="option1" onclick="showContent('option1')" checked>
+                <label for="option1" style="margin-right:40px">Representante</label>
+                <input type="radio" class="form-check-input" id="option2" name="radioExam" value="option2" onclick="showContent('option2')">
+                <label for="option2">Trabajador</label>
+
+        </div> -->
+
+        <!-- CONTENEDORES QUE APARECEN CUANDO EL CAMPO "REPRESENTANTE" ESTÁ SELECCIONADO -->
+          
+        <div id="Representante_Ocupacion" class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Ocupación</label>
+            <input id="txtOcupacion" class="form-control col-8" type="text" name="txtOcupacion">
+
+        </div>
+
+
+
+        <div id="Representante_Empresa" class="row" style="margin-bottom: 20px;">
+            <label for="floatingInput" class="col-3">Empresa</label>
+            <input id="txtEmpresa" class="form-control col-8" type="text" name="txtEmpresa" placeholder="Empresa donde trabaja...">
+
+        </div>
+
+        <!-- CONTENEDORES QUE APARECEN CUANDO "TRABAJADOR" ESTÁ SELECCIONADO
+
+        <div id="Trabajador" class="row" style="margin-bottom: 10px; display:none">
+            <label for="floatingInput" class="col-3">Área</label>
+            <select class="form-select form-select-lg" id="cod_area"
+            style="margin-right:6px">
+
+                <option value="1">Secretaria</option>
+                <option value="2">Administracion</option>
+                <option value="3">Direccion</option>
+
+            </select>
+        </div>
+
+        <!-- CODIGO JAVASCRIPT PARA OCULTAR Y MOSTRAR LOS DIVS SEGUN LA OPCION SELECCIONADA -->
+          
+        <!-- <script>
+            function showContent(option) {
+              var option1Content = document.getElementById("option1Content");
+              var option2Content = document.getElementById("option2Content");
+          
+              if (option === "option1") {
+                Representante_Empresa.style.display = "flex";
+                Representante_Ocupacion.style.display = "flex";
+                Trabajador.style.display = "none";
+
+              } else if (option === "option2") {
+                Representante_Empresa.style.display = "none";
+                Representante_Ocupacion.style.display = "none";
+                Trabajador.style.display = "flex";
+              }
+            }
+        </script> -->
+
+
+
+
+        <div>
+            <button class="button-login w-100">Registrarse</button>
+            <a href="/login" class="button-login w-100" style="background-color: brown">Cancelar</a>
+        </div>
+        
+    </form>
+
+
+
+    
+
+
+{% include 'footer.html' %}

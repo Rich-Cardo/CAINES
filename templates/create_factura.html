@@ -1,0 +1,253 @@
+{% include 'header.html' %}
+
+<div class="row text-center">
+    <form class="form-factura" method="post" action="/verificar_cedula" enctype="multipart/form-data"> 
+    
+            <h1 class="h3 mb-3 fw-normal">Representante</h1>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Cédula</label>
+                <select class="form-select form-select-lg" id="cod_cedula" style="margin-right:14px">
+                    <option value="1">V</option>
+                    <option value="2">J</option>
+                    <option value="3">E</option>
+                </select>
+                <input id="txtCedula" class="form-control col-7" type="text" name="txtCedula" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+            </div>
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Nombre</label>
+                <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+            </div>
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Apellido</label>
+                <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" required>
+            </div>
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Dirección</label>
+                <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres">
+            </div>
+        </form>
+
+        <form class="form-productos" method="post" action="/verificar_terapia" enctype="multipart/form-data" style="margin-left:20px;" > 
+    
+            <h1 class="h3 mb-3 fw-normal">Productos</h1>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Terapia</label>
+                <select class="form-select form-select-lg" id="txtTerapia" name="txtTerapia" style="margin-right:14px;">
+                    <option value="null">Seleccione...</option>
+                    <option value="Lenguaje">Lenguaje</option>
+                    <option value="Psicopedagogia">Psicopedagógica</option>
+                    <option value="Ocupacional">Ocupacional</option>
+                </select>
+            </div>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Cantidad</label>
+
+                <input id="txtCantidad" class="form-control col-5" type="text" name="txtCantidad" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+            </div>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Precio</label>
+                <input id="txtPrecio" class="form-control col-5" type="text" name="txtPrecio" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+            </div>
+            <div>
+                <a class="btn btn-success" href="#" onclick="agregarProducto()">Agregar</a>
+            </div>
+
+        </form>
+</div>
+
+
+    <table id="tabla_factura" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas border border-secondary rounded w-100"
+           style="height: auto;" cellspacing="0"> 
+        <thead class="thead-light"> 
+            <tr> 
+                <th style="text-align: center;">Cantidad</th> 
+                <th style="width: 50%; text-align: center;">Producto</th> 
+                <th style="width: 30%; text-align: center;">Precio/U</th> 
+                <th style="width: 30%; text-align: center;">Subtotal</th> 
+            </tr> 
+        </thead> 
+        <tbody> 
+            <tr> 
+
+            </tr> 
+
+            <td colspan="3" style="font-size:20px; display:none;"><strong>Total a Pagar</strong></td> 
+            <td class="centrado" style="display:none;"> <strong> </strong> </td> 
+        </tbody> 
+    </table>
+
+
+    </div>
+    <br>
+    <div class="text-center">
+        <a class="btn btn-success" href="#">Imprimir</a>
+        <a class="btn btn-warning" href="#"  onclick="limpiarTabla()">Limpiar</a>
+    </div>  
+
+
+    <script>
+        
+        // <!-- Codigo para verificar la cedula -->
+
+        document.getElementById('txtCedula').addEventListener('input', function() {
+
+        // var cedula = document.getElementById('cod_cedula').value + this.value; // Agregar el valor de cod_cedula
+        var cedula = this.value;
+
+        
+        // Realizar la solicitud AJAX al servidor 
+        var xhr = new XMLHttpRequest(); 
+        xhr.open('POST', '/verificar_cedula'); 
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); 
+        
+        xhr.onreadystatechange = function() { 
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) { 
+                var response = JSON.parse(xhr.responseText); 
+                document.getElementById('txtNombre').value = response.nombre; 
+                document.getElementById('txtApellido').value = response.apellido; 
+                document.getElementById('txtDireccion').value = response.direccion; 
+            } 
+        }; 
+        
+        xhr.send('txtCedula=' + encodeURIComponent(cedula)); // Enviar el valor directamente en el cuerpo de la solicitud
+        }); 
+
+
+        // Codigo para rellenar el precio de la terapia
+
+                
+        document.getElementById('txtTerapia').addEventListener('input', function() {
+
+        // var cedula = document.getElementById('cod_cedula').value + this.value; // Agregar el valor de cod_cedula
+        var terapia = this.value;
+
+
+        // Realizar la solicitud AJAX al servidor 
+        var xhr = new XMLHttpRequest(); 
+        xhr.open('POST', '/verificar_terapia'); 
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); 
+
+        xhr.onreadystatechange = function() { 
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) { 
+                var response = JSON.parse(xhr.responseText); 
+                document.getElementById('txtPrecio').value = response.precio;
+            } 
+        }; 
+
+        xhr.send('txtTerapia=' + encodeURIComponent(terapia)); // Enviar el valor directamente en el cuerpo de la solicitud
+        });
+
+        // Codigo para agregar productos a la factura
+
+        function agregarProducto() { 
+            // Capturar valores de los campos de entrada 
+            var terapia = document.getElementById("txtTerapia").value; 
+            var cantidad = document.getElementById("txtCantidad").value; 
+            var precio = document.getElementById("txtPrecio").value; 
+
+            // Crear nueva fila en la tabla 
+            var tabla = document.getElementById("tabla_factura"); 
+            var nuevaFila = tabla.insertRow(tabla.rows.length - 1); 
+
+            // Insertar valores en las celdas de la nueva fila  
+            var celdaCantidad = nuevaFila.insertCell(0);  
+            celdaCantidad.innerHTML = cantidad;  
+            celdaCantidad.classList.add("centrado"); // Agregar clase centrado
+
+            var celdaTerapia = nuevaFila.insertCell(1);  
+            celdaTerapia.innerHTML = terapia;  
+            celdaTerapia.classList.add("centrado"); // Agregar clase centrado
+
+            var celdaPrecio = nuevaFila.insertCell(2);  
+            celdaPrecio.innerHTML = precio;  
+            celdaPrecio.classList.add("centrado"); // Agregar clase centrado
+
+            var celdaSubtotal = nuevaFila.insertCell(3);  
+            celdaSubtotal.innerHTML = cantidad * precio;  
+            celdaSubtotal.classList.add("centrado"); // Agregar clase centrado
+
+            actualizarTotal();
+        }
+
+
+
+
+
+        function actualizarTotal() { 
+    var tabla = document.getElementById("tabla_factura"); 
+    var total = 0; 
+    for (var i = 1; i < tabla.rows.length - 1; i++) { 
+        // Fragmento de código para verificar primero si la celda existe o no 
+        // Por algún motivo siempre se obtiene primero un valor 'undefined', 
+        // con esta condición ya no sucede y funciona correctamente 
+        if (tabla.rows[i].cells[3]) { 
+            // Celda existe, acceder a su valor 
+            var subtotal = parseFloat(tabla.rows[i].cells[3].innerHTML); 
+            total += subtotal; 
+        } else { 
+            // Celda no existe, hacer algo en consecuencia 
+        } 
+    } 
+    tabla.rows[tabla.rows.length - 1].cells[1].innerHTML = "<strong>" + total.toFixed(2) + "</strong>"; 
+
+    // Obtener la fila "Total a Pagar"
+    var filaTotal = tabla.rows[tabla.rows.length - 1];
+
+    // Establecer la propiedad display en table-cell
+    filaTotal.cells[0].style.display = "table-cell";
+    filaTotal.cells[1].style.display = "table-cell";
+} 
+
+
+function limpiarTabla() {
+    var tabla = document.getElementById("tabla_factura");
+    if (!tabla) {
+        console.error("La tabla 'tabla_factura' no existe en el HTML");
+        return;
+    }
+    var numFilas = tabla.rows.length;
+
+
+    // Eliminar todas las filas excepto la primera (cabecera) y la última (total a pagar)
+    for (var i = numFilas - 2; i > 0; i--) {
+
+        tabla.deleteRow(i);
+    }
+
+    numFilas = tabla.rows.length;
+
+
+    //Mismo caso anterior, por alguna razon primero devuelve
+    //un valor 'undefined' antes de acceder a la celda real
+    for (var i = 1; i < tabla.rows.length - 1; i++) { 
+            if (tabla.rows[1].cells[3]) { 
+                console.log(tabla.rows[numFilas - 1].cells[3]);
+                tabla.rows[numFilas - 1].cells[3].innerHTML = "0.00";
+            }
+    }
+
+    // Ocultar la fila "Total a Pagar"
+    var filaTotal = tabla.rows[numFilas - 1];
+    filaTotal.cells[0].style.display = "none";
+    filaTotal.cells[1].style.display = "none";
+}
+
+
+
+
+
+
+
+
+    </script>
+
+    
+
+    
+
+</form>
+{% include 'footer.html' %}
