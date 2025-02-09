@@ -33,7 +33,7 @@
         <div class="container-parrafo"> 
             <div class="row col"> 
                 <div class="col-6">
-                    <p> <strong> Fecha: </strong> {{table_data.fecha}} </p> 
+                    <p> <strong> Fecha: </strong> {{table_data.fecha.strftime('%d/%m/%Y')}} </p> 
                 </div>
                 <div class="col-6 text-right">
                     <p> <strong> Cedula: </strong>  {{ table_data.cedula }}  </p> 

@@ -1,115 +1,407 @@
 {% include 'header.html' %}
 
-          <div class="formulario">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info  " style="margin-top: 10px; margin-right: 5px;">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
 
-            {% if current_user.rol != 'especialista' %}
-            <a href="{{url_for('create_nino') }}" id="boton-ingresar" class="btn btn-success"  style="margin: 0px 10px;">Registrar</a>
-            {%endif%}
 
-            <input type="text" id="searchInput" title="Type in a name" placeholder="Buscar ninos..." required class="form-control ml-auto">
-            <button onclick="searchTable()"  class="btn btn-info"  style="margin: 0px 10px;">Buscar</button>
+<h1 class="text-center titulo-vista">Niños</h1>
 
+<div class="container" style="padding-top: 10px;">
+    <div class="row align-items-center">
+        <div class="col-lg-2 col-md-3 col-sm-4 mb-3">
+            <a href="{{url_for('create_nino') }}" class="btn btn-success btn-block">
+              <i class="fa fa-plus"></i> Agregar niño...
+            </a>
+        </div>          
+      <div class="col-lg-6 col-md-6 col-sm-8 mb-3">
+        <div class="input-group">
+          <input id="searchInput" type="text" class="form-control" placeholder="Buscar niños..." aria-label="Buscar niños..." aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <span class="input-group-text" id="basic-addon2"><i class="fa fa-search"></i></span>
           </div>
-
-          {% include 'buscar.html' %}
-
-          <div id="myTable" class="table-responsive" style="margin: 0 auto;">
-            <table id="tabla_ninos" class="table table-light tablas border border-secondary rounded" cellspacing="0">
-              <thead class="thead-light text-center">
-                <tr>
-                  <th><input type="checkbox" id="selectAll" style="display: none;"></th> <!-- Casilla para seleccionar/deseleccionar todas las filas -->
-                  <!-- <th>#</th> -->
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Edad</th>
-                  <th>Escolaridad</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for nino in ninos %}
-                <tr class="text-center">
-                  <td><input type="checkbox" class="rowCheckbox" value="{{ nino[0] }}"></td>
-                  <td>{{ nino[1]}}</td>
-                  <td>{{ nino[2]}}</td>
-                  <td>{{ nino[3]}}</td>
-                  <td>{{ nino[4]}}</td>
-                  <td>{{ nino[5]}}</td>
-                  <td>{{ nino[6]}}</td>
-          
-                  <td>
-                    <div class="btn-group">
-                      <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{ nino[0] }}">Ver</a>
-                      <a class="btn btn-warning" href="/edit_nino/{{ nino[0] }}">Editar</a>
-                      <a class="btn btn-danger" href="/destroy_nino/{{nino[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Eliminar</a>
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-</div>   
-            
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-3 col-sm-12 mb-3">
+        {% if current_user.rol != 'representante' %}
+          <a href="javascript:void(0);" onclick="guardarPDF()" class="btn btn-warning btn-block">
+            <i class="fa fa-print" style="margin-right: 5px;"></i> Exportar a PDF
+          </a>
+        {%endif%}
+      </div>      
+    </div>
+  </div>
+  
+  <button onclick="Buscar()" style="display: none;" class="btn btn-info">Buscar</button>
+  
 
 
-            <!-- Codigo para mostrar el modal con los datos del ninos -->
+  <div id="myTable" class="table-responsive">
+    <table id="tabla_ninos" class="table table-light table-bordered border-secondary rounded" cellspacing="0">
+      <thead class="thead-light text-center">
+        <tr>
+          <th><input type="checkbox" id="selectAll" style="display: none;"></th>
+          <th id="nombre" onclick="sortTable(1)" class="sortable">Nombre</th>
+          <th id="apellido" onclick="sortTable(2)" class="sortable">Apellido</th>
+          <th id="edad" onclick="sortTable(3)" class="sortable">Edad</th>
+          <th id="escolaridad" onclick="sortTable(4)" class="sortable">Escolaridad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for nino in ninos %}
+          <tr class="text-center">
+            <td><input type="checkbox" class="rowCheckbox" value="{{ nino[0] }}"></td>
+            <td>{{ nino[2]}}</td>
+            <td>{{ nino[3]}}</td>
+            <td>{{ nino[4]}}</td>
+            <td>{{ nino[8]}}</td>
+            <td>
+              <div class="btn-group">
+                <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{ nino[0] }}" style="border-radius: 10px; margin-right: 5px;">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <a class="btn btn-warning" href="/edit_nino/{{ nino[0] }}" style="border-radius: 10px; margin-right: 5px;">
+                  <i class="fa fa-edit"></i>
+                </a>
 
-            {% for ninos in ninos %}
+                <a class="btn btn-info" href="/horario/{{nino[0]}}" style="border-radius: 10px; margin-right: 5px;">
+                  <i class="fa fa-clock"></i>
+                </a>
 
-
-            <div class="modal fade" id="myModal{{ninos[0]}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Datos del Niño</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  </div>
-                  <div class="modal-body">
-
-                    <p>Nombre: {{ninos[2]}}</p>
-                    <p>Apellido: {{ninos[3]}}</p>
-                    <p>Edad: {{ninos[4]}}</p>
-                    <p>Fecha de Nacimiento: {{ninos[5]}}</p>
-                    <p>Lugar de Nacimiento: {{ninos[6]}}</p>
-                    <p>Número de Hermanos: {{ninos[7]}}</p>
-                    <p>Escolaridad: {{ninos[8]}}</p>
-                  </div>
-                  <div class="modal-footer">
-                    <a type="button" class="btn btn-info" href="/horario/{{ninos[0]}}">Horario</a>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                  </div>
-                </div>
+                <!-- <a class="btn btn-info" href="/avances/{{nino[0]}}" style="border-radius: 10px; margin-right: 5px;">
+                  <i class="fa fa-search"></i>
+                </a> -->
+                
+                <a class="btn btn-danger" href="javascript:void(0);" onclick="eliminarnino('{{ nino[0] }}')" style="border-radius: 10px; margin-right: 5px;">
+                  <i class="fa fa-trash"></i>
+                </a>
+                
               </div>
-            </div>
-            
-            {% endfor %}
-        
+              
+              
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+  
 
+<button id="deleteSelected" class="btn btn-danger" style="display: none; width: 30%; margin-left:5%; margin-top: 1%">Eliminar Seleccionados</button>
 
+{% for nino in ninos %}
+<div class="modal fade" id="myModal{{ nino[0] }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Datos del Niño</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ nino[2] }} {{ nino[3] }}</p>
+        <p>Edad: {{ nino[4] }}</p>
+        <p>Escolaridad: {{ nino[8] }}</p>
+        <p>Hermanos: {{ nino[7] }}</p>
+        <p>Lugar de Nacimiento: {{ nino[6] }}</p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 
 
   
 
 
 
-    
-        
-
-
-
-
-
-
-
-    
-    </div>
-
-
-
-
-
-
-
 
 {% include 'footer.html' %}
+
+<script>
+  function sortTable(n) {
+    const table = document.getElementById("tabla_ninos");
+    let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    switching = true;
+    dir = "asc"; 
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+        if (dir == "asc") {
+          if (!isNaN(parseFloat(x.innerHTML)) && !isNaN(parseFloat(y.innerHTML))) {
+            if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
+              shouldSwitch = true;
+              break;
+            }
+          } else if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            shouldSwitch = true;
+            break;
+          }
+        } else if (dir == "desc") {
+          if (!isNaN(parseFloat(x.innerHTML)) && !isNaN(parseFloat(y.innerHTML))) {
+            if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
+              shouldSwitch = true;
+              break;
+            }
+          } else if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        switchcount++;
+      } else {
+        if (switchcount == 0 && dir == "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  }
+
+  function Buscar() {
+    // Obtener los valores del input de búsqueda y los inputs de fecha
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("tabla_ninos");
+    var tr = table.getElementsByTagName("tr");
+
+    // Recorrer todas las filas de la tabla y ocultar aquellas que no coincidan con la búsqueda o el rango de fechas
+    for (var i = 1; i < tr.length; i++) {
+        var tdArray = tr[i].getElementsByTagName("td");
+        var match = false;
+
+        // Verificar si la fila coincide con el filtro de búsqueda
+        for (var j = 0; j < tdArray.length; j++) {
+            var td = tdArray[j];
+            if (td) {
+                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        // Mostrar la fila si coincide con el filtro de búsqueda y el rango de fechas
+        if (match) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+  }
+
+  // Agregar el evento change al input de búsqueda
+  document.getElementById("searchInput").addEventListener("input", Buscar);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    let rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+    const deleteButton = document.getElementById('deleteSelected');
+    const sendButton = document.getElementById('sendSelected');
+    const undoButton = document.getElementById('undoButton');
+    const countdown = document.getElementById('countdown');
+    let countdownInterval;
+
+    function updateDeleteButtonVisibility() {
+      const anyChecked = Array.from(rowCheckboxes).some(checkbox => checkbox.checked);
+      deleteButton.style.display = anyChecked ? 'block' : 'none';
+    }
+
+    selectAllCheckbox.addEventListener('change', function() {
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+      });
+      updateDeleteButtonVisibility();
+    });
+
+    rowCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateDeleteButtonVisibility();
+      });
+    });
+
+    deleteButton.addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
+    const ids = Array.from(checkboxes).map(checkbox => checkbox.value);
+
+    if (ids.length === 0) {
+      Swal.fire({
+        title: 'Atención',
+        text: 'Por favor, seleccione al menos una fila para eliminar.',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6',
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¡ATENCIÓN!',
+      text: '¿Está seguro de que desea eliminar los niños seleccionados?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/eliminar_ninos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids: ids })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al eliminar las filas seleccionadas.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            checkboxes.forEach(checkbox => {
+              const row = checkbox.closest('tr');
+              row.remove();
+            });
+
+            rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+            updateDeleteButtonVisibility();
+
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'Los niños seleccionados han sido eliminados exitosamente.',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+            });
+
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al eliminar las filas seleccionadas.',
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error al eliminar las filas seleccionadas.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+          });
+        });
+      }
+    });
+  });
+
+    //Alerta de eliminación de niño
+    window.eliminarnino = function(id) {
+    Swal.fire({
+      title: '¡ATENCIÓN!',
+      text: '¿Está seguro de que desea eliminar al niño?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/eliminar_ninos', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids: [id] })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al eliminar el niño.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            const row = document.querySelector(`.rowCheckbox[value="${id}"]`).closest('tr');
+            row.remove();
+
+            rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+            updateDeleteButtonVisibility();
+
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El niño ha sido eliminado exitosamente.',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+            });
+
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al eliminar el niño.',
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error al eliminar el niño.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+          });
+        });
+      }
+    });
+  };
+   
+  });
+
+
+
+    function guardarPDF() {
+        fetch('/ninos_pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+
+
+</script>
+

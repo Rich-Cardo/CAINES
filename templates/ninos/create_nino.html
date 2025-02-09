@@ -15,15 +15,21 @@
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Representante</label>
-            <input id="txtCedula" class="form-control col-8" value="{{current_user.cedula}}" type="text" name="txtCedula" readonly required>
+            <input id="txtCedula" readonly class="form-control col-8" value="{{current_user.cedula}}" type="text" name="txtCedula" placeholder="Cedula..." required>
         </div>
 
         {% else %}
 
+        <input id="txtId" class="form-control col-6" type="hidden" name="txtId" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
+
         <div class="row" style="margin-bottom: 10px;">
             <label for="floatingInput" class="col-3">Representante</label>
-            <input id="txtCedula" class="form-control col-8" type="text" name="txtCedula" pattern="[0-9]+" title="Sólo se permiten números" placeholder="Cedula del representante..." required>
+            <input id="txtCedula" class="form-control col-6" type="text" name="txtCedula" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
+            <a class="btn btn-info col-2" style="margin-left:2px;" href="#" data-bs-toggle="modal" data-bs-target="#clientesModal">
+                Buscar <i class="fas fa-search"></i>
+            </a>
         </div>
+        
 
         {% endif %}
 
@@ -69,30 +75,125 @@
             <input id="txtNum_Hermanos" class="form-control col-8" type="text" name="txtNum_Hermanos" pattern="[0-9]+" title="Sólo se permiten números" required>
         </div>
 
-
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">
+            <i class="fas fa-plus"></i> Agregar
+        </button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">
+            <i class="fas fa-ban"></i> Cancelar
+        </button>
         
-
-        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
-        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
     </form>
 
-    <!-- <script>
 
 
-    var edadInput = document.getElementById('txtEdad');
 
-    edadInput.addEventListener('keydown', function(event) { 
-    var keyCode = event.keyCode || event.which; 
-    console.log(keyCode); // Verifica si se está ejecutando la función 
-    if (keyCode < 48 || keyCode > 57) { 
-        event.preventDefault(); 
-    } 
-});
+<!-- Modal -->
+<div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clientesModalLabel">Lista de Representantes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
 
-    </script> -->
-    
+                <div class="row mb-3 text-center">
+                    <div class="col-12">
+                        <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar clientes..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                    </div>
+                </div>
 
-    
+                <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                    <table id="tabla_clientes" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                        <thead class="thead-light text-center">
+                            <tr>
 
+                                <th>Cedula</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cliente in clientes %}
+                            <tr class="text-center">
+                                <td>{{ cliente[1]}}</td>
+                                <td>{{ cliente[2]}}</td>
+                                <td>{{ cliente[3]}}</td>
+
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-success seleccionar-cliente"
+                                           href="#"
+                                           data-id="{{ cliente[0] }}"
+                                           data-cedula="{{ cliente[1] }}"
+                                           data-nombre="{{ cliente[2] }}"
+                                           data-apellido="{{ cliente[3] }}"
+                                           onclick="seleccionarCliente(this)">Seleccionar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% include 'footer.html' %}
+
+
+
+<script>
+
+    function seleccionarCliente(element) {
+        var id_cliente = element.getAttribute('data-id');
+        var cedula = element.getAttribute('data-cedula');
+        document.getElementById('txtId').value = id_cliente;
+        document.getElementById('txtCedula').value = cedula;
+
+        // Cerrar el modal
+        $('#clientesModal').modal('hide');
+    }
+
+
+
+    //buscar en el modal
+    function Buscar() {
+        var input = document.getElementById("searchInput");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementById("tabla_clientes");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdArray = tr[i].getElementsByTagName("td");
+            var match = false;
+
+            for (var j = 0; j < tdArray.length; j++) {
+                var td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+
+    document.getElementById("searchInput").addEventListener("input", Buscar);
+
+</script>

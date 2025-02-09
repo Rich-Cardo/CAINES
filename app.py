@@ -1,5 +1,6 @@
 #Librerías generales
 
+import os
 from flask import Flask
 from flask import render_template,request,redirect, flash, make_response
 from flaskext.mysql import MySQL
@@ -9,6 +10,7 @@ from flaskext.mysql import MySQL
 import jinja2
 import pdfkit
 import json
+from weasyprint import HTML
 
 #Librería para enviar solicitudes al servidor
 from flask import  jsonify
@@ -19,6 +21,7 @@ from waitress import serve
 #Librería para el manejo de sesiones activas de los usuarios
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
+from datetime import datetime
 
 
 #Código general de Flask
@@ -44,10 +47,11 @@ login_manager.login_view = 'login'
 #Clase Usuario para el manejo de sesiones activas
 
 class User(UserMixin):
-    def __init__(self, id, cedula, nombre, rol):
+    def __init__(self, id, cedula, nombre, apellido, rol):
         self.id = id
         self.cedula = cedula
         self.nombre = nombre
+        self.apellido = apellido
         self.rol = rol
 
     @staticmethod
@@ -58,7 +62,7 @@ class User(UserMixin):
         cursor.execute(sql, (id,))
         user_data = cursor.fetchone()
         if user_data:
-            return User(id=user_data[0], rol=user_data[1], cedula=user_data[2], nombre=user_data[3])
+            return User(id=user_data[0], rol=user_data[1], cedula=user_data[2], nombre=user_data[3], apellido=user_data[4])
         return None
 
     def is_authenticated(self):
@@ -172,7 +176,12 @@ class Especialista():
         cursor.execute(sql, (id,))
         especialista = cursor.fetchone()
         if especialista:
-            return Especialista(id=especialista[0], cedula=especialista[1], nombre=especialista[2], apellido=especialista[3], direccion=especialista[4], correo=especialista[5])
+            return Especialista(id=especialista[0],
+                                cedula=especialista[2],
+                                nombre=especialista[3],
+                                apellido=especialista[4],
+                                direccion=especialista[5],
+                                correo=especialista[6])
         return None
     
 
@@ -211,7 +220,7 @@ def ninos():
     if current_user.rol == 'representante':
         cursor.execute("SELECT * FROM ninos WHERE id_usuario = %s", (current_user.id,))
     
-        ninos = cursor.fetchall() 
+        ninos = cursor.fetchall()
     
         conn.commit() 
     
@@ -246,7 +255,15 @@ def ninos():
 #Registrar Niño
 @app.route('/create_nino')
 def create_nino():
-    return render_template('ninos/create_nino.html')
+
+    conn = mysql.connect() 
+    cursor = conn.cursor() 
+
+    cursor.execute("SELECT id_usuario, cedula, nombre, apellido FROM usuarios WHERE tipo_usuario = 'representante'")
+
+    representantes = cursor.fetchall()
+
+    return render_template('ninos/create_nino.html', clientes = representantes)
 
 # Funciones para rellenar los inputs
 # en la plantilla create_ffactura.html
@@ -314,9 +331,59 @@ def destroy_nino(id):
 
     return redirect('/ninos')
 
+@app.route('/eliminar_ninos', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_ninos():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Eliminar los clientes y sus facturas de las tablas originales
+        cursor.execute("DELETE FROM ninos WHERE id_nino IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 
 
+@app.route('/eliminar_usuarios', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_usuarios():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Eliminar los clientes y sus facturas de las tablas originales
+        cursor.execute("DELETE FROM usuarios WHERE id_usuario IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 #Codigo para rellenar el input Precio de create_factura.html
 
@@ -377,7 +444,7 @@ def entrar():
         return render_template('general/principal.html')
     else:
         flash('Cédula o contraseña incorrecta.')
-        return render_template('caines/login.html')
+        return render_template('general/login.html')
 
 
 
@@ -415,6 +482,58 @@ def agendar_citas(id):
         return render_template('/caines/ag_citas.html', representante = representante, cita = cita)
     
     return render_template('/caines/ag_citas.html', representante = representante)
+
+@app.route('/eliminar_citas', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_citas():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Eliminar los clientes y sus facturas de las tablas originales
+        cursor.execute("DELETE FROM citas WHERE id_cita IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/eliminar_facturas', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_facturas():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Eliminar los clientes y sus facturas de las tablas originales
+        cursor.execute("DELETE FROM facturas WHERE id_factura IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/eliminar_cita/<int:id>')
 def eliminar_cita(id):
@@ -465,15 +584,25 @@ def gestfacturas():
 
     #Sino, que muestre todas las facturas registradas.
     else: 
-        cursor.execute("SELECT * FROM facturas")
+        cursor.execute('''
+                SELECT
+                    facturas.id_factura,
+                    facturas.fecha,
+                    usuarios.nombre,
+                    usuarios.apellido,
+                    facturas.total
+                FROM
+                    facturas
+                INNER JOIN
+                    usuarios ON facturas.id_usuario = usuarios.id_usuario
+                WHERE
+                    usuarios.tipo_usuario = "representante"''')
     
         facturas = cursor.fetchall() 
     
         conn.commit() 
     
         return render_template('caines/gestfacturas.html', facturas=facturas)
-
-
 
 
 
@@ -514,7 +643,7 @@ def datos_horario(id):
     """, (id,))
 
     ninos = cursor.fetchall()
-    print("Niños es: ", ninos)
+    # print("Niños es: ", ninos)
 
     # cursor.execute("""
     # SELECT * FROM aux_horarios WHERE id_especialista = %s
@@ -522,14 +651,71 @@ def datos_horario(id):
 
     # ninos = cursor.fetchall()
 
-
-
-
-
     conn.close()
 
     # Convertir los datos a formato JSON y devolverlos
     return jsonify(ninos)
+
+
+
+@app.route('/horario_pdf/<int:id>', methods=['GET'])
+def horario_pdf(id):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT
+            aux_horarios.*,
+            usuarios.nombre AS nombre_especialista,
+            terapias.nombre AS nombre_terapia
+        FROM
+            aux_horarios
+        JOIN
+            usuarios ON aux_horarios.id_especialista = usuarios.id_usuario
+        JOIN
+            terapias ON aux_horarios.id_terapia = terapias.id_terapia
+        WHERE
+            aux_horarios.id_nino = %s
+    ''', (id,))
+
+    rows = cursor.fetchall()
+    print("Rows es: ", rows)
+
+    conn.close()
+
+    # Crear una estructura para el horario escolar
+    horario = {}
+    for hora in range(7, 17):
+        for minuto in [0, 30]:
+            key = f"{hora:02}:{minuto:02}"
+            horario[key] = {"Lunes": "", "Martes": "", "Miércoles": "", "Jueves": "", "Viernes": ""}
+
+    # Poner los datos en el horario
+    for row in rows:
+        dia = row[2].capitalize() # Convertir a título por si acaso
+        hora_inicio = row[4][:5]
+        duracion = int(row[6])
+        especialidad_terapia = f"{row[9]}<br>({row[8]})"
+        if hora_inicio in horario:
+            horario[hora_inicio][dia] = {
+                "especialidad_terapia": especialidad_terapia,
+                "rowspan": 3 if duracion == 60 else 2
+            }
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('ninos/reporte_horario.html', horario=horario)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_horario.pdf'
+
+    return response
+
+
 
 
 
@@ -541,7 +727,15 @@ def horario_esp(id):
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    nino = Nino.get(id)
+    sql = '''SELECT aux_horarios.id_nino, ninos.nombre, ninos.apellido
+                        FROM aux_horarios
+                        JOIN ninos ON aux_horarios.id_nino = ninos.id_nino
+                        WHERE aux_horarios.id_especialista = %s;
+                    '''
+    
+    cursor.execute(sql,(id))
+    ninos = cursor.fetchall()
+    print(ninos)
     especialista = Especialista.get(id)
 
     # Obtener terapias desde la base de datos
@@ -549,11 +743,12 @@ def horario_esp(id):
     terapias = cursor.fetchall()
 
     # Obtener los niños desde la base de datos
-    cursor.execute("SELECT id_nino, nombre FROM ninos ")
+    cursor.execute("SELECT id_nino, nombre, apellido, escolaridad FROM ninos ORDER BY nombre ASC")
     ninos = cursor.fetchall()
+    print(ninos)
 
 
-    return render_template('/caines/horario_esp.html', nino = nino, terapias = terapias, especialista = especialista)
+    return render_template('/caines/horario_esp.html', ninos = ninos, terapias = terapias, especialista = especialista)
 
 @app.route('/datos_horario_esp/<int:id>')
 def datos_horario_esp(id):
@@ -574,18 +769,6 @@ def datos_horario_esp(id):
     """, (id,))
 
     ninos = cursor.fetchall()
-
-    print(ninos)
-
-    # cursor.execute("""
-    # SELECT * FROM aux_horarios WHERE id_especialista = %s
-    # """, (id,))
-
-    # ninos = cursor.fetchall()
-
-
-
-
 
     conn.close()
 
@@ -633,10 +816,6 @@ def agregar_cita():
     flash('¡Su cita fue agendada exitosamente!', 'error')
 
     return redirect('/menu')
-
-
-
-
 
 
 @app.route('/agregar_terapia', methods=['POST'])
@@ -698,20 +877,20 @@ def agregar_terapia():
             flash("No se puede insertar la terapia en ese horario debido a una colisión.")
             return redirect('/horario/' + _id_nino)
         
+    print("Especialista: ", _especialista, "\nDia: ", _dia, "\nHora: ", _hora, "Hora Fin: ", _hora_fin)
+
     # Verificar si el especialista está disponible a esa hora
     sql_especialista_disponible = """
         SELECT COUNT(*) 
         FROM aux_horarios 
         WHERE id_especialista = %s 
         AND dia = %s 
-        AND (
-            (hora <= %s AND hora_fin > %s) 
-            OR (hora < %s AND hora_fin >= %s) 
-            OR (hora >= %s AND hora_fin <= %s)
-        )
+        AND hora = %s AND hora_fin = %s
     """
-    datos_especialista = (_especialista, _dia, _hora, _hora_fin, _hora, _hora_fin, _hora, _hora_fin)
+
+    datos_especialista = (_especialista, _dia, _hora, _hora_fin)
     cursor.execute(sql_especialista_disponible, datos_especialista)
+
     especialista_ocupado = cursor.fetchone()[0]
 
     if especialista_ocupado > 0:
@@ -729,43 +908,61 @@ def agregar_terapia():
     return redirect('/horario/' + _id_nino)
 
 
-
-
 @app.route('/eliminar_terapia', methods=['POST'])
 def eliminar_terapia():
     _id_nino = request.form['txtId_ocupado']
     _dia = request.form['txtDia_ocupado']
     _hora = request.form['txtHora_ocupado']
 
-
-
     conn = mysql.connect()
     cursor = conn.cursor()
-    a = cursor.execute("SHOW GRANTS")
-    print(a)
-    
-
 
     # Consultar las terapias existentes en el día y hora para eliminarlos
     sql = "DELETE FROM aux_horarios WHERE id_nino = %s AND dia = %s AND hora = %s"
     datos = (_id_nino, _dia, _hora)
 
-
     cursor.execute(sql, datos)
-
-
     conn.commit()
-
     conn.close() 
 
+    return redirect('/horario/' + _id_nino)
+
+@app.route('/eliminar_terapia_esp', methods=['POST'])
+def eliminar_terapia_esp():
+    _id_nino = request.form['txtId_ocupado']
+    _dia = request.form['txtDia_ocupado']
+    _hora = request.form['txtHora_ocupado']
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    # Consultar las terapias existentes en el día y hora para eliminarlos
+    sql = "DELETE FROM aux_horarios WHERE id_nino = %s AND dia = %s AND hora = %s"
+    datos = (_id_nino, _dia, _hora)
+
+    cursor.execute(sql, datos)
+    conn.commit()
+    conn.close() 
 
     return redirect('/horario/' + _id_nino)
 
 
-
 @app.route('/create_factura')
 def create_factura():
-    return render_template('/caines/create_factura.html')
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    # Consultar las terapias existentes en el día y hora para eliminarlos
+    sql = "SELECT id_usuario, cedula, nombre, apellido, direccion FROM usuarios WHERE tipo_usuario = 'representante'"
+
+    cursor.execute(sql)
+    representantes = cursor.fetchall()
+
+    conn.commit()
+    conn.close()    
+
+    return render_template('/caines/create_factura.html', clientes = representantes)
 
 
 @app.route('/citas')
@@ -1092,12 +1289,12 @@ def update_user():
   
         conn.commit()
 
-        if current_user.rol == 'director':
+        # if current_user.rol == 'director':
 
-            return redirect(redireccionamiento(_tipo_usuario))
+        #     return redirect(redireccionamiento(_tipo_usuario))
         
-        else:
-            return redirect('/menu')
+        # else:
+        return redirect('/menu')
   
     except Exception as e:
         conn.rollback()
@@ -1370,85 +1567,142 @@ def agregar_avance():
 
 #Inicio del codigo de Facturacion
 
-
-
-#Funcion para la generacion de PDF
-@app.route('/generar_pdf/<table_data_json>')
-def pdf_template(table_data_json):
-
+@app.route('/generar_pdf/<table_data_json>', methods=['GET'])
+def generar_pdf(table_data_json):
+    # Parsear los datos de la tabla
     table_data = json.loads(table_data_json)
-    rendered = render_template('/factura.html',table_data=table_data)
-    pdf = pdfkit.from_string(rendered,False,css='static/css/style2.css', options={"enable-local-file-access": ""})
 
+    # Renderizar la plantilla HTML con los datos de la tabla
+    rendered = render_template('factura.html', table_data=table_data)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf(stylesheets=['static/css/style2.css'])
+
+    # Crear la respuesta
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=factura.pdf'
 
-    # #Guardar la factura en la base de datos
-
-    print("Table data es: ", table_data)
-
+    # Guardar la factura en la base de datos
     terapias = []
     cantidades = []
     precios = []
     subtotales = []
+    total_a_pagar = table_data[0]['total_a_pagar']
+    representante = table_data[0]['representante']
+    id_usuario = representante['id_representante']
+    cedula = representante['cedula']
+    fecha = representante['fecha']
 
     for item in table_data:
-        cantidad = item["cantidad"]
+        cantidad = item['cantidad']
         cantidades.append(cantidad)
-        producto = item["producto"]
+        producto = item['producto']
         terapias.append(producto)
-        precio = item["precio"]
+        precio = item['precio']
         precios.append(precio)
-        subtotal = item["subtotal"]
+        subtotal = item['subtotal']
         subtotales.append(subtotal)
-        total_a_pagar = item["total_a_pagar"]
 
-        representante = item["representante"]
-        id_usuario = representante["id_representante"]
-        cedula = representante["cedula"]
-        fecha = representante["fecha"]
+    conn = mysql.connect()
+    cursor = conn.cursor()
 
-
-    
-    # Aquí puedes procesar los datos como necesites
-
-    print("cantidad es: ", cantidades[0],
-          "producto es: ", terapias[0],
-          "precio es: ", precio,
-          "subtotal es: ", subtotales[0],
-          "total_a_pagar es: ", total_a_pagar,
-          "cedula es: ", cedula,
-          "id es: ", id_usuario)
-
-
- 
-    conn = mysql.connect() 
-    cursor = conn.cursor() 
- 
-    #Guardar los datos en la tabla facturas
-
-    sql = "INSERT INTO facturas (id_factura, id_usuario, fecha, total) VALUES (NULL, %s, %s, %s);" 
- 
-    datos=(id_usuario, fecha, total_a_pagar)
-    cursor.execute(sql,datos)
-    # conn.commit()
+    # Guardar los datos en la tabla facturas
+    sql = "INSERT INTO facturas (id_factura, id_usuario, fecha, total) VALUES (NULL, %s, %s, %s);"
+    datos = (id_usuario, fecha, total_a_pagar)
+    cursor.execute(sql, datos)
+    conn.commit()
 
     # Obtener el id_factura generado por el autoincrementable
     id_factura = cursor.lastrowid
 
-    #Guardar los datos en la tabla aux_facturas
-
-    # Iterar sobre las terapias y cantidades y guardar cada registro en la tabla aux_facturas
+    # Guardar los datos en la tabla aux_facturas
     for i in range(len(terapias)):
         sql = "INSERT INTO aux_facturas (id_factura, terapia, cantidad, precio, subtotal) VALUES (%s, %s, %s, %s, %s);"
-        datos = (id_factura, terapias[i], cantidades[i], precios[i] ,subtotales[i])
+        datos = (id_factura, terapias[i], cantidades[i], precios[i], subtotales[i])
         cursor.execute(sql, datos)
         conn.commit()
 
-
-
     return response
+
+
+
+# #Funcion para la generacion de PDF
+# @app.route('/generar_pdf/<table_data_json>')
+# def pdf_template(table_data_json):
+
+#     table_data = json.loads(table_data_json)
+#     rendered = render_template('/factura.html',table_data=table_data)
+#     pdf = pdfkit.from_string(rendered,False,css='static/css/style2.css', options={"enable-local-file-access": ""})
+
+#     response = make_response(pdf)
+#     response.headers['Content-Type'] = 'application/pdf'
+#     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+
+#     # #Guardar la factura en la base de datos
+
+#     print("Table data es: ", table_data)
+
+#     terapias = []
+#     cantidades = []
+#     precios = []
+#     subtotales = []
+
+#     for item in table_data:
+#         cantidad = item["cantidad"]
+#         cantidades.append(cantidad)
+#         producto = item["producto"]
+#         terapias.append(producto)
+#         precio = item["precio"]
+#         precios.append(precio)
+#         subtotal = item["subtotal"]
+#         subtotales.append(subtotal)
+#         total_a_pagar = item["total_a_pagar"]
+
+#         representante = item["representante"]
+#         id_usuario = representante["id_representante"]
+#         cedula = representante["cedula"]
+#         fecha = representante["fecha"]
+
+
+    
+#     # Aquí puedes procesar los datos como necesites
+
+#     print("cantidad es: ", cantidades[0],
+#           "producto es: ", terapias[0],
+#           "precio es: ", precio,
+#           "subtotal es: ", subtotales[0],
+#           "total_a_pagar es: ", total_a_pagar,
+#           "cedula es: ", cedula,
+#           "id es: ", id_usuario)
+
+
+ 
+#     conn = mysql.connect() 
+#     cursor = conn.cursor() 
+ 
+#     #Guardar los datos en la tabla facturas
+
+#     sql = "INSERT INTO facturas (id_factura, id_usuario, fecha, total) VALUES (NULL, %s, %s, %s);" 
+ 
+#     datos=(id_usuario, fecha, total_a_pagar)
+#     cursor.execute(sql,datos)
+#     # conn.commit()
+
+#     # Obtener el id_factura generado por el autoincrementable
+#     id_factura = cursor.lastrowid
+
+#     #Guardar los datos en la tabla aux_facturas
+
+#     # Iterar sobre las terapias y cantidades y guardar cada registro en la tabla aux_facturas
+#     for i in range(len(terapias)):
+#         sql = "INSERT INTO aux_facturas (id_factura, terapia, cantidad, precio, subtotal) VALUES (%s, %s, %s, %s, %s);"
+#         datos = (id_factura, terapias[i], cantidades[i], precios[i] ,subtotales[i])
+#         cursor.execute(sql, datos)
+#         conn.commit()
+
+#     return response
 
 #Funcion para eliminar factura
 @app.route('/destroy_factura/<int:id>')
@@ -1465,7 +1719,6 @@ def destroy_factura(id):
 
     return redirect('/gestfacturas')
 
-
 @app.route('/ver_factura/<int:id_factura>')
 def ver_factura(id_factura):
     conn = mysql.connect()
@@ -1480,8 +1733,6 @@ def ver_factura(id_factura):
     sql = "SELECT * FROM aux_facturas WHERE id_factura = %s"
     cursor.execute(sql, (id_factura,))
     detalles_factura = cursor.fetchall()
-
-
 
     # Crear una lista con los datos de cada terapia
     terapias = []
@@ -1503,7 +1754,6 @@ def ver_factura(id_factura):
     representante = cursor.fetchone()
 
     # Crear un diccionario con todos los datos necesarios para la plantilla
-
     terapias_detalles = list(zip(cantidades, terapias, precios, subtotales))
     data = {
         'representante': representante,
@@ -1512,17 +1762,14 @@ def ver_factura(id_factura):
         'nombre': representante[3],
         'apellido': representante[4],
         'direccion': representante[5],
-        'terapias_detalles': terapias_detalles,  # La lista de tuplas combinadas
+        'terapias_detalles': terapias_detalles,
         'total_a_pagar': total_a_pagar
     }
 
     # Generar el PDF a partir de la plantilla y los datos
-
-
-    print("Table_data es: ", data)
-
-    rendered = render_template('/ver_factura.html', table_data=data)
-    pdf = pdfkit.from_string(rendered, False, css='static/css/style2.css', options={"enable-local-file-access": ""})
+    rendered = render_template('ver_factura.html', table_data=data)
+    html = HTML(string=rendered)
+    pdf = html.write_pdf(stylesheets=['static/css/style2.css'])
 
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
@@ -1591,6 +1838,179 @@ def buscar_cita():
 
     return render_template('caines/citas.html', citas = citas)
 
+
+
+@app.route('/ninos_pdf', methods=['POST'])
+def ninos_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT
+            nombre,
+            apellido,
+            edad,
+            escolaridad            
+        FROM
+            ninos
+        ORDER BY
+            nombre ASC
+    ''')
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)] 
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('ninos/reporte_ninos.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_inventario.pdf'
+
+    return response
+
+
+@app.route('/representantes_pdf', methods=['POST'])
+def representantes_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+            SELECT r.*, t.telefono FROM usuarios r
+            LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario
+            WHERE r.tipo_usuario = 'representante'
+    ''')
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)] 
+    
+    print(datos)
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('reportes/reporte_representantes.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_inventario.pdf'
+
+    return response
+
+@app.route('/especialistas_pdf', methods=['POST'])
+def especialistas_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+            SELECT r.*, t.telefono FROM usuarios r
+            LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario
+            WHERE r.tipo_usuario = 'especialista'
+    ''')
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)] 
+    
+    print(datos)
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('reportes/reporte_especialistas.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_inventario.pdf'
+
+    return response
+
+
+@app.route('/contadores_pdf', methods=['POST'])
+def contadores_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+            SELECT r.*, t.telefono FROM usuarios r
+            LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario
+            WHERE r.tipo_usuario = 'administrador'
+    ''')
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)] 
+    
+    print(datos)
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('reportes/reporte_contadores.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_inventario.pdf'
+
+    return response
+
+
+@app.route('/secretarias_pdf', methods=['POST'])
+def secretarias_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+            SELECT r.*, t.telefono FROM usuarios r
+            LEFT JOIN telefonos_usuario t ON r.id_usuario = t.id_usuario
+            WHERE r.tipo_usuario = 'secretaria'
+    ''')
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)] 
+    
+    print(datos)
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('reportes/reporte_secretarias.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_inventario.pdf'
+
+    return response
 
 
 

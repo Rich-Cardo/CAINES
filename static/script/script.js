@@ -1,3 +1,17 @@
+// Dark Mode Theme
+
+// document.getElementById('darkModeToggle').addEventListener('click', function() {
+//     document.body.classList.toggle('dark-mode');
+//     document.querySelector('.table').classList.toggle('dark-mode');
+//     document.querySelectorAll('thead').forEach((thead) => {
+//         thead.classList.toggle('dark-mode');
+//     });
+//     document.querySelectorAll('.btn').forEach((btn) => {
+//         btn.classList.toggle('btn-dark-mode');
+//     });
+// });
+
+
 //Funcion para obtener la plantilla actual
 
 function getCurrentTemplate() {
@@ -14,6 +28,7 @@ function getCurrentTemplate() {
 
 //Obtener la plantilla actual HTML donde se encuentra el usuario
 var currentTemplate = getCurrentTemplate();
+
 
 //Validaciones para los campos de las plantillas HTML
 if (currentTemplate === 'edit_user' || currentTemplate === 'create_user' || currentTemplate == 'registro') {
@@ -74,13 +89,7 @@ if (currentTemplate === 'create_nino') {
         }
     });
 
-    telefonoInput.addEventListener('keypress', function(event) {
 
-        var keyCode = event.keyCode || event.which;
-        if (keyCode < 48 || keyCode > 57) {
-            event.preventDefault();
-        }
-    });
 }  
   
 if (currentTemplate === 'create_nino') {

@@ -3,6 +3,12 @@
 	box-sizing: border-box;
 }
 
+.titulo-vista {
+    font-size: 35px;
+    padding: 10px;
+    color: #ffffff; /* Color gris oscuro elegante */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Sombra elegante */
+}
 
 
 body{
@@ -17,21 +23,28 @@ body{
 min-width: min-content;
 }    
 
-.fondo {    
+/* .fondo {    
 
    
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     min-height:100vh;
-    padding-top:62px; 
-		 background-image: url('../img/tijeras.jpg');
+    padding-top:70px; PADDING NECESARIO PARA QUE NO SE SUPERPONGA EL BODY
+	background-image: url('../img/tijeras.jpg');
 	box-sizing: border-box;
-    position: relative;
-    
-    /* Este Padding necesario para que la barra de navegacion del
-     header no se superponga sobre los elementos */    
+    position: relative; 
+ 
+} */
+
+.fondo {    
+    background: linear-gradient(to bottom, #cbb3e0, #756278);
+    min-height: 100vh;
+    padding-top: 70px; 
+    box-sizing: border-box;
+    position: relative;   
 }
+
 
 
 
@@ -72,11 +85,11 @@ min-width: min-content;
 .btn-success {min-width: max-content;}
 
 
-.tablas{
+/* .tablas{
 
     width: min-content;
 
-}
+} */
 
 
 
@@ -147,7 +160,7 @@ padding: 20px;
 
 border-radius: 10px;
 
-background-color: beige;
+background-color: rgb(230,230,230);
 
 box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
 
@@ -162,19 +175,19 @@ justify-content: center;
 align-items: center;
 }
 
-.principal {
-    /* Fondo con la imagen y gradiente */
-    background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%), url("../img/ninos.png");
+/* .principal {
+
+    background-image: url("../img/ninos.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 10px;
     
-    /* Asegurarse de que el texto esté centrado */
+
     text-align: -webkit-center;
     
     margin: 1vh;
-}
+} */
 
 
 .contenedor-terapia h4{
@@ -200,14 +213,14 @@ align-items: center;
 .contenedor-terapia p {
 
     text-align: justify;
-    font-size: 18px;
+    font-size: 20px;
     margin:10px;
 }
 
 
 
 
-.texto-principal{color: white;font-size:30px;margin:35px;font-style: italic;}
+
 
 .boton-principal{margin-bottom: 10px; /* Espacio opcional para separar el botón del contenido de la sección */margin-left: 10px; /* Espacio opcional para separar el botón del borde de la sección */}
 
@@ -228,27 +241,17 @@ align-items: center;
 } */
 
 
-.container-parrafo {
-    /* background-color: beige; */
+/* .container-parrafo {
+
 
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
 }
-  
-.container-parrafo h3 {
-    font-size: 50px;
-    margin-bottom: 10px;
-    color: #313131;
-}
-  
-.container-parrafo p {
-    font-size: 20px;
-    line-height: 1.5;
-    color: black;
-    text-align: justify;
-}
+   */
+
+
   
 
 /* CSS de la plantilla Factura */
@@ -426,7 +429,8 @@ color: #fff;
     border-radius: 5px; 
     box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 4px 3px -2px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2); 
     display: inline-block;
-    text-align: center;
+    text-align: left;
+    font-size: 20px;
 }
 
 .boton:hover, .banner:hover{
@@ -437,11 +441,73 @@ color: #fff;
 
 .banner{
 	color: #fff;
+    display: inline-block;
 	padding: 20px;
+    width: 250px;
+    height: 160px;
 	background-color: #5856DA;
-	    border-radius: 5px 5px 0px 0px;
-	    font-weight: bold;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 4px 3px -2px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2); 
+    border-radius: 5px 5px 0px 0px;
+    font-weight: bold;
 }
+
+.boton-nino{
+    background-image: url("../img/nino-pequeno.png");
+    background-size: 60%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-representante{
+    background-image: url("../img/representante.png");
+    background-size: 45%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-especialista{
+    background-image: url("../img/especialista.png");
+    background-size: 45%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-especialista{
+    background-image: url("../img/especialista.png");
+    background-size: 45%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-contadores{
+    background-image: url("../img/administrador.png");
+    background-size: 55%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-secretarias{
+    background-image: url("../img/secretaria.png");
+    background-size: 55%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-citas{
+    background-image: url("../img/citas.png");
+    background-size: 55%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.boton-facturas{
+    background-image: url("../img/pagos.png");
+    background-size: 55%; /* Ajusta la imagen a un tamaño más pequeño */
+    background-position: bottom right; /* Coloca la imagen en la esquina inferior derecha */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+
 
 /* .gestionar{
 	 font-weight: bold;
@@ -483,9 +549,7 @@ footer{
 		font-size: 2em;
 	}
 
-	.texto-principal{
-		font-size: 1.5em;
-	}
+
 	.container {
     min-width: 100%;
 	}
@@ -502,9 +566,7 @@ footer{
 		font-size: 1.5em;
 	}
 
-	.texto-principal{
-		font-size: 1.3em;
-	}
+
 
 	.form-login {
 		width:max-content
@@ -516,7 +578,7 @@ footer{
 .modern-button {
     display: inline-block; /* Necesario para que <a> se comporte como un botón */
     text-decoration: none; /* Sin subrayado */
-    background-color: #6a0dad; /* Color púrpura */
+    background-color: rgb(106, 13, 173); /* Color púrpura */
     color: #ffffff; /* Letras blancas */
     font-family: 'Roboto', Arial, sans-serif; /* Tipografía bonita y legible */
     font-size: 16px;
@@ -526,6 +588,7 @@ footer{
     cursor: pointer;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s, box-shadow 0.3s;
+    margin:2px;
 }
 
 .modern-button:hover {
@@ -535,4 +598,188 @@ footer{
     box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
 }
 
+
+
+
+
+
+
+/* Botones del Sidebar del Menu */
+.modern-button-menu {
+    display: inline-block; /* Necesario para que <a> se comporte como un botón */
+    text-decoration: none; /* Sin subrayado */
+    background-color: rgb(88,86,218); /* Color púrpura */
+    color: #ffffff; /* Letras blancas */
+    font-family: 'Roboto', Arial, sans-serif; /* Tipografía bonita y legible */
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    margin:6px;
+    width: 80%;
+}
+
+.modern-button-menu:hover {
+    background-color: #40097d;
+    text-decoration: none; /* Sin subrayado */
+    color: #ffffff; /* Letras blancas */
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+/* PAGINA PRINCIPAL */
+.contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: justify;
+    /* margin: 1vh; */
+    
+    /* Fondo con la imagen */
+    background-image: url("../img/principal.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
+    /* background-color: rgba(27, 26, 26, 0.656); */
+    background-blend-mode: overlay; /* Mezcla el color oscuro con la imagen */
+}
+
+/* Resto del CSS */
+.titulo-contenedor {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top:10%;
+}
+
+.titulo {
+    margin: 0px 0px 20px 0px;
+    padding: 1vh;
+    color: white; /* Color de la letra en blanco */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra del texto */
+    font-size: 40px; /* Tamaño grande del título */
+    text-align: center;
+}
+
+.eslogan-contenedor {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+}
+
+.eslogan {
+    margin: 0;
+    padding: 1vh;
+    color: white; /* Color de la letra en blanco */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra del texto */
+    font-style: italic; /* Cursiva para el eslogan */
+    font-size: 30px; /* Tamaño grande del título */
+}
+
+.conocenos {
+    margin: 0px 0px 20px 0px;
+    padding: 1vh;
+    color: rgba(255, 255, 255, 0.859); /* Color de la letra en blanco */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra del texto */
+    font-size: 35px; /* Tamaño grande del título */
+    text-align: center;
+}
+
+.textos-contenedor {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.texto-izquierda {
+    width: 50%;
+    padding: 1vh;
+    color: rgba(0, 0, 0); /* Color de la letra en blanco */
+    margin: 50px;
+    font-size: 21px;
+
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Agrega sombra */
+    background-color: rgba(255, 255, 255, 0.3); /* Fondo blanco sutil */
+    background-clip: padding-box; /* Evita que el fondo se extienda fuera del padding */
+    padding: 5px; /* Ajusta el padding según sea necesario */
+}
+
+
+
+.texto-derecha {
+    /* logo */
+    width: 30%;
+    margin:40px;
+    color: white; /* Color de la letra en blanco */
+    background-image: url("../img/logo.png"); /* Fondo de la imagen para el texto de la derecha */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain; /* Ajusta la imagen para cubrir todo el contenedor */
+    background-blend-mode: overlay; /* Mezcla el color oscuro con la imagen */
+    /* background-color: rgba(255, 255, 255, 0.225); */
+}
+
+/* Media query para teléfonos móviles */
+@media (max-width: 768px) {
+    .textos-contenedor {
+        flex-direction: column-reverse;
+        align-items: center;
+    }
+
+    .texto-izquierda, .texto-derecha {
+        width: 100%;
+        text-align: center;
+        padding: 1vh;
+    }
+
+    .texto-derecha {
+        height: 200px; /* Ajusta la altura para hacer la imagen más visible */
+        background-size: contain; /* Asegura que la imagen se vea completa */
+    }
+}
+
+/* Clase para los encabezados de las tablas */
+
+.sortable {
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .sortable:hover {
+    background-color: rgb(206,228,255) !important; /* Cambia el color de fondo al pasar el ratón */
+    color: #000 !important; /* Cambia el color del texto al pasar el ratón */
+  }
+
+
+
+  .table-responsive {
+    max-height: 70vh; /* Define la altura máxima deseada */
+    text-align: center;
+
+}
+
+
+/* fondo oscuro */
+body.dark-mode, body.dark-mode .fondo {
+    background: #121212; /* Fondo oscuro */
+    color: #ffffff; /* Texto claro */
+}
+
+body.dark-mode .table {
+    background-color: #1c1c1c; /* Fondo oscuro para la tabla */
+    color: #ffffff; /* Texto claro para la tabla */
+}
+
+body.dark-mode .thead-light {
+    background-color: #333333 !important; /* Fondo oscuro para thead con !important */
+    color: #ffffff !important; /* Texto claro para thead con !important */
+}
+
+body.dark-mode .btn-dark-mode {
+    background-color: #333333; /* Fondo oscuro para los botones */
+    color: #ffffff; /* Texto claro para los botones */
+}
 

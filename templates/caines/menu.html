@@ -1,4 +1,5 @@
 {% include 'header.html' %}
+</div>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -11,15 +12,33 @@
     <!--CONTENT START!-->
 
         <div class="row">
+            <div class="col-md-3" style="background-color: rgb(206,228,255);">
+                <!-- Barra lateral -->
+                <div class="user-sidebar">
+                    <div class="row">
+                        <img style="width:30%; height: 30%;" src="{{ url_for('static', filename='img/usuario.png') }}" alt="">
+                        <div class="user-name">{{current_user.nombre.upper()}} {{current_user.apellido.upper()}}
+                            <br>
+                            <p style="font-size: 16px;">{{current_user.rol.upper()}} </p>
+                        </div>
 
-            <section class="m-auto">
+                    </div>
+                        <div class="user-buttons">
+                            <a class="modern-button-menu btn-info" href="/edit_user/{{current_user.id}}">Modificar Usuario</a>
+                        <br>
+                        <a class="modern-button-menu btn-info" href="/edit_password/{{current_user.id}}">Modificar Contraseña</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col md-9">
 
                 <!--Container!-->
                 &nbsp
                 <div class="main">
                 &nbsp
                 <h2 style="color: #404040;", class="text-center">
-                    ¡Bienvenido, {{current_user.nombre}}!
+                    ¡Bienvenido!
                 </h2>
                 &nbsp
 
@@ -27,16 +46,16 @@
 
                 {% if current_user.rol == 'representante' %}
 
-                <a class="boton banner" href="/ninos">
+                <a class="boton boton-nino banner" href="/ninos">
                     NIÑOS
                 </a>
 
-                <a class="boton banner" href="/ag_citas/{{current_user.id}}">
+                <a class="boton boton-citas banner" href="/ag_citas/{{current_user.id}}">
                     CITAS
                 </a>
 
-                <a class="boton banner" href="/gestfacturas">
-                    FACTURAS
+                <a class="boton boton-facturas banner" href="/gestfacturas">
+                    PAGOS
                 </a>
 
                 {% endif %}
@@ -83,31 +102,31 @@
                 
                 {% if current_user.rol == 'director' %}
 
-                <a class="boton banner" href="/ninos">
+                <a class="boton boton-nino banner" href="/ninos">
                     NIÑOS
                 </a>
 
-                <a class="boton banner" href="/representantes">
+                <a class="boton boton-representante banner" href="/representantes">
                     REPRESENTANTES
                 </a>
 
-                <a class="boton banner" href="/especialistas">
+                <a class="boton boton-especialista banner" href="/especialistas">
                     ESPECIALISTAS
                 </a>
 
-                <a class="boton banner" href="/administradores">
-                    ADMINISTRADOR
+                <a class="boton boton-contadores banner" href="/administradores">
+                    CONTADORES
                 </a>
 
-                <a class="boton banner" href="/secretarias">
+                <a class="boton boton-secretarias banner" href="/secretarias">
                     SECRETARIAS
                 </a>
 
-                <a class="boton banner" href="/gestfacturas">
-                    FACTURAS
+                <a class="boton boton-facturas banner" href="/gestfacturas">
+                    PAGOS
                 </a>
 
-                <a class="boton banner" href="/citas">
+                <a class="boton boton-citas banner" href="/citas">
                     CITAS
                 </a>
 
@@ -118,7 +137,7 @@
                 &nbsp
                 <!--Container!-->
 
-            </section>
+            </div>
 
 
         </div>
@@ -132,5 +151,38 @@
 {% include 'footer.html' %}
 
   <!--FOOTER END!-->
+<style>
+    
+.user-sidebar {
+    background-color: rgb(206,228,255);
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    height: 100vh; /* Ajusta la altura para que se extienda verticalmente */
+}
 
+
+
+.user-sidebar .user-name {
+    font-size: 21px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.user-sidebar .user-buttons {
+    margin-top: 30px;
+}
+
+.user-sidebar .user-buttons button {
+    margin-right: 10px;
+}
+
+
+
+
+
+
+
+
+
+</style>
 

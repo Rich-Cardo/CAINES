@@ -1,67 +1,91 @@
 {% include 'header.html' %}
 
-        {% if current_user.rol != 'representante' %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info  " style="margin-top: 10px; margin-right: 5px;">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
 
-        <form class="form-inline" method="post" action="/buscar_facturas" enctype="multipart/form-data">
-
-        <a href="{{url_for('create_factura') }}" id="boton-ingresar" class="btn btn-success">Crear Factura</a>
-
-        <!-- <input type="text" id="input-buscar" class="form-control ml-auto" name="buscar" placeholder="Buscar facturas..." required>
-
-        <button id="boton-buscar" class="btn btn-info">Buscar</button> -->
-
-        </form>
-
-        {% endif %}
+<h1 class="text-center titulo-vista">Pagos</h1>
 
 
+<div class="container" style="padding-top: 10px;">
+  <div class="row align-items-center">
+    {% if current_user.rol != 'representante' %}
+      <div class="col-lg-2 col-md-3 col-sm-4 mb-3">
+          <a href="{{url_for('create_factura') }}" class="btn btn-success btn-block">
+            <i class="fa fa-plus"></i> Agregar...
+          </a>
+      </div>       
+    {% endif %}   
+    <div class="col-lg-6 col-md-6 col-sm-8 mb-3">
+      <div class="input-group">
+        <input id="searchInput" type="text" class="form-control" placeholder="Buscar pago..." aria-label="Buscar niños..." aria-describedby="basic-addon2">
+        <div class="input-group-append">
+          <span class="input-group-text" id="basic-addon2"><i class="fa fa-search"></i></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-12 mb-3">
+      <!-- <a href="javascript:void(0);" onclick="guardarPDF()" class="btn btn-warning btn-block">
+        <i class="fa fa-print" style="margin-right: 5px;"></i> Exportar a PDF
+      </a> -->
+    </div>      
+  </div>
+</div>
+
+<button onclick="Buscar()" style="display: none;" class="btn btn-info">Buscar</button>
         
-            <table id="tabla_facturas" class="table-wrapper-scroll-y my-custom-scrollbar table table-light tablas
-            border border-secondary rounded" style="margin:10px;"
-            cellspacing="0" >
-                <thead class="thead-light">
-                    <tr>
+<div id="myTable" class="table-responsive">
+  <table id="tabla_facturas" class="table table-light table-bordered border-secondary rounded" cellspacing="0">
+    <thead class="thead-light text-center">
+      <tr>
+        <th><input type="checkbox" id="selectAll" style="display: none;"></th>
+        <th id="nombre" onclick="sortTable(1)" class="sortable">ID</th>
+        <th id="fecha" onclick="sortTable(2)" class="sortable">Fecha</th>
+        <th id="nombre" onclick="sortTable(2)" class="sortable">Nombre</th>
+        <th id="apellido" onclick="sortTable(2)" class="sortable">Apellido</th>
+        <th id="edad" onclick="sortTable(1)" class="sortable">Monto</th>
+        <!-- <th id="escolaridad" onclick="sortTable(4)" class="sortable">Escolaridad</th> -->
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for factura in facturas %}
+        <tr class="text-center">
+          <td><input type="checkbox" class="rowCheckbox" value="{{ factura[0] }}"></td>
+          <td>{{ factura[0]}}</td>
+          <!-- ojo este valor es string, no soporta .strftime -->
+          <td>{{ factura[1]}}</td>
+          <td>{{ factura[2]}}</td>
+          <td>{{ factura[3]}}</td>
+          <td>{{ factura[4]}} $</td>
+          <td>
+            <div class="btn-group">
+              <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{ factura[0] }}" style="border-radius: 10px; margin-right: 5px;">
+                <i class="fa fa-eye"></i>
+              </a>
+              <!-- <a class="btn btn-warning" href="/edit_user/{{ factura[0] }}" style="border-radius: 10px; margin-right: 5px;">
+                <i class="fa fa-edit"></i>
+              </a> -->
+              
+              <a class="btn btn-danger" href="javascript:void(0);" onclick="eliminarCita('{{ factura[0] }}')" style="border-radius: 10px; margin-right: 5px;">
+                <i class="fa fa-trash"></i>
+              </a>
+            </div>
+            
+            
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-                        <th>IDFactura</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
 
-
-                        <th class="w-100">Acciones</th>
-
-                    </tr>
-                </thead>
-                <tbody>
-
-                    {% for factura in facturas %}
-
-                    
-                    <tr>
-
-
-                        <td>{{factura[0] }}</td>
-                        <td>{{factura[2] }}</td>
-                        <td>{{factura[3] }}</td>
-
-                        <td>
-                            <div class="btn-group col">
-                                <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{factura[0]}}">Ver</a>
-                                {% if current_user.rol != 'representante' %}
-                                <!-- <a class="btn btn-warning" href="/edit_nino/{{factura[0]}}">Editar</a> -->
-                                <a class="btn btn-danger" href="/destroy_factura/{{factura[0]}}" onclick="return confirm('¿Desea borrar el registro?')">Eliminar</a>
-                                {% endif %}
-                   
-                            </div>           
-                        </td>
-
-                    </tr>
-                    
-                    {% endfor %}                
-                </tbody>
-
-
-
-            </table>
+<button id="deleteSelected" class="btn btn-danger" style="display: none; width: 30%; margin-left:5%; margin-top: 1%">Eliminar Seleccionados</button>
 
             
 
@@ -125,3 +149,210 @@
 
 
 {% include 'footer.html' %}
+
+<script>
+
+    // Agregar el evento change al input de búsqueda
+    document.getElementById("searchInput").addEventListener("input", Buscar);
+
+    document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('selectAll');
+  let rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+  const deleteButton = document.getElementById('deleteSelected');
+  const sendButton = document.getElementById('sendSelected');
+  const undoButton = document.getElementById('undoButton');
+  const countdown = document.getElementById('countdown');
+  let countdownInterval;
+
+  function updateDeleteButtonVisibility() {
+    const anyChecked = Array.from(rowCheckboxes).some(checkbox => checkbox.checked);
+    deleteButton.style.display = anyChecked ? 'block' : 'none';
+  }
+
+  selectAllCheckbox.addEventListener('change', function() {
+    rowCheckboxes.forEach(checkbox => {
+      checkbox.checked = selectAllCheckbox.checked;
+    });
+    updateDeleteButtonVisibility();
+  });
+
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      updateDeleteButtonVisibility();
+    });
+  });
+
+  deleteButton.addEventListener('click', function() {
+  const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
+  const ids = Array.from(checkboxes).map(checkbox => checkbox.value);
+
+  if (ids.length === 0) {
+    Swal.fire({
+      title: 'Atención',
+      text: 'Por favor, seleccione al menos una fila para eliminar.',
+      icon: 'warning',
+      confirmButtonColor: '#3085d6',
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: '¡ATENCIÓN!',
+    text: '¿Está seguro de que desea eliminar las citas seleccionadas?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch('/eliminar_facturas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: ids })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al eliminar las citas seleccionadas.');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          checkboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            row.remove();
+          });
+
+          rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+          updateDeleteButtonVisibility();
+
+          Swal.fire({
+            title: 'Eliminado',
+            text: 'Las citas seleccionadas han sido eliminados exitosamente.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+          });
+
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: 'Error al eliminar las filas seleccionadas.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Error al eliminar las filas seleccionadas.',
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+        });
+      });
+    }
+  });
+});
+
+    window.eliminarCita = function(id) {
+    Swal.fire({
+      title: '¡ATENCIÓN!',
+      text: '¿Está seguro de que desea eliminar la factura?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/eliminar_facturas', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids: [id] })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al eliminar la factura.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            const row = document.querySelector(`.rowCheckbox[value="${id}"]`).closest('tr');
+            row.remove();
+
+            rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+            updateDeleteButtonVisibility();
+
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'La factura ha sido eliminada exitosamente.',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+            });
+
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al eliminar el niño.',
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error al eliminar el niño.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+          });
+        });
+      }
+    });
+  };
+
+ 
+});
+  
+  function Buscar() {
+    // Obtener los valores del input de búsqueda y los inputs de fecha
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("tabla_facturas");
+    var tr = table.getElementsByTagName("tr");
+
+    // Recorrer todas las filas de la tabla y ocultar aquellas que no coincidan con la búsqueda o el rango de fechas
+    for (var i = 1; i < tr.length; i++) {
+        var tdArray = tr[i].getElementsByTagName("td");
+        var match = false;
+
+        // Verificar si la fila coincide con el filtro de búsqueda
+        for (var j = 0; j < tdArray.length; j++) {
+            var td = tdArray[j];
+            if (td) {
+                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        // Mostrar la fila si coincide con el filtro de búsqueda y el rango de fechas
+        if (match) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+  }
+</script>

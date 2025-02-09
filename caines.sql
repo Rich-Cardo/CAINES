@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-01-2025 a las 12:17:46
+-- Tiempo de generación: 27-01-2025 a las 02:34:13
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -41,12 +41,22 @@ CREATE TABLE `aux_facturas` (
 
 CREATE TABLE `aux_horarios` (
   `id_horario` int(5) NOT NULL,
-  `id_dia` int(5) NOT NULL,
+  `id_nino` int(5) NOT NULL,
+  `dia` varchar(30) NOT NULL,
   `id_especialista` int(5) NOT NULL,
-  `id_hora` int(5) NOT NULL,
-  `aula` varchar(10) NOT NULL,
+  `hora` varchar(30) NOT NULL,
+  `hora_fin` varchar(30) NOT NULL,
+  `duracion` varchar(30) NOT NULL,
   `id_terapia` int(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `aux_horarios`
+--
+
+INSERT INTO `aux_horarios` (`id_horario`, `id_nino`, `dia`, `id_especialista`, `hora`, `hora_fin`, `duracion`, `id_terapia`) VALUES
+(4, 91, 'jueves', 28, '10:30', '11:00', '60', 2),
+(7, 91, 'lunes', 28, '11:30', '12:00', '60', 2);
 
 -- --------------------------------------------------------
 
@@ -226,12 +236,16 @@ CREATE TABLE `ninos` (
 --
 
 INSERT INTO `ninos` (`id_nino`, `id_usuario`, `nombre`, `apellido`, `edad`, `fecha_nacimiento`, `lugar_nacimiento`, `num_hermanos`, `escolaridad`) VALUES
-(40, 28, 'ds', 'ds', 31, '2023-10-06', 'ds', 0, '2do Grado'),
-(41, 28, 'ds', 'dsa', 31, '2023-10-03', 'dsds', 0, '2do Grado'),
-(42, 28, 'Nombre', 'apellido', 14, '2023-10-09', 'lugar nac', 0, '3er Grado'),
-(43, 28, 'Mi nombre', 'Mi apellido', 5, '2023-10-05', 'Falon', 42, '2do Grado'),
-(44, 50, 'Tita', 'Isabela', 3, '2023-10-04', 'guaritos', 0, '3er Grado'),
-(45, 51, 'za', 'za', 2, '2023-10-04', 'ds', 0, '2do Grado');
+(91, 28, 'Juan', 'Pérez', 10, '2014-01-10', 'Caracas', 2, 'Primaria'),
+(92, 28, 'Ana', 'Gómez', 8, '2016-04-15', 'Maracaibo', 1, 'Primaria'),
+(93, 28, 'Luis', 'Ramírez', 12, '2012-09-20', 'Valencia', 3, 'Secundaria'),
+(94, 28, 'María', 'Fernández', 11, '2013-07-07', 'Barquisimeto', 2, 'Primaria'),
+(95, 28, 'Carlos', 'García', 9, '2015-02-25', 'Mérida', 0, 'Primaria'),
+(96, 28, 'Laura', 'Martínez', 13, '2011-06-30', 'Puerto Ordaz', 1, 'Secundaria'),
+(97, 28, 'José', 'Rodríguez', 7, '2017-11-05', 'San Cristóbal', 1, 'Primaria'),
+(98, 28, 'Sofía', 'Hernández', 10, '2014-03-18', 'Maracay', 2, 'Primaria'),
+(99, 28, 'Miguel', 'Torres', 9, '2015-08-12', 'Cumaná', 3, 'Primaria'),
+(100, 28, 'Elena', 'Rojas', 8, '2016-12-22', 'Barcelona', 1, 'Primaria');
 
 -- --------------------------------------------------------
 
@@ -330,11 +344,10 @@ ALTER TABLE `aux_facturas`
 -- Indices de la tabla `aux_horarios`
 --
 ALTER TABLE `aux_horarios`
-  ADD KEY `fk_id_horario` (`id_horario`),
+  ADD PRIMARY KEY (`id_horario`),
   ADD KEY `fk_id_horario_especialista` (`id_especialista`),
   ADD KEY `fk_id_horario_terapia` (`id_terapia`),
-  ADD KEY `fk_id_dia` (`id_dia`),
-  ADD KEY `fk_id_horario_hora` (`id_hora`);
+  ADD KEY `fk_nino` (`id_nino`);
 
 --
 -- Indices de la tabla `aux_inscripcion`
@@ -450,6 +463,12 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `aux_horarios`
+--
+ALTER TABLE `aux_horarios`
+  MODIFY `id_horario` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT de la tabla `avances`
 --
 ALTER TABLE `avances`
@@ -495,7 +514,7 @@ ALTER TABLE `inscripciones`
 -- AUTO_INCREMENT de la tabla `ninos`
 --
 ALTER TABLE `ninos`
-  MODIFY `id_nino` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id_nino` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT de la tabla `terapias`
@@ -524,10 +543,8 @@ ALTER TABLE `aux_facturas`
 -- Filtros para la tabla `aux_horarios`
 --
 ALTER TABLE `aux_horarios`
-  ADD CONSTRAINT `fk_id_dia` FOREIGN KEY (`id_dia`) REFERENCES `dias` (`id_dia`),
-  ADD CONSTRAINT `fk_id_horario` FOREIGN KEY (`id_horario`) REFERENCES `horarios` (`id_horario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_id_horario_hora` FOREIGN KEY (`id_hora`) REFERENCES `horas` (`id_hora`),
-  ADD CONSTRAINT `fk_id_horario_terapia` FOREIGN KEY (`id_terapia`) REFERENCES `terapias` (`id_terapia`);
+  ADD CONSTRAINT `fk_id_horario_terapia` FOREIGN KEY (`id_terapia`) REFERENCES `terapias` (`id_terapia`),
+  ADD CONSTRAINT `fk_nino` FOREIGN KEY (`id_nino`) REFERENCES `ninos` (`id_nino`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `aux_inscripcion`

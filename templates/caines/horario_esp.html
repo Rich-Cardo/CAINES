@@ -8,7 +8,12 @@
   {% endif %}
 {% endwith %}
 
-    <table id="horario" class=" m-auto tabla-horario table table-light tablas border border-secondary rounded" style="margin:10px;" cellspacing="0">
+    <br>
+    <h2 class="text-center">Especialista: {{especialista.nombre}} {{especialista.apellido}}</h2>
+    <br>
+
+
+    <table id="horario" class="m-auto tabla-horario table table-light tablas border border-secondary rounded" style="margin:10px;" cellspacing="0">
       <thead class="thead-light">
 
         <tr>
@@ -29,23 +34,93 @@
 
     </table>
 
+<!-- Modal -->
+<div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="clientesModalLabel">Lista de Niños</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body">
+
+              <div class="row mb-3 text-center">
+                  <div class="col-12">
+                      <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar clientes..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                  </div>
+              </div>
+
+              <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                  <table id="tabla_clientes" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                      <thead class="thead-light text-center">
+                          <tr>
+
+                              <th>ID</th>
+                              <th>Nombre</th>
+                              <th>Apellido</th>
+                              <th>Grado</th>
+                              <th>Acciones</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+
+                          {% for nino in ninos %}
+                          <tr class="text-center">
+                              <td>{{ nino[0]}}</td>
+                              <td>{{ nino[1]}}</td>
+                              <td>{{ nino[2]}}</td>
+                              <td>{{ nino[3]}}</td>
+
+                              <td>
+                                  <div class="btn-group">
+                                      <a class="btn btn-success seleccionar-cliente"
+                                         href="#"
+                                         data-id_nino="{{ nino[0] }}"
+                                         data-nombre="{{ nino[2] }}"
+                                         data-apellido="{{ nino[3] }}"
+                                         onclick="seleccionarCliente(this)">Seleccionar</a>
+                                  </div>
+                              </td>
+                          </tr>
+                          {% endfor %}
+                          
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+      </div>
+  </div>
+</div>
+
     <!-- Codigo para mostrar el modal con los datos del ninos -->
 
-    <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content"  >
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">Agregar Terapia</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
           </div>
           <div class="modal-body">
 
             <form id="formHorario" class="" method="post" action="/agregar_terapia" enctype="multipart/form-data">
 
               <div class="row" style="margin-bottom: 10px;">
-                <label for="floatingInput" class="col-3">IdNino</label>
-                <input id="id" class="form-control col-8" type="text" name="txtId" value="{{nino.id}}" readonly>
-              </div>
+                <label for="floatingInput" class="col-3">ID Niño</label>
+                <input id="txtIdNino" class="form-control col-6" type="text" name="txtIdNino" readonly required>
+                <a class="btn btn-info col-2" style="margin-left:2px;" href="#" data-bs-toggle="modal" data-bs-target="#clientesModal">
+                    Buscar <i class="fas fa-search"></i>
+                </a>
+            </div>
+
+            <div class="row" style="margin-bottom: 10px;">
+              <label for="floatingInput" class="col-3">Nombre</label>
+              <input id="txtNombreNino" class="form-control col-8" type="text" name="txtNombreNino" readonly>
+            </div>
 
               <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Día</label>
@@ -66,7 +141,7 @@
                 </select>
               </div> -->
       
-              <!-- <div class="row" style="margin-bottom: 10px;">
+              <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Terapia</label>
                 <select id="txtTerapia" class="form-control col-8" name="txtTerapia" required>
                   {% for terapia in terapias %}
@@ -83,12 +158,12 @@
                   <option value="60">60 min</option>
 
                 </select>
-              </div>      -->
+              </div>     
               
       
-              <!-- <button type="submit" id="Agregar" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal">Cancelar</button>  -->
-            <!-- </form>   -->
+              <button type="submit" id="Agregar" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
+              <!-- <button type="button" class="btn button-login w-100" style="background-color: brown;" onclick="goBack()" >Cancelar</button>  -->
+            </form>  
 
 
 
@@ -108,15 +183,15 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="ModalOcupadoLabel">Datos de la Terapia</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
           </div>
           <div class="modal-body">
-            <form id="formHorarioOcupado" class="" method="post" action="/eliminar_terapia" enctype="multipart/form-data">
+            <form id="formHorarioOcupado" class="" method="post" action="/eliminar_terapia_esp" enctype="multipart/form-data">
 
-              <!-- <div class="row" style="margin-bottom: 10px;">
-                <label for="floatingInput" class="col-3">IdNino</label>
-                <input id="id_ocupado" class="form-control col-8" type="hidden" name="txtId_ocupado" value="{{nino.id}}" readonly>
-              </div> -->
+              <div class="row" style="margin-bottom: 10px;">
+                <!-- <label for="floatingInput" class="col-3">IdNino</label> -->
+                <input id="id_ocupado" class="form-control col-8" type="hidden" name="txtId_ocupado" readonly>
+              </div>
 
               <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Terapia</label>
@@ -125,7 +200,7 @@
 
               <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Niño</label>
-                <input id="txtNino_ocupado" class="form-control col-8" name="txtNino" readonly>
+                <input id="txtNino_ocupado" class="form-control col-8" name="txtNino_ocupado" readonly>
               </div>
 
               <div class="row" style="margin-bottom: 10px;">
@@ -138,13 +213,19 @@
                 <input id="txtHora_ocupado" class="form-control col-8" type="text" name="txtHora_ocupado" readonly>
               </div>
 
-              <div class="row" style="margin-bottom: 10px;">
+              <!-- <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Aula</label>
                 <input id="txtAula_ocupado" class="form-control col-8" type="text" name="txtAula_ocupado" readonly>
-              </div>
+              </div> -->
 
-              <!-- <button type="submit" id="Eliminar" class="btn button-login w-100" style="background-color:red; margin-bottom:6px; margin-top:15px;">Eliminar</button>
-              <button class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal">Cancelar</button>  -->
+              {% if current_user.rol == 'secretaria' or current_user.rol == 'director' %}
+
+              <button type="submit" id="Eliminar" class="btn button-login w-100" style="background-color:red; margin-bottom:6px; margin-top:15px;">Eliminar</button>
+              <!-- <button type="button" class="btn button-login w-100" style="background-color: brown;" data-dismiss="modal">Cancelar</button> -->
+
+
+              {% endif %}
+
             </form>
           </div>
           <div class="modal-footer">
@@ -153,7 +234,17 @@
         </div>
       </div>
     </div>
-  </div>
+
+    <br>
+    <button id="printButton" class="btn btn-primary m-auto d-block mt-4">
+      <i class="fas fa-print"></i>
+      Imprimir Horario
+    </button>
+  
+    <br>
+
+{% include 'footer.html' %}
+
 
 
 
@@ -186,229 +277,253 @@
 
 <script>
 
-//Crear las filas
+  // Imprimir Horario
+  document.getElementById('printButton').addEventListener('click', function() {
+      window.print();
+  });
 
-// Selecciona el cuerpo de la tabla con id "horario" y lo almacena en la variable "tbody"
-var tbody = document.querySelector('#horario tbody');
 
-// Rangos de horas en formato de 24 horas
-var inicio = 7;
-var fin = 17;
+  var current_user = {
+      id: '{{ current_user.id }}',
+      rol: '{{ current_user.rol }}'
+    };
 
-var dias = ["hora", "lunes", "martes", "miercoles", "jueves", "viernes"];
+  //Crear las filas
 
-// Crea las filas y las celdas correspondientes
-for (var hora = inicio; hora < fin; hora++) {
-  for (var mediaHora = 0; mediaHora < 2; mediaHora++) {
-    var fila = document.createElement('tr');
+  // Selecciona el cuerpo de la tabla con id "horario" y lo almacena en la variable "tbody"
+  var tbody = document.querySelector('#horario tbody');
+
+  // Rangos de horas en formato de 24 horas
+  var inicio = 7;
+  var fin = 17;
+
+  var dias = ["hora", "lunes", "martes", "miercoles", "jueves", "viernes"];
+
+  // Crea las filas y las celdas correspondientes
+  for (var hora = inicio; hora < fin; hora++) {
+    for (var mediaHora = 0; mediaHora < 2; mediaHora++) {
+      var fila = document.createElement('tr');
+      
+  // Crea la celda de la hora
+  var horaCell = document.createElement('td');
+  var horaCompleta = hora + Math.floor(mediaHora * 0.5);
+  // var amPm = horaCompleta >= 12 ? 'p.m.' : 'a.m.';
+  var hora12 = horaCompleta > 12 ? horaCompleta - 12 : horaCompleta;
+  var horaSiguiente12 = horaCompleta + 1 > 12 ? horaCompleta + 1 - 12 : horaCompleta + 1;
+
+  horaCell.textContent = hora12 + (mediaHora === 1 ? ':30' : ':00') + ' - ' + (mediaHora === 1 ? horaSiguiente12 + ':00' : hora12 + ':30');
+  fila.appendChild(horaCell);
+
+      
+      
+      // Crea las celdas de los días
+      for (var dia = 1; dia <= 5; dia++) {
+          var cell = document.createElement('td');
+          cell.textContent = '';
+          cell.classList.add('empty-cell'); // Agrega la clase "empty-cell" a las celdas vacías
+          fila.appendChild(cell);
+          
+    // Agrega el evento de clic a las celdas vacías
+  //   cell.addEventListener('click', function() {
+
+
+
     
-// Crea la celda de la hora
-var horaCell = document.createElement('td');
-var horaCompleta = hora + Math.floor(mediaHora * 0.5);
-// var amPm = horaCompleta >= 12 ? 'p.m.' : 'a.m.';
-var hora12 = horaCompleta > 12 ? horaCompleta - 12 : horaCompleta;
-var horaSiguiente12 = horaCompleta + 1 > 12 ? horaCompleta + 1 - 12 : horaCompleta + 1;
 
-horaCell.textContent = hora12 + (mediaHora === 1 ? ':30' : ':00') + ' - ' + (mediaHora === 1 ? horaSiguiente12 + ':00' : hora12 + ':30');
-fila.appendChild(horaCell);
 
+  //   // Verifica si la celda está vacía
+
+
+  //   if (this.textContent === '' ) {   
+
+
+  //     // Obtiene el índice de la columna (día de la semana)
+  //     var indexColumna = Array.from(this.parentNode.children).indexOf(this);
+  //     // Obtiene el nombre de la columna (día de la semana)
+  //     var nombreColumna = dias[indexColumna];
+      
+  //     // Obtiene el índice de la fila (hora)
+  //     var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
+  //     // Obtiene la hora de la fila
+  //     var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
+
+  //     //Condicion para saber si la hora es mayor a 13:00 y restarle 12
+  //     if (parseInt(horaFila.split(':')[0]) >= 13) {
+  //       var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
+  //       horaFila = hora12 + ':' + horaFila.split(':')[1];
+  //     }
+
+  //     // Muestra los datos obtenidos en la consola
+  //     // console.log("Día:", nombreColumna);
+  //     // console.log("Hora:", horaFila);
+
+  //     // Configurar el valor del input "Hora" en el modal
+  //     var inputHora = document.getElementById("txtHora");
+  //     inputHora.value = horaFila;
+
+  //     // Configurar el valor del input "Dia" en el modal
+  //     var inputDia = document.getElementById("txtDia");
+  //     inputDia.value = nombreColumna;
+
+
+  //     //Validación para que el modal aparezca en las celdas vacias
+  //     //sólo si el usuario es secretaria o director
+  //     //para evitar que el representante o especialista modifique
+  //     //los horarios.
+
+  //     if(current_user.rol === 'secretaria' || current_user.rol === 'director'){
+
+  //     // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
+  //     $('#myModal').modal('show');
+
+  //   }
+
+  //   }
+  //   else //En este else, va el codigo cuando la celda está ocupada
+  //   {
+
+  //     // Obtiene el índice de la columna (día de la semana)
+  //     var indexColumna = Array.from(this.parentNode.children).indexOf(this);
+  //     // Obtiene el nombre de la columna (día de la semana)
+  //     var nombreColumna = dias[indexColumna];
+      
+  //     // Obtiene el índice de la fila (hora)
+  //     var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
+  //     // Obtiene la hora de la fila
+  //     var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
+
+  //     //Condicion para saber si la hora es mayor a 13:00 y restarle 12
+  //     if (parseInt(horaFila.split(':')[0]) >= 13) {
+  //       var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
+  //       horaFila = hora12 + ':' + horaFila.split(':')[1];
+  //     }
+
+  //     // Muestra los datos obtenidos en la consola
+  //     // console.log("Día:", nombreColumna);
+  //     // console.log("Hora:", horaFila);
+
+  //     // Configurar el valor del input "Hora" en el modal
+  //     var inputHora = document.getElementById("txtHora_ocupado");
+  //     inputHora.value = horaFila;
+
+  //     // Configurar el valor del input "Dia" en el modal
+  //     var inputDia = document.getElementById("txtDia_ocupado");
+  //     inputDia.value = nombreColumna;
+
+
+  //     // Obtener los valores del especialista y la terapia
+  //     var contenidoCelda = this.textContent; // Obtener el contenido de la celda
+  //     var terapia = contenidoCelda; // La celda contiene la terapia solamente
+  //     var especialista = this.getAttribute('data-especialista'); // Obtener el especialista desde el atributo
+
+  //     // Configurar el valor del input "Terapia" en el modal
+  //     var inputTerapia = document.getElementById("txtTerapia_ocupado");
+  //     inputTerapia.value = terapia;
+
+  //     // Configurar el valor del input "Especialista" en el modal
+  //     var inputEspecialista = document.getElementById("txtNino_ocupado");
+  //     inputEspecialista.value = especialista;
+
+  //     // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
+  //     $('#ModalOcupado').modal('show');
+
+      
+
+  //   }
     
-    
-    // Crea las celdas de los días
-    for (var dia = 1; dia <= 5; dia++) {
-        var cell = document.createElement('td');
-        cell.textContent = '';
-        cell.classList.add('empty-cell'); // Agrega la clase "empty-cell" a las celdas vacías
-        fila.appendChild(cell);
-        
-  // Agrega el evento de clic a las celdas vacías
-  cell.addEventListener('click', function() {
-  // Verifica si la celda está vacía
-  if (this.textContent === '') {
 
-    // // Obtiene el índice de la columna (día de la semana)
-    // var indexColumna = Array.from(this.parentNode.children).indexOf(this);
-    // // Obtiene el nombre de la columna (día de la semana)
-    // var nombreColumna = dias[indexColumna];
-    
-    // // Obtiene el índice de la fila (hora)
-    // var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
-    // // Obtiene la hora de la fila
-    // var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
+  // });
+      
+      tbody.appendChild(fila);
 
-    // //Condicion para saber si la hora es mayor a 13:00 y restarle 12
-    // if (parseInt(horaFila.split(':')[0]) >= 13) {
-    //   var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
-    //   horaFila = hora12 + ':' + horaFila.split(':')[1];
-    // }
-
-    // // Muestra los datos obtenidos en la consola
-    // // console.log("Día:", nombreColumna);
-    // // console.log("Hora:", horaFila);
-
-    // // Configurar el valor del input "Hora" en el modal
-    // var inputHora = document.getElementById("txtHora");
-    // inputHora.value = horaFila;
-
-    // // Configurar el valor del input "Dia" en el modal
-    // var inputDia = document.getElementById("txtDia");
-    // inputDia.value = nombreColumna;
-
-    // // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
-    // $('#myModal').modal('show');
-
-  }
-  
-  else //En este else, va el codigo cuando la celda está ocupada
-  {
-    // Obtiene el índice de la columna (día de la semana)
-    var indexColumna = Array.from(this.parentNode.children).indexOf(this);
-    // Obtiene el nombre de la columna (día de la semana)
-    var nombreColumna = dias[indexColumna];
-    
-    // Obtiene el índice de la fila (hora)
-    var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
-    // Obtiene la hora de la fila
-    var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
-
-    //Condicion para saber si la hora es mayor a 13:00 y restarle 12
-    if (parseInt(horaFila.split(':')[0]) >= 13) {
-      var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
-      horaFila = hora12 + ':' + horaFila.split(':')[1];
+      
     }
-
-    // Muestra los datos obtenidos en la consola
-    console.log("Día:", nombreColumna);
-    console.log("Hora:", horaFila);
-
-    // Configurar el valor del input "Hora" en el modal
-    var inputHora = document.getElementById("txtHora_ocupado");
-    inputHora.value = horaFila;
-
-    // Configurar el valor del input "Dia" en el modal
-    var inputDia = document.getElementById("txtDia_ocupado");
-    inputDia.value = nombreColumna;
-
-
-    //Obtener los valores del especialista, la terapia y el niño
-    var contenidoCelda = this.textContent; // Obtener el contenido de la celda
-    var partesContenido = contenidoCelda.split(" "); // Separar por espacio en blanco
-
-    var terapia = partesContenido[0]; // Obtener la primera parte (terapia)
-    var especialista = partesContenido[1]; // Obtener la segunda parte (especialista)
-
-    // Configurar el valor del input "Terapia" en el modal
-    var inputTerapia = document.getElementById("txtTerapia_ocupado");
-    inputTerapia.value = partesContenido[0];
-
-    // Configurar el valor del input "Niño" en el modal
-    var inputNino = document.getElementById("txtNino_ocupado");
-    inputNino.value = partesContenido[2];
-
-
-
-
-    // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
-    $('#ModalOcupado').modal('show');
-
+  }
   }
 
-});
-    
-    tbody.appendChild(fila);
-
-    
-  }
-}
-}
 
 
-  // Rellenar la tabla html con los datos obtenidos del SQL
-
-  fetch('/datos_horario_esp/{{especialista.id}}') 
-    .then(response => response.json()) 
-    .then(ninos => { 
+  fetch('/datos_horario_esp/{{especialista.id}}')
+    .then(response => response.json())
+    .then(ninos => {
+      const cells = [];
       console.log(ninos)
 
-    const cells = [];      
+      for (let i = 0; i < ninos.length; i++) {
+        const nino = ninos[i];
+        const dia = nino[2];
+        const terapia = nino[9];
+        const especialista = nino[10];
+        console.log(especialista)
+        const duracion = parseInt(nino[6]);
+        let hora = parseInt(nino[4].split(':')[0]);
+        const minutos = parseInt(nino[4].split(':')[1]);
 
-    for (let i = 0; i < ninos.length; i++) { 
-      const nino = ninos[i];
-      const dia = nino[1];
-      const terapia = nino[9];
-      const especialista = nino[8];
-      const nombre_nino = nino[10];
-      const aula = nino[5];
-      const duracion = nino[7]
-      const hora = parseInt(nino[3].split(':')[0]);
-      const minutos = parseInt(nino[3].split(':')[1].replace(/[^\d]/g, '')); 
-      const amPm = nino[3].split(' ')[1]; 
-      if (amPm === 'p.m.' && hora !== 12) { 
-        hora += 12; 
-      } 
+        if (hora < 7) {
+          hora += 12;
+        }
 
+        const fila = (hora - 7) * 2 + Math.floor(minutos / 30);
+        var row = tbody.children[fila];
+        const colIndex = dias.indexOf(dia);
+        var cell = row.children[colIndex];
 
-    
+        if (duracion === 60) {
+          var fila1 = fila;
+          var fila2 = fila1 + 1;
 
-      const fila = hora >= 7 && hora < 13 ? (hora - 7) * 2 + Math.floor(minutos / 30) : (hora + 5) * 2 + Math.floor(minutos / 30);
-
-
-      var row = tbody.children[fila]; 
-
-      const colIndex = dias.indexOf(dia);
-
-      var cell = row.children[colIndex];
-
-
-      // Si la terapia dura una hora, entonces debe ocupar dos filas
-
-
-      if (duracion === 60) { 
-        var fila1 = fila
-        // console.log("fila1 es : ",fila1)
-        var fila2 = fila1 + 1;
-
-        // Si no hay superposición, agregar la terapia
-
-        var row1 = tbody.children[fila1]; 
-        var cell1 = row1.children[colIndex];
-        cell1.setAttribute('rowspan', 2); 
-        cells.push(cell1); 
-        cell1.textContent = terapia + ' \n' + especialista + nombre_nino;
-        cell1.classList.add('terapia-cell');
-
-      } 
-      
-      else {
-
-              //Codigo si la terapia dura 30 minutos
-              
-              cells.push(cell); 
-
-              cell.textContent = terapia + ' \n' + especialista + ' \n' + nombre_nino;
-              //Agregarle la clase terapia-cell a la celda creada.
-              cell.classList.add('terapia-cell');
-
-
+          let conflicto = false;
+          for (let j = fila1; j <= fila2; j++) {
+            row = tbody.children[j];
+            cell = row.children[colIndex];
+            if (cell.textContent !== '') {
+              conflicto = true;
+              break;
             }
+          }
+
+          if (!conflicto) {
+            var row1 = tbody.children[fila1];
+            var cell1 = row1.children[colIndex];
+            cell1.setAttribute('rowspan', 2);
+            cells.push(cell1);
+            cell1.textContent = terapia; // Solo muestra la terapia en la celda
+            cell1.setAttribute('data-especialista', especialista); // Guarda el especialista en un atributo
+            cell1.classList.add('terapia-cell');
+
+            var row2 = tbody.children[fila2];
+            var cell2 = row2.children[colIndex];
+            cell2.textContent = '';
+          }
+
+        } else {
+          cells.push(cell);
+          cell.textContent = terapia;
+          cell.setAttribute('data-especialista', especialista); 
+          cell.classList.add('terapia-cell');
+        }
+      }
+    });
 
 
 
- 
-    } 
-});
+    function seleccionarCliente(element) {
+        var id_nino = element.getAttribute('data-id_nino');
+        var nombre_nino = element.getAttribute('data-nombre');
+        var apellido_nino = element.getAttribute('data-apellido');
+        document.getElementById('txtIdNino').value = id_nino;
+        document.getElementById('txtNombreNino').value = nombre_nino + ' ' + apellido_nino;
+
+        // Cerrar el modal
+        $('#clientesModal').modal('hide');
+
+              // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
+      $('#myModal').modal('show');
+    }
 
 
 
-
-
-
-
-
-
-
-
-    </script>
+</script>
 
 
 
@@ -434,71 +549,105 @@ fila.appendChild(horaCell);
 
 
     <!-- Codigo CSS para las celdas de las terapias -->
-    <style>
+<style>
 
-        .terapia-cell {
-          background-color: #ffd700;
-          max-width: 200px; 
-          white-space: normal;
-          word-wrap: break-word;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          text-align: center;
-
-        }
-
-        .empty-cell:hover {
-  background-color: #ffa500; /* Cambia el color de fondo al estar con el mouse encima */
-}
-
-
-
-        .tabla-horario tbody tr {
-    
-          
-    height: auto;
-    max-height: 50px; /* Ajusta este valor según tus necesidades */
-
+  .terapia-cell {
+    background-color: #8a37c5;
+    max-width: 200px; 
+    white-space: normal;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+    color: white;
 
   }
 
-.terapia-cell[rowspan="2"] {
-  vertical-align: middle;
+  .empty-cell:hover {
+    background-color: #a13fe6; /* Cambia el color de fondo al estar con el mouse encima */
+  }
 
-}
+
+
+  .tabla-horario tbody tr {
+      
+            
+      height: auto;
+      max-height: 50px; /* Ajusta este valor según tus necesidades */
+
+
+    }
+
+  .terapia-cell[rowspan="2"] {
+    vertical-align: middle;
+
+  }
 
 .tabla-horario th,
 .tabla-horario td {
-  width: 150px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size:17px;
+    border: 1px solid #999; /* Coloca aquí el borde oscuro deseado */
+    width: 150px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 17px;
 }
 
 .tabla-horario {
-  /* Codigo responsive */
-  table-layout: fixed;
-  overflow-x: auto;
-  max-width: 100%;
-  margin: 0 auto;
-  width: fit-content;
-  margin-bottom:10px;
-
-}
-
-.tabla-horario-wrapper {
-  overflow-x: auto;
-  max-width: 100%;
+    /* Codigo responsive */
+    table-layout: fixed;
+    overflow-x: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    width: fit-content;
+    margin-bottom: 10px;
+    border-collapse: collapse; /* Asegúrate de que las reglas de borde se apliquen correctamente */
 }
 
 
+  .tabla-horario-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  @media print {
+    #printButton {
+        display: none !important;
+    }
+  
+    .tabla-horario th,
+    .tabla-horario td {
+        border: 1px solid #000!important; /* Bordes negros */
+        color: #000!important; /* Texto color negro */
+    }
+
+    .terapia-cell {
+        background-color: #e6e6e6!important; /* Fondo gris claro */
+        color: #000!important; /* Texto color negro */
+    }
+    
+    footer {
+        color: #000!important;  /* Texto color negro */
+    }
+}
+
+  #printButton {
+    background-color: #6a0dad; /* Color púrpura */
+    color: white; /* Texto en color blanco */
+    border: none; /* Sin bordes */
+  }
+
+  #printButton:hover {
+      background-color: #8a2be2; /* Cambia a un púrpura más claro al pasar el mouse */
+  }
 
 
 
 
-    </style>
+
+
+</style>
           
 
             
@@ -524,7 +673,6 @@ fila.appendChild(horaCell);
 
 
     
-    </div>
 
 
 
@@ -534,4 +682,4 @@ fila.appendChild(horaCell);
 
 
 
-{% include 'footer.html' %}
+

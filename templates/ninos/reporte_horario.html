@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario del Niño</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
+</head>
+<body>
+
+    <header class="header">
+        <img src="file:///C:/Sistema%20Web%20CAINES/static/img/logo.png" alt="Encabezado">
+    </header>
+    
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th class="hora-col">Hora</th>
+                <th class="dia-col">Lunes</th>
+                <th class="dia-col">Martes</th>
+                <th class="dia-col">Miércoles</th>
+                <th class="dia-col">Jueves</th>
+                <th class="dia-col">Viernes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hora, dias in horario.items() %}
+            <tr>
+                <td class="hora-col">{{ hora }}</td>
+                <td class="dia-col">{{ dias['Lunes'] }}</td>
+                <td class="dia-col">{{ dias['Martes'] }}</td>
+                <td class="dia-col">{{ dias['Miércoles'] }}</td>
+                <td class="dia-col">{{ dias['Jueves'] }}</td>
+                <td class="dia-col">{{ dias['Viernes'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <footer>
+        <div>
+            <img src="file:///C:/Sistema%20Web%20CAINES/static/img/corazon_autismo.jpg" alt="Pie de página">
+        </div>
+    </footer>
+
+    <p class="segundo_footer">Centro de Atención Integral para Niños con Necesidades Educativas Especiales Rif.J-406376965</p>
+    <p class="tercer_footer">Av. Los Próceres sector Palma Real, U.E Alejandro Fuenmayor</p>
+    
+
+</body>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        margin: 40px;
+        position: relative;
+    }
+
+    @page {
+        size: A4;
+        margin: 28mm 10mm 40mm 10mm;
+    }
+
+    header {
+        position: fixed;
+        top: -20mm;
+        left: 0;
+        right: 0;
+        height: 20mm;
+        text-align: center;
+    }
+
+    header img {
+        width: 40%;
+        height: 100%;
+    }
+
+    footer {
+        position: fixed;
+        bottom: -13mm;
+        left: 140mm;
+        right: 0;
+        height: 15mm;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    footer img {
+        height: 40%;
+        width: 40%;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 15px;
+        font-family: 'Arial', sans-serif;
+        min-width: 400px;
+    }
+
+    .styled-table thead tr {
+        background-color: #3f87a6;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .styled-table th, 
+    .styled-table td {
+        padding: 12px 5px;
+        border: 1px solid #ddd;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #ddd;
+        min-height: 40px;
+    }
+
+    .hora-col {
+        width: 15%;
+    }
+
+    .dia-col {
+        width: 17%;
+    }
+
+</style>
+
+</html>

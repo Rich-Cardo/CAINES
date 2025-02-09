@@ -1,34 +1,42 @@
 {% include 'header.html' %}
-
-<section class="container principal">
-
-    <div class="d-flex justify-content-center">
+<div class="contenedor">
+    <div class="titulo-contenedor">
         <h1 class="titulo">
             Centro de Atención para Niños con 
             Necesidades Especiales (CAINES)
         </h1>
     </div>
 
-    <p class="texto-principal">
-        "Donde cada niño es único 
-        y la integración es la clave"
-    </p>
+
+
+    <div class="eslogan-contenedor">
+        <p class="eslogan">
+            "Donde cada niño es único 
+            y la integración es la clave"
+        </p>
+    </div>
+
+    <br>
+    <br>
+    <br><br>
+    <h1 class="conocenos">¡Conócenos!</h1>
+
+
+    
 
     <!-- Contenedor de párrafos lado a lado -->
-    <div class="container-parrafo">
-        <p>
+    <div class="textos-contenedor">
+        <p class="texto-izquierda">
             En CAINES, nos enorgullece el compromiso de ayudar a los niños con necesidades educativas especiales. Somos el lugar indicado para que su hijo goce de un aprendizaje seguro, acogedor y estimulante.
             Nuestro equipo de educadores altamente capacitados y apasionados se esfuerza por proporcionar una educación personalizada y centrada en el potencial único de cada niño.
             Nos esforzamos por desarrollar sus habilidades académicas, sociales y emocionales, y promover su independencia y confianza en sí mismos.
         </p>
-
-        <!-- Párrafo Lorem Ipsum a la derecha -->
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vehicula magna vel justo interdum, non gravida lorem dapibus. Curabitur sit amet purus augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.
-        </p>
+    
+        <p class="texto-derecha"></p>
     </div>
+</div>
 
-</section>
+
 
 <!-- Servicios que Ofrece -->
 <h3 class="row justify-content-center" style="margin:20px;">
@@ -42,7 +50,7 @@
             Mejora las habilidades lingüísticas y de comunicación de tu hijo(a) con nuestra terapia especializada. Utilizamos técnicas y actividades divertidas para facilitar el aprendizaje y ayudar a los niños a alcanzar su máximo potencial.
         </p>
         <div class="image-container">
-            <img src="{{ url_for('static', filename='img/lengua.png') }}">
+            <img src="{{ url_for('static', filename='img/hablando.png') }}">
         </div>
     </div>
 
@@ -52,7 +60,7 @@
             Apoyamos el desarrollo académico y emocional de los niños a través de estrategias personalizadas y técnicas de aprendizaje efectivas. Nuestro equipo brinda apoyo individualizado para fomentar el autoestima y maximizar las capacidades.
         </p>
         <div class="image-container">
-            <img src="{{ url_for('static', filename='img/psico.png') }}">
+            <img src="{{ url_for('static', filename='img/cerebro.png') }}">
         </div>
     </div>
 
@@ -62,7 +70,7 @@
             Ayudamos a los niños a desarrollar habilidades para participar en las actividades diarias y mejorar su calidad de vida. Nuestro enfoque terapéutico se centra en promover la independencia funcional a través de actividades significativas y adaptaciones individualizadas.
         </p>
         <div class="image-container">
-            <img src="{{ url_for('static', filename='img/silla.png') }}">
+            <img src="{{ url_for('static', filename='img/silla-de-ruedas.png') }}">
         </div>
     </div>
 </div>

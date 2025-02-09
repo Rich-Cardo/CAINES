@@ -12,7 +12,6 @@
             <!-- Input con el ID del representante oculto para manejarlo en la base de datos -->
             <input id="txtID" class="form-control col-8" type="hidden" name="txtID" readonly required>
 
-
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Fecha</label>
                 <input id="txtFecha" class="form-control col-8" type="date" name="txtFecha">
@@ -20,25 +19,27 @@
 
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Cédula</label>
-                <select class="form-select form-select-lg" id="cod_cedula" style="margin-right:14px">
-                    <option value="1">V</option>
-                    <option value="2">J</option>
-                    <option value="3">E</option>
-                </select>
-                <input id="txtCedula" class="form-control col-7" type="text" name="txtCedula" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+                <input id="txtCedula" class="form-control col-6" type="text" name="txtCedula" pattern="[0-9\s]+" title="Sólo se permiten números" readonly required>
+                <a class="btn btn-info col-2" style="margin-left:2px;" href="#" data-bs-toggle="modal" data-bs-target="#clientesModal">
+                    Buscar <i class="fas fa-search"></i>
+                </a>
             </div>
+
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Nombre</label>
-                <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" required>
+                <input id="txtNombre" class="form-control col-8" type="text" name="txtNombre" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres" readonly required>
             </div>
+
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Apellido</label>
-                <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" required>
+                <input id="txtApellido" class="form-control col-8" type="text" name="txtApellido" readonly required>
             </div>
+
             <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Dirección</label>
-                <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion" pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres">
+                <input id="txtDireccion" class="form-control col-8" type="text" name="txtDireccion" readonly pattern="[a-zA-Z\s]+" title="Sólo se permiten caracteres">
             </div>
+
         </form>
 
         <form class="form-productos" method="post" action="/verificar_terapia" enctype="multipart/form-data" style="margin-left:20px;" > 
@@ -100,7 +101,70 @@
         <a class="btn btn-info" href="/menu" onclick="goBack()">Volver</a>
         <a class="btn btn-success" href="#" onclick="guardarPDF()">Guardar</a>
         <a class="btn btn-warning" href="#"  onclick="limpiarTabla()">Limpiar</a>
-    </div>  
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientesModalLabel">Lista de Representantes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+
+                    <div class="row mb-3 text-center">
+                        <div class="col-12">
+                            <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar clientes..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                        </div>
+                    </div>
+
+                    <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                        <table id="tabla_clientes" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                            <thead class="thead-light text-center">
+                                <tr>
+
+                                    <th>Cedula</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in clientes %}
+                                <tr class="text-center">
+                                    <td>{{ cliente[1]}}</td>
+                                    <td>{{ cliente[2].upper()}}</td>
+                                    <td>{{ cliente[3].upper()}}</td>
+                                    
+                                    <td>
+                                        <div class="btn-group">
+                                            <a class="btn btn-success seleccionar-cliente"
+                                            href="#"
+                                            data-id="{{ cliente[0] }}"
+                                            data-cedula="{{ cliente[1] }}"
+                                            data-nombre="{{ cliente[2].upper() }}"
+                                            data-apellido="{{ cliente[3].upper() }}"
+                                            data-direccion="{{cliente[4].upper() }}"
+                                            onclick="seleccionarCliente(this)">Seleccionar</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script>
@@ -323,83 +387,127 @@ function obtenerDatosRepresentante() {
   return representanteData;
 }
 
-
-
 function guardarPDF() {
+    // Validar los campos
 
-    //Validar los campos
-
-    //Obtener los valores de los input del formulario PRODUCTOS
+    // Obtener los valores de los input del formulario PRODUCTOS
     var terapia = document.getElementById("txtTerapia").value; 
     var cantidad = document.getElementById("txtCantidad").value; 
     var precio = document.getElementById("txtPrecio").value;
 
-    //Obtener los valores de los input del formulario REPRESENTANTE
-    // var id_representante = document.getElementById("txtID").value;
+    // Obtener los valores de los input del formulario REPRESENTANTE
     var fecha = document.getElementById("txtFecha").value; 
     var cedula = document.getElementById("txtCedula").value; 
     var nombre = document.getElementById("txtNombre").value;
     var apellido = document.getElementById("txtApellido").value;
     var direccion = document.getElementById("txtDireccion").value;
 
-    //Evitar la ejecución de la función en caso de que alguno de los
-    //campos esté vacío
-
-
+    // Evitar la ejecución de la función en caso de que alguno de los
+    // campos esté vacío
     if (fecha == '' || cedula == '' || nombre == '' || apellido == '' || direccion == '') {
-
         // Mostrar mensaje de error
-
         var mensajeContainer = document.getElementById("mensaje");
         mensajeContainer.textContent = "Debe llenar todos los campos antes de guardar la factura";
 
         // Ocultar el div después de 3 segundos
-
         setTimeout(function() {
-        mensajeContainer.innerHTML = ""; // Vaciar el contenido del div
+            mensajeContainer.innerHTML = ""; // Vaciar el contenido del div
         }, 4000);
 
         return;
-
     }
-
 
     // Obtener los datos de la tabla 
     var tableData = obtenerDatosTabla(); 
 
     // Verificar si hay filas en la tabla
     if (tableData.length === 0) {
-    // Verificar si hay filas en la tabla
-    if (tableData.length === 0) {
-    // console.log('No se han introducido filas en la tabla.');
-    return; // Salir de la función si no hay filas
-    }
+        // console.log('No se han introducido filas en la tabla.');
+        return; // Salir de la función si no hay filas
     }
 
-    // Realizar la petición AJAX 
-    fetch('/generar_pdf/' + JSON.stringify(tableData)) 
-    // Realizar la petición AJAX 
-    fetch('/generar_pdf/' + JSON.stringify(tableData)) 
-    .then(response => response.blob()) 
-    .then(blob => { 
-        // Generar la URL del objeto Blob 
-        const url = window.URL.createObjectURL(blob); 
-        
-        // Abrir el PDF en una nueva ventana 
-        window.open(url, '_blank'); 
-    }) 
-    .catch(error => console.error('Error:', error)); 
-    }
+    // Mostrar la alerta de SweetAlert y deshabilitar el botón
+    Swal.fire({
+        title: 'Guardando...',
+        text: 'Por favor, espera un momento.',
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false
+    });
+
+    // Deshabilitar el botón de guardar durante 3 segundos
+    // var guardarBtn = document.getElementById("guardarBtn");
+    // guardarBtn.disabled = true;
+
+    // Realizar la petición AJAX
+    fetch('/generar_pdf/' + JSON.stringify(tableData))
+        .then(response => response.blob())
+        .then(blob => {
+            // Generar la URL del objeto Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Abrir el PDF en una nueva ventana
+            window.open(url, '_blank');
+
+            // Ocultar la alerta después de 3 segundos
+            setTimeout(() => {
+                Swal.close();
+                guardarBtn.disabled = false; // Habilitar el botón después de 3 segundos
+            }, 3000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Mostrar un mensaje de error si falla la petición AJAX
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un problema al generar el PDF. Por favor, intenta de nuevo.',
+                icon: 'error'
+            });
+            guardarBtn.disabled = false; // Habilitar el botón inmediatamente si hay un error
+        });
+}
+
+
  
 
+    function seleccionarCliente(element) {
+        var id_cliente = element.getAttribute('data-id');
+        var cedula = element.getAttribute('data-cedula');
+        var nombre = element.getAttribute('data-nombre');
+        var apellido = element.getAttribute('data-apellido');
+        var direccion = element.getAttribute('data-direccion');
+        document.getElementById('txtID').value = id_cliente;
+        document.getElementById('txtCedula').value = cedula;
+        document.getElementById('txtNombre').value = nombre;
+        document.getElementById('txtApellido').value = apellido;
+        document.getElementById('txtDireccion').value = direccion;
+        // Cerrar el modal
+        $('#clientesModal').modal('hide');
+    }
 
 
+document.addEventListener("DOMContentLoaded", function() {
 
+    var fechaInput = document.getElementById("txtFecha");
 
+    // Obtener la fecha actual
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = ("0" + (today.getMonth() + 1)).slice(-2); // Añadir un 0 al principio si es necesario
+    var day = ("0" + today.getDate()).slice(-2); // Añadir un 0 al principio si es necesario
+    var maxDate = year + "-" + month + "-" + day;
 
+    // Establecer el valor máximo para el input de fecha
+    fechaInput.max = maxDate;
 
+    // Establecer el valor mínimo para el input de fecha (primer día del año actual)
+    var minDate = year + "-01-01";
+    fechaInput.min = minDate;
 
+    // Establecer el valor por defecto a la fecha actual
+    fechaInput.value = maxDate;
 
+});
 
 
     </script>

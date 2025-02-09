@@ -8,7 +8,11 @@
   {% endif %}
 {% endwith %}
 
-    <table id="horario" class=" m-auto tabla-horario table table-light tablas border border-secondary rounded" style="margin:10px;" cellspacing="0">
+    <br>
+    <h2 class="text-center">{{nino.nombre}} {{nino.apellido}}</h2>
+    <br>
+
+    <table id="horario" class="m-auto tabla-horario table table-light tablas border border-secondary rounded" style="margin:10px;" cellspacing="0">
       <thead class="thead-light">
 
         <tr>
@@ -138,10 +142,10 @@
                 <input id="txtHora_ocupado" class="form-control col-8" type="text" name="txtHora_ocupado" readonly>
               </div>
 
-              <div class="row" style="margin-bottom: 10px;">
+              <!-- <div class="row" style="margin-bottom: 10px;">
                 <label for="floatingInput" class="col-3">Aula</label>
                 <input id="txtAula_ocupado" class="form-control col-8" type="text" name="txtAula_ocupado" readonly>
-              </div>
+              </div> -->
 
               {% if current_user.rol == 'secretaria' or current_user.rol == 'director' %}
 
@@ -159,6 +163,14 @@
         </div>
       </div>
     </div>
+
+    <br>
+    <button id="printButton" class="btn btn-primary m-auto d-block mt-4">
+      <i class="fas fa-print"></i>
+      Imprimir Horario
+    </button>
+  
+    <br>
 
 {% include 'footer.html' %}
 
@@ -193,6 +205,12 @@
 
 
 <script>
+
+  // Imprimir Horario
+  document.getElementById('printButton').addEventListener('click', function() {
+      window.print();
+  });
+
 
   var current_user = {
       id: '{{ current_user.id }}',
@@ -310,8 +328,8 @@
       }
 
       // Muestra los datos obtenidos en la consola
-      console.log("Día:", nombreColumna);
-      console.log("Hora:", horaFila);
+      // console.log("Día:", nombreColumna);
+      // console.log("Hora:", horaFila);
 
       // Configurar el valor del input "Hora" en el modal
       var inputHora = document.getElementById("txtHora_ocupado");
@@ -322,23 +340,22 @@
       inputDia.value = nombreColumna;
 
 
-      //Obtener los valores del especialista y la terapia
+      // Obtener los valores del especialista y la terapia
       var contenidoCelda = this.textContent; // Obtener el contenido de la celda
-      var partesContenido = contenidoCelda.split(" "); // Separar por espacio en blanco
-      var terapia = partesContenido[0]; // Obtener la primera parte (terapia)
-      var especialista = partesContenido[1]; // Obtener la segunda parte (especialista)
+      var terapia = contenidoCelda; // La celda contiene la terapia solamente
+      var especialista = this.getAttribute('data-especialista'); // Obtener el especialista desde el atributo
 
       // Configurar el valor del input "Terapia" en el modal
       var inputTerapia = document.getElementById("txtTerapia_ocupado");
-      inputTerapia.value = partesContenido[0];
+      inputTerapia.value = terapia;
 
       // Configurar el valor del input "Especialista" en el modal
       var inputEspecialista = document.getElementById("txtEspecialista_ocupado");
-      inputEspecialista.value = partesContenido[1];
-
+      inputEspecialista.value = especialista;
 
       // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
       $('#ModalOcupado').modal('show');
+
       
 
     }
@@ -354,103 +371,70 @@
   }
 
 
-    // Rellenar la tabla html con los datos obtenidos del SQL
 
-    fetch('/datos_horario/{{nino.id}}') 
-      .then(response => response.json()) 
-      .then(ninos => { 
-        // console.log(ninos)
+  fetch('/datos_horario/{{nino.id}}')
+    .then(response => response.json())
+    .then(ninos => {
+      const cells = [];
 
-      const cells = [];  
-
-      for (let i = 0; i < ninos.length; i++) { 
-        console.log(ninos)
+      for (let i = 0; i < ninos.length; i++) {
         const nino = ninos[i];
-        const dia = nino[1];
-        const terapia = nino[8];
-        const especialista = nino[7];
-        // const aula = nino[5];
-        const duracion = nino[6]
-        const hora = parseInt(nino[3].split(':')[0]);
-        const minutos = parseInt(nino[3].split(':')[1].replace(/[^\d]/g, '')); 
-        const amPm = nino[3].split(' ')[1]; 
-        if (amPm === 'p.m.' && hora !== 12) { 
-          hora += 12; 
-        } 
+        const dia = nino[2];
+        const terapia = nino[9];
+        const especialista = nino[8];
+        const duracion = parseInt(nino[6]);
+        let hora = parseInt(nino[4].split(':')[0]);
+        const minutos = parseInt(nino[4].split(':')[1]);
 
-        const fila = hora >= 7 && hora < 13 ? (hora - 7) * 2 + Math.floor(minutos / 30) : (hora + 5) * 2 + Math.floor(minutos / 30);
+        if (hora < 7) {
+          hora += 12;
+        }
 
-
-        var row = tbody.children[fila]; 
-
+        const fila = (hora - 7) * 2 + Math.floor(minutos / 30);
+        var row = tbody.children[fila];
         const colIndex = dias.indexOf(dia);
-
         var cell = row.children[colIndex];
 
-
-        // Si la terapia dura una hora, entonces debe ocupar dos filas
-
-
-        if (duracion === 60) { 
-          var fila1 = fila
-          // console.log("fila1 es : ",fila1)
+        if (duracion === 60) {
+          var fila1 = fila;
           var fila2 = fila1 + 1;
 
-          // Verificar si alguna celda dentro del rango de tiempo ya contiene una terapia
+          let conflicto = false;
+          for (let j = fila1; j <= fila2; j++) {
+            row = tbody.children[j];
+            cell = row.children[colIndex];
+            if (cell.textContent !== '') {
+              conflicto = true;
+              break;
+            }
+          }
 
+          if (!conflicto) {
+            var row1 = tbody.children[fila1];
+            var cell1 = row1.children[colIndex];
+            cell1.setAttribute('rowspan', 2);
+            cells.push(cell1);
+            cell1.textContent = terapia; // Solo muestra la terapia en la celda
+            cell1.setAttribute('data-especialista', especialista); // Guarda el especialista en un atributo
+            cell1.classList.add('terapia-cell');
 
-          // for (i = fila1; i <= fila2; i++) {
-          //   row = tbody.children[i];
-          //   console.log("Row es: ", row)
-          //   cell = row.children[colIndex];
-          //   console.log("Cell es: ", cell)
+            var row2 = tbody.children[fila2];
+            var cell2 = row2.children[colIndex];
+            cell2.textContent = '';
+          }
 
-          //   if (cell.textContent !== '') {
-          //     // Si alguna celda dentro del rango ya contiene
-          //     // una terapia, mostrar un mensaje de error
-          //     alert("La terapia se superpone con una terapia existente. Por favor, seleccione otro horario.");
-
-          //     return;
-          //   }
-          // }
-
-          // Si no hay superposición, agregar la terapia
-
-          var row1 = tbody.children[fila1]; 
-          var cell1 = row1.children[colIndex];
-          cell1.setAttribute('rowspan', 2); 
-          cells.push(cell1); 
-          cell1.textContent = terapia + ' \n' + especialista;
-          cell1.classList.add('terapia-cell');
-
-        } 
-        
-        else {
-
-                //Codigo si la terapia dura 30 minutos
-                
-                cells.push(cell); 
-
-                cell.textContent = terapia + ' \n' + especialista;
-                //Agregarle la clase terapia-cell a la celda creada.
-                cell.classList.add('terapia-cell');
-
-
-              }
+        } else {
+          cells.push(cell);
+          cell.textContent = terapia;
+          cell.setAttribute('data-especialista', especialista); 
+          cell.classList.add('terapia-cell');
+        }
+      }
+    });
 
 
 
   
-      } 
-  });
-
-
-
-
-
-
-
-
 
 
 
@@ -483,18 +467,19 @@
 <style>
 
   .terapia-cell {
-    background-color: #ffd700;
+    background-color: #8a37c5;
     max-width: 200px; 
     white-space: normal;
     word-wrap: break-word;
     text-overflow: ellipsis;
     overflow: hidden;
     text-align: center;
+    color: white;
 
   }
 
   .empty-cell:hover {
-    background-color: #ffa500; /* Cambia el color de fondo al estar con el mouse encima */
+    background-color: #a13fe6; /* Cambia el color de fondo al estar con el mouse encima */
   }
 
 
@@ -513,30 +498,63 @@
 
   }
 
-  .tabla-horario th,
-  .tabla-horario td {
+.tabla-horario th,
+.tabla-horario td {
+    border: 1px solid #999; /* Coloca aquí el borde oscuro deseado */
     width: 150px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size:17px;
-  }
+    font-size: 17px;
+}
 
-  .tabla-horario {
+.tabla-horario {
     /* Codigo responsive */
     table-layout: fixed;
     overflow-x: auto;
     max-width: 100%;
     margin: 0 auto;
     width: fit-content;
-    margin-bottom:10px;
+    margin-bottom: 10px;
+    border-collapse: collapse; /* Asegúrate de que las reglas de borde se apliquen correctamente */
+}
 
-  }
 
   .tabla-horario-wrapper {
     overflow-x: auto;
     max-width: 100%;
+  }
+
+  @media print {
+    #printButton {
+        display: none !important;
+    }
+  
+    .tabla-horario th,
+    .tabla-horario td {
+        border: 1px solid #000!important; /* Bordes negros */
+        color: #000!important; /* Texto color negro */
+    }
+
+    .terapia-cell {
+        background-color: #e6e6e6!important; /* Fondo gris claro */
+        color: #000!important; /* Texto color negro */
+    }
+    
+    footer {
+        color: #000!important;  /* Texto color negro */
+    }
+}
+
+  #printButton {
+    background-color: #6a0dad; /* Color púrpura */
+    color: white; /* Texto en color blanco */
+    border: none; /* Sin bordes */
+  }
+
+  #printButton:hover {
+      background-color: #8a2be2; /* Cambia a un púrpura más claro al pasar el mouse */
   }
 
 
