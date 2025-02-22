@@ -180,20 +180,21 @@
     <div class="container">
   {% endif %}
 
+
+
   {% with messages = get_flashed_messages() %}
   {% if messages %}
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-          title: 'Información',
-          text: '{{ messages[0] }}',
-          icon: 'info',
-          confirmButtonText: 'OK'
-        });
+      document.addEventListener('DOMContentLoaded', function () {
+          Swal.fire({
+              icon: 'info',
+              title: 'Información',
+              text: '{{ messages[0] }}',
+              confirmButtonText: 'OK'
+          });
       });
     </script>
   {% endif %}
 {% endwith %}
-
 
     

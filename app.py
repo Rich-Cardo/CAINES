@@ -2,7 +2,7 @@
 
 import os
 from flask import Flask
-from flask import render_template,request,redirect, flash, make_response
+from flask import render_template,request,redirect, flash, make_response, url_for
 from flaskext.mysql import MySQL
 
 #Librerías para la generación de PDF
@@ -358,6 +358,32 @@ def eliminar_ninos():
         conn.close()
 
 
+@app.route('/eliminar_pagos', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_pagos():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM facturas WHERE id_factura IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+
 
 @app.route('/eliminar_usuarios', methods=['POST', 'DELETE'])
 @login_required
@@ -483,58 +509,6 @@ def agendar_citas(id):
     
     return render_template('/caines/ag_citas.html', representante = representante)
 
-@app.route('/eliminar_citas', methods=['POST', 'DELETE'])
-@login_required
-def eliminar_citas():
-    ids = request.json.get('ids', [])
-    
-    if not ids:
-        return jsonify(success=False, message='No IDs provided'), 400
-
-    try:
-        conn = mysql.connect()
-        cursor = conn.cursor()
-
-        # Eliminar los clientes y sus facturas de las tablas originales
-        cursor.execute("DELETE FROM citas WHERE id_cita IN %s", (tuple(ids),))
-
-        conn.commit()
-        return jsonify(success=True)
-    
-    except Exception as e:
-        conn.rollback()
-        return jsonify(success=False, message=str(e)), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
-
-@app.route('/eliminar_facturas', methods=['POST', 'DELETE'])
-@login_required
-def eliminar_facturas():
-    ids = request.json.get('ids', [])
-    
-    if not ids:
-        return jsonify(success=False, message='No IDs provided'), 400
-
-    try:
-        conn = mysql.connect()
-        cursor = conn.cursor()
-
-        # Eliminar los clientes y sus facturas de las tablas originales
-        cursor.execute("DELETE FROM facturas WHERE id_factura IN %s", (tuple(ids),))
-
-        conn.commit()
-        return jsonify(success=True)
-    
-    except Exception as e:
-        conn.rollback()
-        return jsonify(success=False, message=str(e)), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
-
 @app.route('/eliminar_cita/<int:id>')
 def eliminar_cita(id):
 
@@ -587,8 +561,8 @@ def gestfacturas():
         cursor.execute('''
                 SELECT
                     facturas.id_factura,
-                    facturas.fecha,
                     usuarios.nombre,
+                    facturas.fecha,                    
                     usuarios.apellido,
                     facturas.total
                 FROM
@@ -1141,8 +1115,8 @@ def store_user(from_page):
     result = cursor.fetchone()
     if result is not None:
         # La cedula ya existe, mostrar mensaje de flash y redirigir a la página anterior
-        flash('El usuario ya está registrado', 'error')
-        flash('El usuario ya está registrado', 'error')
+        flash('La cédula ya está registrada', 'error')
+
         return redirect(request.referrer)
 
     # La cedula no existe, insertar el nuevo registro
@@ -1166,9 +1140,11 @@ def store_user(from_page):
     if from_page == 'registro':
         flash('¡Registro exitoso!') 
         return redirect('/login') 
-    elif from_page == 'create_user': 
+    elif from_page == 'create_user':
+        flash('¡Usuario registrado exitosamente!') 
         return redirect(redireccionamiento(_tipo_usuario)) 
-
+    
+    flash('¡Usuario registrado exitosamente!')
     return redirect(redireccionamiento(_tipo_usuario))
 
 
@@ -1288,12 +1264,9 @@ def update_user():
         cursor.executemany(sql_update_telefonos, telefonos)
   
         conn.commit()
+        flash('¡Usuario actualizado exitosamente!')
 
-        # if current_user.rol == 'director':
 
-        #     return redirect(redireccionamiento(_tipo_usuario))
-        
-        # else:
         return redirect('/menu')
   
     except Exception as e:
@@ -1304,29 +1277,40 @@ def update_user():
         cursor.close()
         conn.close()
 
-#Funcion para cambiar contraseña desde el menu usuarios
+
 
 @app.route('/update_password', methods=['POST'])
 def update_password():
-
-    usuario_id = request.form['txtID']
-    _password = request.form['txtPassword']
-
-
-    # Update los datos del usuario en la tabla 'usuarios'
-    sql_usuario = "UPDATE usuarios SET clave=%s WHERE id_usuario=%s"
-    datos_usuario = (_password, usuario_id)
-  
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    cursor.execute(sql_usuario, datos_usuario)
+    usuario_id = request.form['txtID']
+    old_password = request.form['txtOldPassword']
+    new_password = request.form['txtPassword']
+    confirm_password = request.form['txtPassword2']
 
-    conn.commit()
+    # Consulta para obtener la contraseña actual del usuario
+    cursor.execute("SELECT clave FROM usuarios WHERE id_usuario=%s", (usuario_id,))
+    user = cursor.fetchone()
 
-    flash('¡Contraseña modificada exitosamente!', 'error') 
+    if user and old_password == user[0]:
+        if new_password == confirm_password:
+            # Actualizar la contraseña en la base de datos
+            sql_usuario = "UPDATE usuarios SET clave=%s WHERE id_usuario=%s"
+            datos_usuario = (new_password, usuario_id)
+            cursor.execute(sql_usuario, datos_usuario)
+            conn.commit()
 
-    return redirect('/menu')
+            flash('¡Contraseña modificada exitosamente!', 'success')
+            return redirect('/menu')
+        else:
+            flash('Las contraseñas nuevas no coinciden.', 'error')
+    else:
+        flash('La contraseña actual es incorrecta.', 'error')
+    
+    # Si hay un error, volver a la página de cambio de contraseña
+    return redirect(url_for('edit_password', id=usuario_id))
+
   
 
 #Fin del código para manipular los usuarios
@@ -1837,6 +1821,72 @@ def buscar_cita():
     conn.commit() 
 
     return render_template('caines/citas.html', citas = citas)
+
+
+@app.route('/pagos_pdf', methods=['POST'])
+def facturas_pdf():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    # Obtener el ID del usuario actual
+    if current_user.rol == 'representante':
+
+    # Consulta SQL modificada para filtrar pagos por el usuario actual si es representante
+        cursor.execute('''
+            SELECT
+                f.fecha AS FechaPago,
+                u.nombre AS NombreUsuario,
+                u.apellido AS ApellidoUsuario,
+                f.total AS MontoFactura
+            FROM
+                facturas f
+            JOIN
+                usuarios u ON f.id_usuario = u.id_usuario
+            WHERE
+                u.tipo_usuario = 'representante' AND u.id_usuario = %s
+            ORDER BY
+                f.fecha ASC
+        ''', (current_user.id,))
+
+    else:
+            
+        cursor.execute('''
+            SELECT
+                f.fecha AS FechaPago,
+                u.nombre AS NombreUsuario,
+                u.apellido AS ApellidoUsuario,
+                f.total AS MontoFactura
+            FROM
+                facturas f
+            JOIN
+                usuarios u ON f.id_usuario = u.id_usuario
+            WHERE
+                u.tipo_usuario = 'representante'
+            ORDER BY
+                f.fecha ASC
+        ''')
+
+
+    rows = cursor.fetchall()
+
+    # Agregar un correlativo a cada fila
+    datos = [(i + 1, *row) for i, row in enumerate(rows)]
+
+    conn.close()
+
+    # Renderizar el template con los datos agrupados y el total
+    rendered = render_template('reportes/reporte_pagos.html', datos=datos)
+
+    # Generar el PDF con WeasyPrint
+    html = HTML(string=rendered)
+    pdf = html.write_pdf()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte_facturas.pdf'
+
+    return response
+
 
 
 

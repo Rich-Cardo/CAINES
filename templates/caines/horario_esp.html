@@ -324,115 +324,115 @@
           fila.appendChild(cell);
           
     // Agrega el evento de clic a las celdas vacías
-  //   cell.addEventListener('click', function() {
+    cell.addEventListener('click', function() {
 
 
 
     
 
 
-  //   // Verifica si la celda está vacía
+    // Verifica si la celda está vacía
 
 
-  //   if (this.textContent === '' ) {   
+    if (this.textContent === '' ) {   
 
 
-  //     // Obtiene el índice de la columna (día de la semana)
-  //     var indexColumna = Array.from(this.parentNode.children).indexOf(this);
-  //     // Obtiene el nombre de la columna (día de la semana)
-  //     var nombreColumna = dias[indexColumna];
+      // Obtiene el índice de la columna (día de la semana)
+      var indexColumna = Array.from(this.parentNode.children).indexOf(this);
+      // Obtiene el nombre de la columna (día de la semana)
+      var nombreColumna = dias[indexColumna];
       
-  //     // Obtiene el índice de la fila (hora)
-  //     var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
-  //     // Obtiene la hora de la fila
-  //     var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
+      // Obtiene el índice de la fila (hora)
+      var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
+      // Obtiene la hora de la fila
+      var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
 
-  //     //Condicion para saber si la hora es mayor a 13:00 y restarle 12
-  //     if (parseInt(horaFila.split(':')[0]) >= 13) {
-  //       var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
-  //       horaFila = hora12 + ':' + horaFila.split(':')[1];
-  //     }
+      //Condicion para saber si la hora es mayor a 13:00 y restarle 12
+      if (parseInt(horaFila.split(':')[0]) >= 13) {
+        var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
+        horaFila = hora12 + ':' + horaFila.split(':')[1];
+      }
 
-  //     // Muestra los datos obtenidos en la consola
-  //     // console.log("Día:", nombreColumna);
-  //     // console.log("Hora:", horaFila);
+      // Muestra los datos obtenidos en la consola
+      // console.log("Día:", nombreColumna);
+      // console.log("Hora:", horaFila);
 
-  //     // Configurar el valor del input "Hora" en el modal
-  //     var inputHora = document.getElementById("txtHora");
-  //     inputHora.value = horaFila;
+      // Configurar el valor del input "Hora" en el modal
+      var inputHora = document.getElementById("txtHora");
+      inputHora.value = horaFila;
 
-  //     // Configurar el valor del input "Dia" en el modal
-  //     var inputDia = document.getElementById("txtDia");
-  //     inputDia.value = nombreColumna;
+      // Configurar el valor del input "Dia" en el modal
+      var inputDia = document.getElementById("txtDia");
+      inputDia.value = nombreColumna;
 
 
-  //     //Validación para que el modal aparezca en las celdas vacias
-  //     //sólo si el usuario es secretaria o director
-  //     //para evitar que el representante o especialista modifique
-  //     //los horarios.
+      //Validación para que el modal aparezca en las celdas vacias
+      //sólo si el usuario es secretaria o director
+      //para evitar que el representante o especialista modifique
+      //los horarios.
 
-  //     if(current_user.rol === 'secretaria' || current_user.rol === 'director'){
+      if(current_user.rol === 'secretaria' || current_user.rol === 'director'){
 
-  //     // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
-  //     $('#myModal').modal('show');
+      // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
+      $('#myModal').modal('show');
 
-  //   }
+    }
 
-  //   }
-  //   else //En este else, va el codigo cuando la celda está ocupada
-  //   {
+    }
+    else //En este else, va el codigo cuando la celda está ocupada
+    {
 
-  //     // Obtiene el índice de la columna (día de la semana)
-  //     var indexColumna = Array.from(this.parentNode.children).indexOf(this);
-  //     // Obtiene el nombre de la columna (día de la semana)
-  //     var nombreColumna = dias[indexColumna];
+      // Obtiene el índice de la columna (día de la semana)
+      var indexColumna = Array.from(this.parentNode.children).indexOf(this);
+      // Obtiene el nombre de la columna (día de la semana)
+      var nombreColumna = dias[indexColumna];
       
-  //     // Obtiene el índice de la fila (hora)
-  //     var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
-  //     // Obtiene la hora de la fila
-  //     var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
+      // Obtiene el índice de la fila (hora)
+      var indexFila = Array.from(this.parentNode.parentNode.children).indexOf(this.parentNode);
+      // Obtiene la hora de la fila
+      var horaFila = inicio + Math.floor(indexFila / 2) + ":" + (indexFila % 2 === 0 ? "00" : "30");
 
-  //     //Condicion para saber si la hora es mayor a 13:00 y restarle 12
-  //     if (parseInt(horaFila.split(':')[0]) >= 13) {
-  //       var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
-  //       horaFila = hora12 + ':' + horaFila.split(':')[1];
-  //     }
+      //Condicion para saber si la hora es mayor a 13:00 y restarle 12
+      if (parseInt(horaFila.split(':')[0]) >= 13) {
+        var hora12 = (parseInt(horaFila.split(':')[0]) - 12).toString();
+        horaFila = hora12 + ':' + horaFila.split(':')[1];
+      }
 
-  //     // Muestra los datos obtenidos en la consola
-  //     // console.log("Día:", nombreColumna);
-  //     // console.log("Hora:", horaFila);
+      // Muestra los datos obtenidos en la consola
+      // console.log("Día:", nombreColumna);
+      // console.log("Hora:", horaFila);
 
-  //     // Configurar el valor del input "Hora" en el modal
-  //     var inputHora = document.getElementById("txtHora_ocupado");
-  //     inputHora.value = horaFila;
+      // Configurar el valor del input "Hora" en el modal
+      var inputHora = document.getElementById("txtHora_ocupado");
+      inputHora.value = horaFila;
 
-  //     // Configurar el valor del input "Dia" en el modal
-  //     var inputDia = document.getElementById("txtDia_ocupado");
-  //     inputDia.value = nombreColumna;
+      // Configurar el valor del input "Dia" en el modal
+      var inputDia = document.getElementById("txtDia_ocupado");
+      inputDia.value = nombreColumna;
 
 
-  //     // Obtener los valores del especialista y la terapia
-  //     var contenidoCelda = this.textContent; // Obtener el contenido de la celda
-  //     var terapia = contenidoCelda; // La celda contiene la terapia solamente
-  //     var especialista = this.getAttribute('data-especialista'); // Obtener el especialista desde el atributo
+      // Obtener los valores del especialista y la terapia
+      var contenidoCelda = this.textContent; // Obtener el contenido de la celda
+      var terapia = contenidoCelda; // La celda contiene la terapia solamente
+      var especialista = this.getAttribute('data-especialista'); // Obtener el especialista desde el atributo
 
-  //     // Configurar el valor del input "Terapia" en el modal
-  //     var inputTerapia = document.getElementById("txtTerapia_ocupado");
-  //     inputTerapia.value = terapia;
+      // Configurar el valor del input "Terapia" en el modal
+      var inputTerapia = document.getElementById("txtTerapia_ocupado");
+      inputTerapia.value = terapia;
 
-  //     // Configurar el valor del input "Especialista" en el modal
-  //     var inputEspecialista = document.getElementById("txtNino_ocupado");
-  //     inputEspecialista.value = especialista;
+      // Configurar el valor del input "Especialista" en el modal
+      var inputEspecialista = document.getElementById("txtNino_ocupado");
+      inputEspecialista.value = especialista;
 
-  //     // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
-  //     $('#ModalOcupado').modal('show');
+      // Muestra la ventana modal correspondiente utilizando el método "modal()" de Bootstrap
+      $('#ModalOcupado').modal('show');
 
       
 
-  //   }
+    }
     
 
-  // });
+  });
       
       tbody.appendChild(fila);
 

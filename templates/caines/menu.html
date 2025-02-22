@@ -24,9 +24,9 @@
 
                     </div>
                         <div class="user-buttons">
-                            <a class="modern-button-menu btn-info" href="/edit_user/{{current_user.id}}">Modificar Usuario</a>
+                        <a class="btn modern-button-menu" href="/edit_user/{{current_user.id}}">Modificar Usuario</a>
                         <br>
-                        <a class="modern-button-menu btn-info" href="/edit_password/{{current_user.id}}">Modificar Contraseña</a>
+                        <a  href="/edit_password/{{current_user.id}}" class="btn modern-button-menu">Modificar Clave</a>
                     </div>
                 </div>
             </div>
@@ -62,24 +62,28 @@
 
                 {% if current_user.rol == 'administrador' %}
 
-                <a class="boton banner" href="/create_factura">
+                <a class="boton-facturas banner" href="/create_factura">
                     CREAR FACTURA
                 </a>
 
-                <a class="boton banner" href="/gestfacturas">
-                    FACTURAS
+                <a class="boton-facturas banner" href="/gestfacturas">
+                    PAGOS
                 </a>
 
                 {% endif %}
 
                 {% if current_user.rol == 'secretaria' %}
 
-                <a class="boton banner" href="/ninos">
+                <a class="boton-nino banner" href="/ninos">
                     NIÑOS
                 </a>
 
-                <a class="boton banner" href="/representantes">
+                <a class="boton-representante banner" href="/representantes">
                     REPRESENTANTES
+                </a>
+
+                <a class="boton boton-citas banner" href="/citas">
+                    CITAS
                 </a>
 
 
@@ -87,12 +91,12 @@
                 
                 {% if current_user.rol == 'especialista' %}
 
-                <a class="boton banner" href="/ninos">
+                <a class="boton-nino banner" href="/ninos">
                     NIÑOS
                 </a>
  
 
-                <a class="boton banner" href="/horario_esp/{{current_user.id}}">
+                <a class="boton-secretarias banner" href="/horario_esp/{{current_user.id}}">
                     HORARIO
                 </a>
 
@@ -175,14 +179,6 @@
 .user-sidebar .user-buttons button {
     margin-right: 10px;
 }
-
-
-
-
-
-
-
-
 
 </style>
 
