@@ -8,6 +8,13 @@
   {% endif %}
 {% endwith %}
 
+<!-- Botón "Volver" en la esquina superior izquierda -->
+<div class="container" style="margin-left: -30px;">
+    <a href="{{ url_for('ninos') }}" class="btn btn-primary">
+      <i class="fa fa-arrow-left"></i> Volver
+    </a>
+  </div>
+
     <form class="form-login m-auto" method="post" action="/agregar_nino" enctype="multipart/form-data">
         <h1 class="h3 mb-3 fw-normal text-center">Agregar Niño</h1>
 
@@ -72,7 +79,9 @@
 
         <div class="row" style="margin-bottom: 10px;">
             <label for="txtNum_Hermanos" class="col-3">Num. Hermanos</label>
-            <input id="txtNum_Hermanos" class="form-control col-8" type="text" name="txtNum_Hermanos" pattern="[0-9]+" title="Sólo se permiten números" required>
+            <input id="txtNum_Hermanos" class="form-control col-8" type="text" name="txtNum_Hermanos" maxlength="2"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                   title="Sólo se permiten números" required>
         </div>
 
         <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">
@@ -195,5 +204,26 @@
     }
 
     document.getElementById("searchInput").addEventListener("input", Buscar);
+
+
+    // Obtener la fecha actual
+    const today = new Date();
+
+    // Calcular la fecha mínima (1 de enero del año 2000)
+    const minDate = new Date('2000-01-01');
+
+    // Calcular la fecha máxima (2 años atrás de la fecha actual)
+    const maxDate = new Date(today);
+    maxDate.setFullYear(today.getFullYear() - 2);
+
+    // Formatear las fechas en formato YYYY-MM-DD
+    const minDateFormatted = minDate.toISOString().split('T')[0];
+    const maxDateFormatted = maxDate.toISOString().split('T')[0];
+
+    // Establecer los atributos min y max en el input de fecha
+    const fechaNacInput = document.getElementById('txtFecha_Nac');
+    fechaNacInput.setAttribute('min', minDateFormatted);
+    fechaNacInput.setAttribute('max', maxDateFormatted);
+    fechaNacInput.value = minDateFormatted;
 
 </script>

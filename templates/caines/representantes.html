@@ -8,6 +8,13 @@
   {% endif %}
 {% endwith %}
 
+<!-- Botón "Volver" en la esquina superior izquierda -->
+<div class="container" style="margin-left: -30px;">
+  <a href="{{ url_for('menu') }}" class="btn btn-primary">
+    <i class="fa fa-arrow-left"></i> Volver
+  </a>
+</div>
+
 <h1 class="text-center titulo-vista">Representantes</h1>
 
 <div class="container" style="padding-top: 10px;">

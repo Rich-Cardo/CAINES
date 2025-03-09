@@ -8,6 +8,13 @@
   {% endif %}
 {% endwith %}
 
+<!-- Botón "Volver" en la esquina superior izquierda -->
+<div class="container" style="margin-left: -30px;">
+  <a href="{{ url_for('menu') }}" class="btn btn-primary">
+    <i class="fa fa-arrow-left"></i> Volver
+  </a>
+</div>
+
 {% if current_user.rol == 'representante' %}
 
 <h1 class="text-center titulo-vista">Mis Pagos</h1>
@@ -30,17 +37,19 @@
     {% endif %}   
     <div class="col-lg-6 col-md-6 col-sm-8 mb-3">
       <div class="input-group">
-        <input id="searchInput" type="text" class="form-control" placeholder="Buscar pago..." aria-label="Buscar niños..." aria-describedby="basic-addon2">
+        <input name="searchInput" id="searchInput" type="text" class="form-control" placeholder="Buscar pago..." aria-label="Buscar niños..." aria-describedby="basic-addon2">
         <div class="input-group-append">
           <span class="input-group-text" id="basic-addon2"><i class="fa fa-search"></i></span>
         </div>
       </div>
     </div>
+
     <div class="col-lg-3 col-md-3 col-sm-12 mb-3">
       <a href="javascript:void(0);" onclick="guardarPDF()" class="btn btn-warning btn-block">
         <i class="fa fa-print" style="margin-right: 5px;"></i> Exportar a PDF
       </a>
-    </div>      
+    </div>    
+
   </div>
 </div>
 
@@ -133,8 +142,8 @@
                   <div class="modal-body">
 
                     <p>ID: {{facturas[0]}}</p>
-                    <p>Fecha: {{facturas[2]}}</p>
-                    <p>Total a pagar: {{facturas[3]}} $</p>
+                    <p>Fecha: {{facturas[2].strftime('%d/%m/%Y')}}</p>
+                    <p>Total a pagar: {{facturas[4]}} $</p>
                     
 
                   </div>

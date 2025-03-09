@@ -10,6 +10,13 @@
   {% endif %}
 {% endwith %}
 
+<!-- Botón "Volver" en la esquina superior izquierda -->
+<div class="container" style="margin-left: -30px;">
+  <a href="{{ url_for('menu') }}" class="btn btn-primary">
+    <i class="fa fa-arrow-left"></i> Volver
+  </a>
+</div>
+
 <h1 class="text-center titulo-vista">Citas</h1>
 
 <div class="container" style="padding-top: 10px;">
@@ -36,7 +43,7 @@
   <table id="tabla_usuarios" class="table table-light table-bordered border-secondary rounded" cellspacing="0">
     <thead class="thead-light text-center">
       <tr>
-                        <th><input type="checkbox" id="selectAll" style="display: none;"></th>
+                        <!-- <th><input type="checkbox" id="selectAll" style="display: none;"></th> -->
                         <th>ID</th>
                         <th>Cedula</th>
                         <th>Nombre</th>
@@ -54,7 +61,7 @@
                     {% for citas in citas %}
                     
                     <tr class="text-center">
-                      <td><input type="checkbox" class="rowCheckbox" value="{{ citas[0] }}"></td>
+                      <!-- <td><input type="checkbox" class="rowCheckbox" value="{{ citas[0] }}"></td> -->
                         <!-- ID Cita -->
                         <td>{{citas[0] }}</td>
                         <!-- cedula -->
@@ -68,7 +75,7 @@
                         <!-- estado -->
                         <td>{{citas[3] }}</td>
                         <!-- Fecha -->
-                        <td>{{citas[4] }}</td>
+                        <td>{{citas[4].strftime('%d/%m/%Y') }}</td>
                         <!-- Hora -->
                         <td>{{citas[5] }}</td>
 
@@ -81,7 +88,7 @@
                               <a class="btn btn-success" href="#" data-toggle="modal" data-target="#myModal{{ citas[0] }}" style="border-radius: 10px; margin-right: 5px;">
                                 <i class="fa fa-eye"></i>
                               </a>
-                              <a class="btn btn-danger" href="javascript:void(0);" onclick="eliminar_usuario('{{ citas[0] }}')" style="border-radius: 10px; margin-right: 5px;">
+                              <a class="btn btn-danger" href="javascript:void(0);" onclick="eliminar_cita('{{ citas[0] }}')" style="border-radius: 10px; margin-right: 5px;">
                                 <i class="fa fa-trash"></i>
                               </a>
                    
@@ -127,10 +134,8 @@
 
                       <div class="row" style="margin-bottom: 10px;">
                         <label for="floatingInput" class="col-3">Solicitud</label>
-                        <input id="txtFecha" class="form-control col-8" name="txtFecha" value = {{citas[2]}} readonly>
+                        <input id="txtFecha" class="form-control col-8" name="txtFecha" value = {{citas[2].strftime('%d/%m/%Y')}} readonly>
                       </div>
-
-
         
                       <div class="row" style="margin-bottom: 10px;">
                         <label for="floatingInput" class="col-3">Cédula</label>
@@ -159,14 +164,14 @@
                       </div>
 
                       <div class="row" style="margin-bottom: 10px;">
-                        <label for="floatingInput" class="col-3">Nueva Fecha</label>
-                        <input id="txtNuevaFecha" class="form-control col-8" name="txtNuevaFecha" type="date">
+                        <label for="floatingInput" class="col-3">Fecha Sugerida</label>
+                        <input id="txtNuevaFecha" class="form-control col-8" name="txtNuevaFecha" type="date" value = {{citas[4]}}>
                       </div> 
         
                       <div class="row" style="margin-bottom: 10px;">
-                        <label for="floatingInput" class="col-3">Hora</label>
+                        <label for="floatingInput" class="col-3">Hora Sugerida</label>
                         <select id="txtHora" class="form-control col-8" name="txtHora" required>
-        
+                          <option value={{citas[5]}} selected>{{citas[5]}}</option>        
                           <option value="9:00 am">9:00 am</option> 
                           <option value="9:30 am">9:30 am</option> 
                           <option value="10:00 am">10:00 am</option>
@@ -203,51 +208,99 @@
             </div>
             
             {% endfor %}
-        
-
-
-
-
-  
-
-
-
-    
-        
-
-
-
-
-
-
-
-    
+   
     </div>
+
+
+
+
 
   <script>
 
+      //Alerta de eliminación de cita
+      window.eliminar_cita = function(id) {
+      Swal.fire({
+        title: '¡ATENCIÓN!',
+        text: '¿Está seguro de que desea eliminar la cita?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch('/eliminar_citas', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: [id] })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error al eliminar la cita.');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              const row = document.querySelector(`.rowCheckbox[value="${id}"]`).closest('tr');
+              row.remove();
+
+              rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+              // updateDeleteButtonVisibility();
+
+              Swal.fire({
+                title: 'Eliminado',
+                text: 'La cita ha sido eliminada exitosamente.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+              });
+
+            } else {
+              Swal.fire({
+                title: 'Error',
+                text: 'Error al eliminar la cita.',
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al eliminar la cita.',
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+            });
+          });
+        }
+      });
+    };
+
     // Codigo para que el input fecha salga con la fecha actual
-    var campoFecha = document.getElementById("txtNuevaFecha");
+    // var campoFecha = document.getElementById("txtFecha");
+    var campoFechaCita = document.getElementById("txtNuevaFecha")
 
     // Obtener la fecha actual en el formato YYYY-MM-DD
     var fechaActual = new Date().toISOString().slice(0, 10);
+    const today = new Date();
+    const maxDate = new Date(today);    
 
     // Asignar la fecha actual al campo de fecha
-    campoFecha.value = fechaActual;
+    // campoFecha.value = fechaActual;
+    campoFechaCita.value = fechaActual;
+    maxDate.setMonth(today.getMonth() + 3); // Sumar 3 meses
 
-    // Codigo para que el input fecha salga con la fecha actual 
-    var campoFecha = document.getElementById("txtNuevaFecha");
+    // Formatear la fecha máxima en formato YYYY-MM-DD
+    const maxDateFormatted = maxDate.toISOString().split('T')[0];
+    
+    document.getElementById('txtNuevaFecha').setAttribute('min', fechaActual);
+    document.getElementById('txtNuevaFecha').setAttribute('max', maxDateFormatted);
 
-    // // Obtener el estado de la cita
-    // var estadoCita = document.getElementById("txtEstado").value;
-  
-    // // Obtener el botón de Aprobar
-    // var btnAprobar = document.getElementById("btnAprobar");
-  
-    // // Si el estado de la cita es APROBADO, deshabilitar el botón
-    // if (estadoCita === "aprobado") {
-    //   btnAprobar.disabled = true;
-    // }
+
 
   </script>
 

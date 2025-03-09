@@ -384,7 +384,6 @@ def eliminar_pagos():
         conn.close()
 
 
-
 @app.route('/eliminar_usuarios', methods=['POST', 'DELETE'])
 @login_required
 def eliminar_usuarios():
@@ -509,6 +508,34 @@ def agendar_citas(id):
     
     return render_template('/caines/ag_citas.html', representante = representante)
 
+@app.route('/eliminar_citas', methods=['POST', 'DELETE'])
+@login_required
+def eliminar_citas():
+    ids = request.json.get('ids', [])
+    
+    if not ids:
+        return jsonify(success=False, message='No IDs provided'), 400
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Eliminar los clientes y sus facturas de las tablas originales
+        cursor.execute("DELETE FROM citas WHERE id_cita IN %s", (tuple(ids),))
+
+        conn.commit()
+        return jsonify(success=True)
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify(success=False, message=str(e)), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+
+#Metodo para eliminar cita (usuario representante)
 @app.route('/eliminar_cita/<int:id>')
 def eliminar_cita(id):
 
@@ -762,7 +789,9 @@ def datos_horario_esp(id):
 @app.route('/agregar_cita', methods=['POST'])  
 def agregar_cita():
 
-    _fecha = request.form['txtFecha'] 
+    _fecha = request.form['txtFecha']
+    _fechacita = request.form['txtFechaCita']
+    _hora = request.form['txtHora']
     _id = request.form['txtID']
 
     conn = mysql.connect() 
@@ -780,9 +809,9 @@ def agregar_cita():
         return redirect(request.referrer)
 
     # La cita no existe, insertar el nuevo registro (por ahora, sin niño)
-    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado, fecha_cita, hora) VALUES (NULL, %s,  %s, 'pendiente', '0', '0');" 
+    sql = "INSERT INTO citas (id_cita, id_representante, fecha, estado, fecha_cita, hora) VALUES (NULL, %s,  %s, 'pendiente', %s, %s);" 
 
-    datos=(_id,_fecha) 
+    datos=(_id,_fecha, _fechacita, _hora) 
 
     cursor.execute(sql,datos) 
     conn.commit() 
@@ -1828,11 +1857,13 @@ def facturas_pdf():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    # Obtener el ID del usuario actual
-    if current_user.rol == 'representante':
+    # Obtener el término de búsqueda del formulario
+    search_term = request.form.get('searchInput', '').strip()
+    search_pattern = f"%{search_term}%"  # Formato para LIKE
 
-    # Consulta SQL modificada para filtrar pagos por el usuario actual si es representante
-        cursor.execute('''
+    # Consulta base para representantes
+    if current_user.rol == 'representante':
+        sql = '''
             SELECT
                 f.fecha AS FechaPago,
                 u.nombre AS NombreUsuario,
@@ -1843,14 +1874,26 @@ def facturas_pdf():
             JOIN
                 usuarios u ON f.id_usuario = u.id_usuario
             WHERE
-                u.tipo_usuario = 'representante' AND u.id_usuario = %s
-            ORDER BY
-                f.fecha ASC
-        ''', (current_user.id,))
+                u.tipo_usuario = 'representante' 
+                AND u.id_usuario = %s
+        '''
+        params = [current_user.id]
 
+        # Agregar filtro de búsqueda si hay término
+        if search_term:
+            sql += '''
+                AND (
+                    f.fecha LIKE %s 
+                    OR u.nombre LIKE %s 
+                    OR u.apellido LIKE %s 
+                    OR CAST(f.total AS CHAR) LIKE %s
+                )
+            '''
+            params.extend([search_pattern] * 4)
+
+    # Consulta base para otros roles
     else:
-            
-        cursor.execute('''
+        sql = '''
             SELECT
                 f.fecha AS FechaPago,
                 u.nombre AS NombreUsuario,
@@ -1862,22 +1905,32 @@ def facturas_pdf():
                 usuarios u ON f.id_usuario = u.id_usuario
             WHERE
                 u.tipo_usuario = 'representante'
-            ORDER BY
-                f.fecha ASC
-        ''')
+        '''
+        params = []
 
+        # Agregar filtro de búsqueda si hay término
+        if search_term:
+            sql += '''
+                AND (
+                    f.fecha LIKE %s 
+                    OR u.nombre LIKE %s 
+                    OR u.apellido LIKE %s 
+                    OR CAST(f.total AS CHAR) LIKE %s
+                )
+            '''
+            params.extend([search_pattern] * 4)
 
+    # Ordenar y ejecutar la consulta
+    sql += " ORDER BY f.fecha ASC"
+    cursor.execute(sql, params)
     rows = cursor.fetchall()
 
-    # Agregar un correlativo a cada fila
+    # Agregar correlativo a cada fila
     datos = [(i + 1, *row) for i, row in enumerate(rows)]
-
     conn.close()
 
-    # Renderizar el template con los datos agrupados y el total
+    # Generar el PDF
     rendered = render_template('reportes/reporte_pagos.html', datos=datos)
-
-    # Generar el PDF con WeasyPrint
     html = HTML(string=rendered)
     pdf = html.write_pdf()
 

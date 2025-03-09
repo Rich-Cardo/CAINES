@@ -1,4 +1,12 @@
 {% include 'header.html' %}
+
+<!-- Botón "Volver" en la esquina superior izquierda -->
+<div class="container" style="margin-left: -30px;">
+    <a href="{{ url_for('menu') }}" class="btn btn-primary">
+      <i class="fa fa-arrow-left"></i> Volver
+    </a>
+  </div>
+
 <form class="form-login m-auto" method="post" action="/store_user/create_user" enctype="multipart/form-data"> 
  
  
@@ -35,7 +43,7 @@
                 <option value="0424">0424</option>
                 <option value="0426">0426</option>
             </select>
-            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" required>
+            <input id="txtTelefono" class="form-control col-4" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" maxlength="7" required>
         </div>
         <div class="row" style="margin-bottom: 10px;">
             <label for="txtCorreo" class="col-3">Correo</label>

@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="row" style="margin-bottom: 10px;">
-                    <label for="floatingInput" class="col-3">Fecha</label>
+                    <label for="floatingInput" class="col-3">Solicitud</label>
                     <input id="txtFecha" class="form-control col-8" type="date" name="txtFecha" required readonly>
                 </div>
 
@@ -88,10 +88,39 @@
                     <label for="floatingInput" class="col-3">Teléfono</label>
                     <input  id="txtTelefono" value="{{representante.telefono}}" class="form-control col-8" type="text" name="txtTelefono" pattern="[0-9\s]+" title="Sólo se permiten números" required readonly>
                 </div>
+
                 <div class="row" style="margin-bottom: 10px;">
                     <label for="txtCorreo" class="col-3">Correo</label>
                     <input id="txtCorreo" value="{{representante.correo}}" class="form-control col-8" type="email" name="txtCorreo" placeholder="correo@ejemplo.com" readonly>
                 </div>
+
+                <div class="row" style="margin-bottom: 10px;">
+                    <label for="floatingInput" class="col-3">Fecha</label>
+                    <input id="txtFechaCita" class="form-control col-8" type="date" name="txtFechaCita" required>
+                </div>
+
+                <div class="row" style="margin-bottom: 10px;">
+                    <label for="floatingInput" class="col-3">Hora</label>
+                    <select id="txtHora" class="form-control col-8" name="txtHora" required>
+                      <option value="9:00 am">9:00 am</option> 
+                      <option value="9:30 am">9:30 am</option> 
+                      <option value="10:00 am">10:00 am</option>
+                      <option value="10:30 am">10:30 am</option>
+                      <option value="11:00 am">11:00 am</option>
+                      <option value="11:30 am">11:30 am</option>
+                      <option value="12:00 pm">12:00 pm</option>
+                      <option value="12:30 pm">12:30 pm</option>
+                      <option value="1:00 pm">1:00 pm</option>
+                      <option value="1:30 pm">1:30 pm</option>
+                      <option value="2:00 pm">2:00 pm</option>
+                      <option value="2:30 pm">2:30 pm</option>
+                      <option value="3:00 pm">3:00 pm</option>
+                      <option value="3:30 pm">3:30 pm</option>
+                      <option value="4:00 pm">4:00 pm</option>
+                      <option value="4:30 pm">4:30 pm</option>
+                      <option value="5:00 pm">5:00 pm</option>    
+                    </select>
+                  </div>
 
                 <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Registrar Cita</button>
                 <a class="btn button-login w-100" style="background-color: brown;" href="/menu">Cancelar</a> 
@@ -139,15 +168,28 @@
 
     // Codigo para que el input fecha salga con la fecha actual
     var campoFecha = document.getElementById("txtFecha");
+    var campoFechaCita = document.getElementById("txtFechaCita")
+
 
     // Obtener la fecha actual en el formato YYYY-MM-DD
     var fechaActual = new Date().toISOString().slice(0, 10);
+    const today = new Date();
+    const maxDate = new Date(today);
+    
 
     // Asignar la fecha actual al campo de fecha
     campoFecha.value = fechaActual;
+    campoFechaCita.value = fechaActual;
+    maxDate.setMonth(today.getMonth() + 3); // Sumar 3 meses
 
-    // Codigo para que el input fecha salga con la fecha actual 
-    var campoFecha = document.getElementById("txtFecha");
+
+    // Formatear la fecha máxima en formato YYYY-MM-DD
+    const maxDateFormatted = maxDate.toISOString().split('T')[0];
+    
+    document.getElementById('txtFechaCita').setAttribute('min', fechaActual);
+    document.getElementById('txtFechaCita').setAttribute('max', maxDateFormatted);
+
+
 
 
     function confirmAnularCita(citaId) {
