@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shorcut icon" href="{{ url_for('static', filename='img/small2a.png') }}"">
+    <link rel="shorcut icon" href="{{ url_for('static', filename='img/min_pagina.png') }}"">
 
     <!-- Bootstrap 4.0 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        
- 
+     
     <!-- CSS ubicado en la carpeta static/css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Iconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     
-    <title>CAINES</title>
+    <title>COMPRAS GOB</title>
 
 </head>
 
 
-<body class="fondo">
+
+{% set body_class = 'fondo' %}
+
+<body class="{{ body_class }}">
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
   {% if current_user.is_authenticated %}
@@ -36,7 +42,7 @@
     <a class="" href="/"> 
     <a class="" href="/"> 
 
-      <img src="{{ url_for('static', filename='img/small2a.png') }}"> 
+      <img src="{{ url_for('static', filename='img/min_gob.png') }}"> 
 
     </a> 
 
@@ -94,6 +100,10 @@
           <a class="btn btn-info" href="/edit_password/{{current_user.id}}">Modificar Contraseña</a>
           </div>
 
+          <div class="modal-body">
+            <a class="btn btn-warning" href="/historial">Historial</a>
+          </div>
+
           <div class="modal-footer"> 
             <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button> -->
             <a class="btn btn-danger" href="/cerrar_sesion" onclick="return confirm('¿Desea cerrar sesión?')">Salir</a>
@@ -104,32 +114,12 @@
     </div>
 
 
-    <div class="container">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
+    <div style="margin-left: 15px;">
 
 
   {% else %}
 
     <!-- Codigo para el header del usuario NO logeado -->
-
 
       <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top border-3 border-bottom border-secondary">        
 
@@ -145,7 +135,7 @@
             <a class="" href="/">
             <a class="" href="/">
               
-              <img src="{{ url_for('static', filename='img/small2a.png') }}">
+              <img src="{{ url_for('static', filename='img/min_gob.png') }}">
 
             </a>
       </div>

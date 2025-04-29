@@ -1,0 +1,64 @@
+{% include 'header.html' %}
+
+{% for usuario in usuarios %}
+
+    <form class="form-login m-auto "  method="post" action="/update_user" enctype="multipart/form-data">
+
+        <!-- Este input oculto contiene el tipo de usuario para que sirva el boton Modificar -->
+        <input type="hidden" value="especialista" name="tipo_usuario" id="tipo_usuario">
+
+        <form class="form-login">
+
+            <h1 class="h3 mb-3 fw-normal text-center">Editar Usuario</h1>
+    
+    
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Cédula</label>         
+
+                <input id="txtCedula" value="{{ usuario[2] }}" class="form-control col-8" type="text" name="txtCedula" readonly>
+    
+            </div>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Nombre</label>
+                <input id="txtNombre" value="{{ usuario[3] }}"  class="form-control col-8" type="text" name="txtNombre">
+    
+            </div>
+    
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Apellido</label>
+                <input id="txtApellido" value="{{ usuario[4] }}"  class="form-control col-8" type="text" name="txtApellido">    
+            </div>
+
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Correo</label>
+                <input id="txtCorreo" value="{{ usuario[6] }}"  class="form-control col-8" type="text" name="txtCorreo">    
+            </div>
+    
+            <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Telefono</label>
+                <input id="txtTelefono" value="{{ usuario[5] }}" maxlength="12" class="form-control col-8" type="text" name="txtTelefono">
+            </div>
+
+            <input type="hidden" value="{{ usuario[0] }}" name="txtID" id="txtID">
+    
+            <!-- <div class="row" style="margin-bottom: 10px;">
+                <label for="floatingInput" class="col-3">Contraseña</label>
+                <input id="txtPassword" class="form-control col-8" type="password" name="txtPassword" required>
+    
+            </div>    -->    
+            
+            <input type="submit" class="btn btn-success w-100" style="margin-bottom: 5px;" value="Modificar">
+            <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+            
+            
+        </form>
+
+
+
+
+    </form>
+
+
+{% endfor %}
+{% include 'footer.html' %}

@@ -1,0 +1,184 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-articulos" onsubmit="return validarFormulario()" method="post" action="/oficina/agregar_articulo_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Agregar Articulos (OFICINA)</h1>
+
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-1 col-form-label text-center">Fecha:</label>
+        <div class="col-sm-8">
+            <input id="txtFecha" class="form-control" type="date" name="txtFecha" required>
+        </div>
+        <div class="col-sm-1 text-end">
+            <button type="button" class="btn btn-primary" onclick="agregarFila()">Nuevo Item...</button>
+        </div>
+    </div>    
+
+    <div class="table-responsive">
+        <table class="table" id="articulosTable">
+            <thead class="text-center">
+                <tr>
+                    <th class="col-8">Articulo</th>
+                    <th class="col-1">Cantidad</th>
+                    <th class="col-1">Unidad</th>
+                    <th class="col-1">Area</th>
+                    <th class="col-1">Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" name="articulo[]" class="form-control articulo-input" maxlength="40" required></td>
+
+                    <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+
+                    <td>
+                        <select name="unidad[]" class="form-select" required>
+                            <option value="Seleccione...">Seleccione...</option>
+                            <option value="1/4 GALON">1/4 GALON</option>
+                            <option value="1/2 GALON">1/2 GALON</option>
+                            <option value="3/4 GALON">3/4 GALON</option>
+                            <option value="CAJA">CAJA</option>
+                            <option value="CUNETE">CUNETE</option>
+                            <option value="GALON">GALON</option>
+                            <option value="KILO">KILO</option>
+                            <option value="LITRO">LITRO</option>
+                            <option value="M2">M2</option>
+                            <option value="ML">ML</option>
+                            <option value="PAR">PAR</option>
+                            <option value="PLIEGO">PLIEGO</option>
+                            <option value="ROLLO">ROLLO</option>
+                            <option value="SACO">SACO</option>
+                            <option value="UNIDAD" selected>UNIDAD</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="area[]" class="form-select" required>
+                            <option value="Seleccione...">Seleccione...</option>
+                            <option value="AYUDAS">AYUDAS</option>
+                            <option value="CANASTILLA">CANASTILLA</option>
+                            <option value="DEPORTES">DEPORTES</option>
+                            <option value="FERRETERIA">FERRETERIA</option>
+                            <option value="GENERAL">GENERAL</option>
+                            <option value="JUGUETES">JUGUETES</option>
+                            <option value="MEDICINAS">MEDICINAS</option>
+                            <option value="PAPELERIA">PAPELERIA</option>
+                            <option value="UTENSILIOS">UTENSILIOS</option>
+                            <option value="VARIOS">VARIOS</option>
+                        </select>
+                    </td>
+                    <td><button type="button" class="btn btn-danger" onclick="eliminarFila(this)">X</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success w-50 mt-2">Agregar</button>
+        <button type="button" class="btn btn-secondary w-50 mt-2" onclick="cancelar()">Cancelar</button>
+    </div>
+</form>
+
+{% include 'footer.html' %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("max", today);
+        const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fechaInput = document.getElementById('txtFecha');
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const currentDate = `${year}-${month}-${day}`;
+        fechaInput.value = currentDate;
+    });
+
+    function agregarFila() {
+        const table = document.getElementById('articulosTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td><input type="text" name="articulo[]" class="form-control" maxlength="40" required></td>
+            <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9.]/g,'');"></td>
+
+            <td>
+                <select name="unidad[]" class="form-select form-select-lg" required>
+                    <option value="Seleccione...">Seleccione...</option>
+                    <option value="1/4 GALON">1/4 GALON</option>
+                    <option value="1/2 GALON">1/2 GALON</option>
+                    <option value="3/4 GALON">3/4 GALON</option>
+                    <option value="CAJA">CAJA</option>
+                    <option value="CUNETE">CUNETE</option>
+                    <option value="GALON">GALON</option>
+                    <option value="KILO">KILO</option>
+                    <option value="LITRO">LITRO</option>
+                    <option value="M2">M2</option>
+                    <option value="ML">ML</option>
+                    <option value="PAR">PAR</option>
+                    <option value="PLIEGO">PLIEGO</option>
+                    <option value="ROLLO">ROLLO</option>
+                    <option value="SACO">SACO</option>
+                    <option value="UNIDAD" selected >UNIDAD</option>
+                </select>
+            </td>
+            <td>
+                <select name="area[]" class="form-select form-select-lg" required>
+                        <option value="Seleccione...">Seleccione...</option>
+                        <option value="AYUDAS">AYUDAS</option>
+                        <option value="CANASTILLA">CANASTILLA</option>
+                        <option value="DEPORTES">DEPORTES</option>
+                        <option value="FERRETERIA">FERRETERIA</option>
+                        <option value="GENERAL">GENERAL</option>
+                        <option value="JUGUETES">JUGUETES</option>
+                        <option value="MEDICINAS">MEDICINAS</option>
+                        <option value="PAPELERIA">PAPELERIA</option>
+                        <option value="UTENSILIOS">UTENSILIOS</option>
+                        <option value="VARIOS">VARIOS</option>
+                </select>
+            </td>
+            <td><button type="button" class="btn btn-danger" onclick="eliminarFila(this)">X</button></td>
+        `;
+    }
+
+    function eliminarFila(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    function cancelar() {
+        window.location.href = "/oficina/inventario";
+    }
+
+    function validarFormulario() {
+        const filas = document.getElementById('articulosTable').getElementsByTagName('tbody')[0].rows;
+        for (let i = 0; i < filas.length; i++) {
+            const inputs = filas[i].getElementsByTagName('input');
+            const selects = filas[i].getElementsByTagName('select');
+            for (let input of inputs) {
+                if (input.value === "") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+            for (let select of selects) {
+                if (select.value === "Seleccione...") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+</script>

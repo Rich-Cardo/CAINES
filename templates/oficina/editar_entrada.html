@@ -1,0 +1,369 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-articulos" onsubmit="return validarFormulario()" method="post" action="/oficina/editar_entrada_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Editar Entrada: {{ entradas[0][1] }}</h1>
+
+    <input id="txtID" class="form-control" type="hidden" name="txtID" value="{{ entradas[0][1] }}" readonly>
+
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-1 col-form-label text-center">Fecha:</label>
+        <div class="col-sm-8">
+            <input id="txtFecha" class="form-control" type="date" name="txtFecha" value="{{ entradas[0][6] }}" required>
+        </div>
+        <div class="col-sm-1 text-end">
+            <button type="button" class="btn btn-primary" onclick="agregarFila()">Nuevo...</button>
+        </div>
+    </div>    
+
+    <div class="table-responsive">
+        <table class="table" id="articulosTable">
+            <thead class="text-center">
+                <tr>
+                    <th class="col-8">Articulo</th>
+                    <th class="col-1">Cantidad</th>
+                    <th class="col-1">Unidad</th>
+                    <th class="col-1">Area</th>
+                    <th class="col-1">Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entrada in entradas %}
+                <tr>
+                    <td>
+                        <input type="text" name="articulo[]" class="form-control articulo-input input-readonly" value="{{ entrada[2] }}" maxlength="60" required>
+                    </td>
+            
+                    <td>
+                        <input type="text" name="cantidad[]" class="form-control" value="{{ entrada[5] }}" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9.]/g,'');">
+                    </td>
+            
+                    <td>
+                        <select name="unidad[]" class="form-select input-readonly" required>
+                            <option value="{{ entrada[3] }}" selected>{{ entrada[3] }}</option>
+                            <option value="1/4 GALON">1/4 GALON</option>
+                            <option value="1/2 GALON">1/2 GALON</option>
+                            <option value="3/4 GALON">3/4 GALON</option>
+                            <option value="CAJA">CAJA</option>
+                            <option value="CUNETE">CUNETE</option>
+                            <option value="GALON">GALON</option>
+                            <option value="KILO">KILO</option>
+                            <option value="LITRO">LITRO</option>
+                            <option value="M2">M2</option>
+                            <option value="ML">ML</option>
+                            <option value="PAR">PAR</option>
+                            <option value="PLIEGO">PLIEGO</option>
+                            <option value="ROLLO">ROLLO</option>
+                            <option value="SACO">SACO</option>
+                            <option value="UNIDAD">UNIDAD</option>
+                        </select>
+                    </td>
+            
+                    <td>
+                        <select name="area[]" class="form-select input-readonly" required>
+                            <option value="{{ entrada[4 ]}}">{{ entrada[4 ]}}</option>
+                            <option value="AYUDAS">AYUDAS</option>
+                            <option value="CANASTILLA">CANASTILLA</option>
+                            <option value="DEPORTES">DEPORTES</option>
+                            <option value="FERRETERIA">FERRETERIA</option>
+                            <option value="GENERAL">GENERAL</option>
+                            <option value="JUGUETES">JUGUETES</option>
+                            <option value="MEDICINAS">MEDICINAS</option>
+                            <option value="PAPELERIA">PAPELERIA</option>
+                            <option value="UTENSILIOS">UTENSILIOS</option>
+                            <option value="VARIOS">VARIOS</option>
+                        </select>
+                    </td>
+
+                    <td class="row">
+                        <button type="button" class="btn btn-danger" style="margin-right: 2px;" onclick="eliminarFila(this)">X</button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" onclick="guardarFilaActual(this)">...</button>                    
+                    </td>                    
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success w-50 mt-2">Editar</button>
+        <button type="button" class="btn btn-secondary w-50 mt-2" onclick="cancelar()">Cancelar</button>
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="articulosModal" tabindex="-1" aria-labelledby="articulosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="articulosModalLabel">Lista de Articulos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+
+                <div class="row mb-3 text-center">
+                    <div class="col-12">
+                        <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar articulos..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                    </div>
+                </div>
+
+                <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                    <table id="tabla_articulos" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                        <thead class="thead-light text-center">
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Articulo</th>
+                                <th>Unidad</th>
+                                <th>Area</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for articulo in articulos %}
+                            <tr class="text-center">
+                                <td>{{ articulo[0]}}</td>
+                                <td>{{ articulo[1]}}</td>
+                                <td>{{ articulo[2]}}</td>
+                                <td>{{ articulo[3]}}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-success seleccionar-articulo"
+                                           href="#"
+                                           data-id="{{ articulo[0] }}"
+                                           data-articulo="{{ articulo[1] }}"
+                                           data-unidad="{{ articulo[2] }}"
+                                           data-area="{{ articulo[3] }}"
+                                           onclick="seleccionarArticulo(this)">Seleccionar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<script>
+
+    //Variable global para guardar la fila y manejar eventos sobre la misma
+
+    let filaActual = null;
+    function guardarFilaActual(button) {
+        filaActual = button.closest('tr'); // Guarda la referencia a la fila actual
+    }
+
+    function agregarFila() {
+    const table = document.getElementById('articulosTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    newRow.innerHTML = `
+        <td><input type="text" name="articulo[]" class="form-control input-readonly" maxlength="25" required></td>
+        <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9.]/g,'');"></td>
+        <td>
+            <select name="unidad[]" class="form-select form-select-lg select-readonly" required>
+                <option value="Seleccione...">Seleccione...</option>
+                <option value="1/4 GALON">1/4 GALON</option>
+                <option value="1/2 GALON">1/2 GALON</option>
+                <option value="3/4 GALON">3/4 GALON</option>
+                <option value="CAJA">CAJA</option>
+                <option value="CUNETE">CUNETE</option>
+                <option value="GALON">GALON</option>
+                <option value="KILO">KILO</option>
+                <option value="LITRO">LITRO</option>
+                <option value="M2">M2</option>
+                <option value="ML">ML</option>
+                <option value="PAR">PAR</option>
+                <option value="PLIEGO">PLIEGO</option>
+                <option value="ROLLO">ROLLO</option>
+                <option value="SACO">SACO</option>
+                <option value="UNIDAD" selected>UNIDAD</option>
+            </select>
+        </td>
+        <td>
+            <select name="area[]" class="form-select form-select-lg select-readonly" required>
+                <option value="Seleccione...">Seleccione...</option>
+                <option value="AYUDAS">AYUDAS</option>
+                <option value="CANASTILLA">CANASTILLA</option>
+                <option value="DEPORTES">DEPORTES</option>
+                <option value="FERRETERIA">FERRETERIA</option>
+                <option value="GENERAL">GENERAL</option>
+                <option value="JUGUETES">JUGUETES</option>
+                <option value="MEDICINAS">MEDICINAS</option>
+                <option value="PAPELERIA">PAPELERIA</option>
+                <option value="UTENSILIOS">UTENSILIOS</option>
+                <option value="VARIOS">VARIOS</option>
+            </select>
+        </td>
+        <td class="row">
+            <button type="button" class="btn btn-danger" style="margin-right: 2px;" onclick="eliminarFila(this)">X</button>
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" onclick="guardarFilaActual(this)">...</button>
+        </td>
+    `;
+}
+
+
+    function eliminarFila(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    // Funcion para seleccionar los articulos del modal
+
+    function seleccionarArticulo(element) {
+        const articulo = element.getAttribute('data-articulo');
+        const unidad = element.getAttribute('data-unidad');
+        const area = element.getAttribute('data-area');
+
+        if (filaActual) {
+            filaActual.querySelector('input[name="articulo[]"]').value = articulo;
+            filaActual.querySelector('select[name="unidad[]"]').value = unidad;
+            filaActual.querySelector('select[name="area[]"]').value = area;
+            filaActual = null; // Restablecer la referencia a la fila actual
+        }
+
+        //Limpiar el input de busqueda despues de hacer click en algun articulo en el modal
+        document.getElementById("searchInput").value = '';
+
+        // Cerrar el modal
+        $('#articulosModal').modal('hide');
+    }
+
+    //buscar en el modal
+    function Buscar() {
+        var input = document.getElementById("searchInput");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementById("tabla_articulos");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdArray = tr[i].getElementsByTagName("td");
+            var match = false;
+
+            for (var j = 0; j < tdArray.length; j++) {
+                var td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    document.getElementById("searchInput").addEventListener("input", Buscar);
+
+
+    // //Cargar las fechas
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const today = new Date().toISOString().split("T")[0];
+    //     document.getElementById("txtFecha").setAttribute("max", today);
+    //     const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+    //     document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    // });
+
+    // document.addEventListener('DOMContentLoaded', (event) => {
+    //     const fechaInput = document.getElementById('txtFecha');
+    //     const today = new Date();
+    //     const day = String(today.getDate()).padStart(2, '0');
+    //     const month = String(today.getMonth() + 1).padStart(2, '0');
+    //     const year = today.getFullYear();
+    //     const currentDate = `${year}-${month}-${day}`;
+    //     fechaInput.value = currentDate;
+    // });
+
+    function validarFormulario() {
+    const filas = document.getElementById('articulosTable').getElementsByTagName('tbody')[0].rows;
+    const articulos = []; // Para almacenar los artículos y verificar duplicados
+    
+    for (let i = 0; i < filas.length; i++) {
+        const inputs = filas[i].getElementsByTagName('input');
+        const selects = filas[i].getElementsByTagName('select');
+        
+        // Validar que todos los campos estén completos
+        for (let input of inputs) {
+            if (input.name === "cantidad[]" && (input.value === "" || parseFloat(input.value) <= 0)) {
+                alert("Por favor, ingrese una cantidad válida mayor a 0.");
+                return false;
+            }
+            if (input.name === "articulo[]" && articulos.includes(input.value)) {
+                alert("No puede ingresar artículos duplicados.");
+                return false;
+            }
+            if (input.value === "") {
+                alert("Por favor, rellene todos los campos.");
+                return false;
+            }
+        }
+
+        // Verificar si el artículo ya existe
+        const articuloInput = filas[i].querySelector('input[name="articulo[]"]');
+        if (articuloInput) {
+            articulos.push(articuloInput.value); // Agregar el artículo al array para verificar duplicados
+        }
+
+        // Validar selects
+        for (let select of selects) {
+            if (select.value === "Seleccione...") {
+                alert("Por favor, seleccione una opción válida.");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+    //Volver
+    function cancelar() {
+        if (confirm("¿Quiere volver a la página anterior?")) {
+            window.location.href = "/oficina/entradas";
+        }
+    }
+    
+    //Evitar que el usuario coloque una fecha posterior a la de hoy
+    document.addEventListener('DOMContentLoaded', (event) => {
+    const fechaInput = document.getElementById('txtFecha');
+    const today = new Date().toISOString().split("T")[0];
+    fechaInput.setAttribute("max", today);
+});
+
+</script>
+
+<style>
+
+    /* Estilo para inputs y selects deshabilitados */
+.input-readonly,
+.select-readonly {
+    background-color: #ffffff; /* Color de fondo igual a los inputs normales */
+    color: #000000; /* Color del texto igual a los inputs normales */
+    border: 1px solid #ced4da; /* Borde igual a los inputs normales */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no es interactivo */
+    pointer-events: none; /* Previene cualquier interacción con el elemento */
+}
+
+
+
+</style>

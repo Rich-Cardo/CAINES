@@ -1,0 +1,29 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+    <form class="form-login m-auto" method="post" action="/crear_municipio" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 fw-normal text-center">Agregar Municipio</h1>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Municipio</label>
+            <input id="txtMunicipio" class="form-control col-8" type="text" name="txtMunicipio" required>
+        </div>
+
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+
+    </form>
+
+   
+
+    
+
+
+{% include 'footer.html' %}

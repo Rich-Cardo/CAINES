@@ -1,0 +1,44 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+    <form class="form-login m-auto" method="post" action="/crear_parroquia" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 fw-normal text-center">Agregar Parroquia</h1>
+
+        <div class="row" style="margin-bottom: 10px;">
+          <label for="floatingInput" class="col-3">Municipio</label>
+          <select class="form-select form-select-lg" id="txtMunicipio" name="txtMunicipio" style="margin-right:14px">
+
+            {% for municipio in municipios %}
+
+              <!-- El valor de la opcion es el codigo del municipio y el usuario ve el nombre -->
+
+              <option value="{{municipio[0]}}">{{municipio[1]}}</option>
+
+            {% endfor %}
+
+          </select>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Parroquia</label>
+            <input id="txtParroquia" class="form-control col-8" type="text" name="txtParroquia" required>
+        </div>
+
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+
+    </form>
+
+   
+
+    
+
+
+{% include 'footer.html' %}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>salidas (Medicinas)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin: 40px;
+            position: relative;
+        }
+    
+        @page {
+            size: A4;
+            margin: 28mm 10mm 40mm 10mm;
+        }
+    
+        header {
+            position: fixed;
+            top: -20mm;
+            left: 0;
+            right: 0;
+            height: 20mm;
+            text-align: center;
+        }
+    
+        header img {
+            width: 80%;
+            height: 100%;
+        }
+    
+        footer {
+            position: fixed;
+            bottom: -18mm;
+            left: 90mm;
+            right: 0;
+            height: 15mm;
+            text-align: center;
+            font-size: 10px;
+        }
+    
+        footer img {
+            height: 110%;
+        }
+    
+        .segundo_footer {
+            position: fixed;
+            bottom: -28mm;
+            left: 0mm;
+            right: 90mm;
+            height: 15mm;
+            text-align: center;
+            font-size: 11px;
+        }
+    
+        .tercer_footer {
+            position: fixed;
+            bottom: -35mm;
+            left: 0mm;
+            right: 93mm;
+            height: 15mm;
+            text-align: center;
+            font-size: 11px;
+        }
+    
+        h2 {
+            text-align: center;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+    
+        table, th, td {
+            border: 1px solid #000;
+        }
+    
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+    
+        thead {
+            background-color: #f2f2f2;
+        }
+    
+        /* Ancho fijo para la columna ID */
+        td.combined-cell:nth-child(2), th:nth-child(2) {
+            width: 50px; /* Puedes ajustar este valor según lo necesites */
+        }
+    
+        /* Ancho máximo para la columna Destino con ajuste de texto */
+        td.combined-cell:nth-child(9), th:nth-child(9) {
+            max-width: 200px; /* Ancho máximo para la columna destino */
+            word-wrap: break-word; /* Ajusta el texto si es demasiado largo */
+            white-space: normal; /* Permite que el texto haga salto de línea */
+        }
+    </style>
+    
+</head>
+<body>
+
+    <header class="header">
+        <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/encabezado_mejorado.png" alt="Encabezado">
+    </header>
+
+    <h2>Salidas</h2>
+    
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Medicina</th>
+                <th>Marca</th>
+                <th>Dosis</th>
+                <th>Unidad</th>
+                <th>Cantidad</th>
+                <th>Destino</th> <!-- Nueva columna para Destino -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for salida in datos %}
+                {% for item in salida.salidas %}
+                    <tr data-id="{{ salida.id_salida }}">
+                        {% if loop.first %}
+                            <td class="combined-cell" rowspan="{{ salida.rowspan }}">{{ salida.index }}</td>
+                            <td rowspan="{{ salida.rowspan }}" class="combined-cell">{{ salida.id_salida }}</td>
+                            <td rowspan="{{ salida.rowspan }}" class="combined-cell">{{ salida.fecha }}</td>
+                        {% endif %}
+                        <td>{{ item.medicina }}</td>
+                        <td>{{ item.marca }}</td>
+                        <td>{{ item.dosis }}</td>
+                        <td>{{ item.unidad }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        {% if loop.first %}
+                            <td rowspan="{{ salida.rowspan }}" class="combined-cell">{{ salida.destino }}</td> <!-- Destino con rowspan -->
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pie de página que se repetirá en cada página -->
+    <footer>
+        <div>
+            <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/pie_de_pagina_mejorado.png" alt="Pie de página">
+        </div>
+    </footer>
+
+    <p class="segundo_footer">Edificio, Palacio de Gobierno, calle Monagas,</p>
+    <p class="tercer_footer">Frente a la Plaza Bolívar, Estado Monagas.</p>
+
+</body>
+
+</html>

@@ -1,0 +1,676 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info  " style="margin-top: 10px; margin-right: 5px;">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div>
+    <h1 class="text-center mb-12" style="color: white;">Gestión de Salidas</h1>
+</div>
+
+<div class="align-items-center" style="display: flex;">
+  <a href="{{url_for('agregar_salida_oficina') }}" class="btn btn-success col-2" style="margin-right: 10px;">Agregar salida...</a>
+  <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar salidas..." required class="form-control col-5" style="margin-right: 10px;">
+
+  <a href="javascript:void(0);" onclick="salidasPDF()" class="btn btn-warning col-2" style="margin: 10px;">Exportar a PDF</a>
+  <a href="javascript:void(0);" onclick="salidasEXCEL()" class="btn btn-success col-2" style="margin: 10px;">Exportar a Excel</a>
+</div>
+
+<button onclick="Buscar()" style="display: none;" class="btn btn-info">Buscar</button>
+
+<div>
+  <div class="align-items-center" style="display: flex;">
+    <label for="fechaInicio" class="col-1 custom-label">Fecha Inicio:</label>
+    <input type="date" id="fechaInicio" class="form-control d-inline-block mb-2 mr-sm-2 col-3 custom-input" style="width: auto;">
+
+    <label for="fechaFin" class="col-1 custom-label" style="margin-left: 15px;">Fecha Final:</label>
+    <input type="date" id="fechaFin" class="form-control d-inline-block mb-2 mr-sm-2 col-3 custom-input" style="width: auto;">
+
+    <!-- <h3 style="color: white;"> Total: {{ cantidad_total }}</h3> -->
+  </div>
+</div>
+
+<div id="myTable" class="table-responsive" style="margin-right: 0 auto;">
+    <table id="tabla_salidas" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+        <thead class="thead-light text-center">
+            <tr>
+                <th><input type="checkbox" id="selectAll" style="display: none;"></th>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Articulo</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Area</th>
+                <th>Destino</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for group in grouped_salidas %}
+            {% set rowspan = group|length %}
+            {% for salida in group %}
+                {% if loop.index0 == 0 and salida[8] %}
+                    {% set rowspan = rowspan + salida[8]|length %}
+                {% endif %}
+            
+            <tr data-id="{{ salida[6] }}">
+                {% if loop.index == 1 %}
+                    <td class="combined-cell" rowspan="{{ rowspan }}">
+                        <input type="checkbox" class="rowCheckbox" value="{{ salida[6] }}">
+                    </td>
+                    <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[6] }}</td>
+                    <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[1] }}</td>
+                {% endif %}
+
+                    <td>{{ salida[2] }}</td>
+                    <td>{{ salida[3] }}</td>
+                    <td>{{ salida[4] }}</td>
+                    <td>{{ salida[5] }}</td>
+
+                {% if loop.index == 1 %}
+                    <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[7] }}</td>
+                    <td rowspan="{{ rowspan }}" class="combined-cell">
+                        <div class="btn-group">
+                            <button class="btn btn-success" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#articulosModal" 
+                                    onclick="showArticulosModal('{{ salida[6] }}')"
+                                    style="border-radius: 10px; margin-right: 5px;">
+                                <i class="fa fa-eye"></i>
+                            </button>                        
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+            
+            {% if loop.index0 == 0 and salida[8] %}
+                {% for articulo_extra in salida[8] %}
+                    <tr data-id="{{ salida[6] }}">
+                        <td style="background-color: rgb(255, 251, 228);">{{ articulo_extra[0] }}</td>
+                        <td style="background-color: rgb(255, 251, 228);">{{ articulo_extra[1] }}</td>
+                        <td style="background-color: rgb(255, 251, 228);">{{ articulo_extra[2] }}</td>
+                        <td style="background-color: rgb(255, 251, 228);">{{ articulo_extra[3] }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- Modal HTML -->
+<div class="modal fade" id="articulosModal" tabindex="-1" aria-labelledby="articulosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="articulosModalLabel">Artículos de la Salida</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> X </button>
+        </div>
+        <div class="modal-body">
+          <table id="modalArticulosTable" class="table table-light tablas border border-secondary rounded">
+            <thead class="thead-light text-center">
+              <tr>
+                <th>Artículo</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Área</th>
+              </tr>
+            </thead>
+            <tbody class="table-scroll">
+              <!-- Los artículos serán insertados aquí por JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="modal-footer">           
+            <button id="btnActa" class="btn btn-info fa fa-print" onclick="ActaPDF()"></button>
+            <!-- <button id="btnActaEXCEL" class="btn btn-success" onclick="ActaEXCEL()">Acta EXCEL</button> -->
+            <a id="btnEditar" class="btn btn-warning fa fa-edit" href="#"></a>
+            <a id="btnEliminar" class="btn btn-danger eliminar-individual fa fa-trash" style="margin-left: 2px; color: white;" data-id=""></a>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<button id="deleteSelected" class="btn btn-danger col-2" style="display: none; margin: 10px;">Eliminar Seleccionados</button>
+
+<!-- Barra inferior con los botones -->
+<div class="bottom-bar">
+    <a class="btn btn-secondary btn-bottom" href="/oficina/entradas">Entradas</a>
+    <a class="btn btn-secondary btn-bottom" href="/oficina/inventario">Inventario</a>
+    <button class="btn btn-secondary btn-bottom" disabled>Salidas</button>
+</div>
+
+{% include 'footer.html' %}
+<style>
+#articulosModal .table-scroll {
+    display: block;
+    max-height: 300px; /* Ajusta según tus necesidades */
+    overflow-y: auto;
+}
+
+#articulosModal .table-scroll tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+#articulosModal .table thead, #articulosModal .table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+
+</style>
+
+<script>
+
+let currentIdSalida = '';
+
+function showArticulosModal(id_salida) {
+
+    const tableBody = document.querySelector('#modalArticulosTable tbody');
+    tableBody.innerHTML = ''; // Limpia el contenido existente
+
+    // Encuentra todas las filas correspondientes a la salida
+    const rows = Array.from(document.querySelectorAll(`#tabla_salidas tr[data-id="${id_salida}"]`));
+    console.log(rows)
+    
+    // Recorre las filas para extraer los artículos
+    rows.forEach((row, index) => {
+        // Accede a las celdas de cada fila
+        const cells = row.children;
+        
+        // Si es la primera fila, la tabla posee 8 celdas o más
+        if (index === 0) {
+            const articulo = cells[3].innerText; // Columna 3: Artículo
+            const cantidad = cells[4] ? cells[4].innerText : ''; // Columna 4: Cantidad
+            const unidad = cells[5] ? cells[5].innerText : ''; // Columna 5: Unidad (puede que no exista)
+            const area = cells[6] ? cells[6].innerText : ''; // Columna 6: Área (puede que no exista)
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'text-center';
+            newRow.innerHTML = `
+                <td>${articulo}</td>
+                <td>${cantidad}</td>
+                <td>${unidad}</td>
+                <td>${area}</td>
+            `;
+            tableBody.appendChild(newRow);
+        } else {
+            // Extrae los datos de artículo de las filas adicionales
+            const articulo = cells[0].innerText; // Columna 3: Artículo
+            const cantidad = cells[1].innerText; // Columna 4: Cantidad
+            const unidad = cells[2].innerText; // Columna 5: Unidad (puede que no exista)
+            const area = cells[3].innerText; // Columna 6: Área (puede que no exista)
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'text-center';
+            newRow.innerHTML = `
+                <td>${articulo}</td>
+                <td>${cantidad}</td>
+                <td>${unidad}</td>
+                <td>${area}</td>
+            `;
+            tableBody.appendChild(newRow);
+        }
+    });
+
+    // Almacena el id_salida en una variable global
+    currentIdSalida = id_salida;
+
+    // Actualiza el href del botón "Editar" con el id_salida
+    const editButton = document.querySelector('#btnEditar');
+    editButton.href = `/oficina/editar_salida/${id_salida}`;
+
+    // Actualiza el data-id del botón "Eliminar" con el id_salida
+    const deleteButton = document.querySelector('#btnEliminar');
+    deleteButton.setAttribute('data-id', id_salida);
+    // Asigna la función handleDeleteIndividual al botón de eliminar
+    deleteButton.setAttribute('onclick', `handleDeleteIndividual('${id_salida}')`);
+
+}
+
+function ActaEXCEL() {
+    if (currentIdSalida) {
+        window.open('/actas_excel/' + currentIdSalida, '_blank');
+    } else {
+        alert('ID de salida no disponible.');
+    }
+}
+
+function ActaPDF() {
+    if (currentIdSalida) {
+        window.open('/actas_pdf/' + currentIdSalida, '_blank');
+    } else {
+        alert('ID de salida no disponible.');
+    }
+}
+
+function Buscar() {
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var fechaInicio = document.getElementById("fechaInicio").value;
+    var fechaFin = document.getElementById("fechaFin").value;
+    var table = document.getElementById("tabla_salidas");
+    var tr = table.getElementsByTagName("tr");
+
+    function transformarFecha(fecha) {
+        var partes = fecha.split("-");
+        return new Date(partes[0], partes[1] - 1, partes[2]);
+    }
+
+    function transformarFechaTabla(fecha) {
+        var partes = fecha.split("/");
+        return new Date(partes[2], partes[1] - 1, partes[0]);
+    }
+
+    fechaInicio = fechaInicio ? transformarFecha(fechaInicio) : null;
+    fechaFin = fechaFin ? transformarFecha(fechaFin) : null;
+
+    // Crear un objeto para guardar si una fila del grupo debe ser mostrada
+    var filasAmostrar = {};
+
+    for (var i = 1; i < tr.length; i++) {
+        var tdArray = tr[i].getElementsByTagName("td");
+        var match = false;
+        var dateMatch = true;
+
+        // Verificar si la fecha de la fila está dentro del rango de fechas
+        if (fechaInicio || fechaFin) {
+            var fechasalida = transformarFechaTabla(tdArray[2].innerHTML); // La fecha está en la tercera columna
+            if ((fechaInicio && fechasalida < fechaInicio) || (fechaFin && fechasalida > fechaFin)) {
+                dateMatch = false;
+            }
+        }
+
+        // Verificar si la fila coincide con el filtro de búsqueda
+        for (var j = 0; j < tdArray.length; j++) {
+            var td = tdArray[j];
+            if (td) {
+                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        // Obtener el ID del grupo (primera columna y rowspan de la fila)
+        var id = tr[i].getAttribute('data-id');
+
+        // Determinar si mostrar la fila
+        if (match && dateMatch) {
+            filasAmostrar[id] = true;
+        }
+
+        // Inicializar el objeto si aún no existe
+        if (!filasAmostrar.hasOwnProperty(id)) {
+            filasAmostrar[id] = false;
+        }
+    }
+
+    // Ocultar o mostrar todas las filas del grupo basadas en la información del objeto
+    for (var i = 1; i < tr.length; i++) {
+        var id = tr[i].getAttribute('data-id');
+        if (filasAmostrar[id]) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+
+// Agregar el evento change al input de búsqueda
+document.getElementById("searchInput").addEventListener("input", Buscar);
+
+function salidasPDF() {
+    var fechaInicio = document.getElementById("fechaInicio").value;
+    var fechaFin = document.getElementById("fechaFin").value;
+    var searchInput = document.getElementById("searchInput").value;
+
+    // Verificar si hay fechas seleccionadas
+    if (!fechaInicio || !fechaFin) {
+        alert("Por favor, seleccione ambas fechas.");
+        return;
+    }
+
+    // Realizar la petición AJAX
+    fetch('/salidas_pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fechaInicio: fechaInicio,
+            fechaFin: fechaFin,
+            searchInput: searchInput
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Generar la URL del objeto Blob
+        const url = window.URL.createObjectURL(blob);
+        // Abrir el PDF en una nueva ventana
+        window.open(url, '_blank');
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function salidasEXCEL() {
+    var fechaInicio = document.getElementById("fechaInicio").value;
+    var fechaFin = document.getElementById("fechaFin").value;
+    var searchInput = document.getElementById("searchInput").value;
+
+    // Verificar si hay fechas seleccionadas
+    if (!fechaInicio || !fechaFin) {
+        alert("Por favor, seleccione ambas fechas.");
+        return;
+    }
+
+    // Realizar la petición AJAX
+    fetch('/salidas_excel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fechaInicio: fechaInicio,
+            fechaFin: fechaFin,
+            searchInput: searchInput
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Generar la URL del objeto Blob
+        const url = window.URL.createObjectURL(blob);
+        // Abrir el PDF en una nueva ventana
+        window.open(url, '_blank');
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function actaPDF(id_salida) {
+    // Realizar la petición AJAX
+    fetch('/actas_pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id_salida: id_salida
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Generar la URL del objeto Blob
+        const url = window.URL.createObjectURL(blob);
+        // Abrir el PDF en una nueva ventana
+        window.open(url, '_blank');
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+//Funciones para el filtrado de fechas
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Establecer la fecha máxima para el input de fecha
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("fechaInicio").setAttribute("max", today);
+    document.getElementById("fechaFin").setAttribute("max", today);
+
+  var hoy = new Date();
+  var primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  var ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+  // Formato de fecha para establecer en los inputs (YYYY-MM-DD)
+  var primerDiaFormatted = primerDiaMes.toISOString().split('T')[0];
+  var ultimoDiaFormatted = ultimoDiaMes.toISOString().split('T')[0];
+
+  document.getElementById('fechaInicio').value = primerDiaFormatted;
+  document.getElementById('fechaFin').value = ultimoDiaFormatted;
+
+  // Llamar a la función de filtrado al cargar la página para mostrar los datos del mes actual
+  filtrarTablaPorFechas();
+});
+
+function filtrarTablaPorFechas() {
+    // Obtener y validar fechas de inicio y fin
+    const fechaInicioInput = document.getElementById("fechaInicio").value;
+    const fechaFinInput = document.getElementById("fechaFin").value;
+
+    // Si alguna fecha no es válida, salir de la función
+    if (!fechaInicioInput || !fechaFinInput) {
+        return;
+    }
+
+    const fechaInicio = new Date(fechaInicioInput);
+    const fechaFin = new Date(fechaFinInput);
+    const filas = document.querySelectorAll('#tabla_salidas tbody tr');
+
+    filas.forEach((fila) => {
+        if (esFilaPrincipal(fila)) {
+            const fecha = extraerFechaDeFila(fila);
+            if (fecha >= fechaInicio && fecha <= fechaFin) {
+                mostrarFilaConAdicionales(fila);
+            } else {
+                ocultarFilaConAdicionales(fila);
+            }
+        }
+    });
+}
+
+function esFilaPrincipal(fila) {
+    return fila.querySelector('[rowspan]') !== null;
+}
+
+function extraerFechaDeFila(fila) {
+    const fechaTexto = fila.children[2].textContent;
+    return new Date(fechaTexto.split('/').reverse().join('-'));
+}
+
+function mostrarFilaConAdicionales(fila) {
+    fila.style.display = '';
+    let siguiente = fila.nextElementSibling;
+    while (siguiente && !esFilaPrincipal(siguiente)) {
+        siguiente.style.display = '';
+        siguiente = siguiente.nextElementSibling;
+    }
+}
+
+function ocultarFilaConAdicionales(fila) {
+    fila.style.display = 'none';
+    let siguiente = fila.nextElementSibling;
+    while (siguiente && !esFilaPrincipal(siguiente)) {
+        siguiente.style.display = 'none';
+        siguiente = siguiente.nextElementSibling;
+    }
+}
+
+
+// Función para convertir la fecha de "dd/mm/yyyy" a "yyyy-mm-dd" si es necesario
+function convertirFecha(fecha) {
+    var partes = fecha.split("/");
+    return partes[2] + "-" + partes[1] + "-" + partes[0];
+}
+
+
+document.getElementById("fechaInicio").addEventListener("change", filtrarTablaPorFechas);
+document.getElementById("fechaFin").addEventListener("change", filtrarTablaPorFechas);
+
+//Codigo para el manejo de la eliminacion multiple
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+    const deleteButton = document.getElementById('deleteSelected');
+
+    // Actualiza la visibilidad del botón de eliminar seleccionados
+    function updateDeleteButtonVisibility() {
+        const anyChecked = Array.from(rowCheckboxes).some(checkbox => checkbox.checked);
+        deleteButton.style.display = anyChecked ? 'block' : 'none';
+    }
+
+    // Maneja el cambio en la selección de "Seleccionar todo"
+    function handleSelectAllChange() {
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+        updateDeleteButtonVisibility();
+    }
+
+    // Maneja el cambio en cualquier casilla de verificación de fila
+    function handleRowCheckboxChange() {
+        updateDeleteButtonVisibility();
+    }
+
+    // Elimina las filas seleccionadas
+    function handleDeleteSelected() {
+        const selectedCheckboxes = document.querySelectorAll('.rowCheckbox:checked');
+        const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+
+        console.log(idsToDelete)
+
+        if (idsToDelete.length === 0) {
+            alert('Por favor, seleccione al menos una fila para eliminar.');
+            return;
+        }
+
+        if (!confirm('¿Está seguro de que desea eliminar las filas seleccionadas?')) {
+            return;
+        }
+
+        deleteEntries(idsToDelete)
+            .then(success => {
+                if (success) {
+                    // selectedCheckboxes.forEach(checkbox => {
+                    //     const row = checkbox.closest('tr');
+                    //     row.remove();
+                    // });
+                    alert('Las filas seleccionadas se han eliminado con éxito.');
+                    location.reload(); // Recarga la página
+                } else {
+                    alert('Error al eliminar las filas seleccionadas.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Envía una solicitud para eliminar las salidas
+    function deleteEntries(ids) {
+        console.log("Ids to delete es: ", ids)
+        return fetch('/eliminar_multiples_salidas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al eliminar las filas seleccionadas.');
+            }
+            return response.json();
+        })
+        .then(data => data.success);
+    }
+
+    // Event listeners
+    selectAllCheckbox.addEventListener('change', handleSelectAllChange);
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleRowCheckboxChange);
+    });
+    deleteButton.addEventListener('click', handleDeleteSelected);
+
+    // Inicialización de la visibilidad del botón
+    updateDeleteButtonVisibility();
+});
+
+
+function handleDeleteIndividual(id_salida) {
+
+    if (!confirm('¿Está seguro de que desea eliminar esta salida?')) {
+        return;
+    }
+
+    deleteEntries([id_salida])  // Enviar la ID como un array
+        .then(success => {
+            if (success) {
+                alert('La salida se ha eliminado con éxito.');
+                location.reload();  // Recargar la página para reflejar los cambios
+            } else {
+                alert('Error al eliminar la salida.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+
+// Maneja la eliminación de una salida individual
+function EliminarSalida(event) {
+    const id = event.target.getAttribute('data-id');
+
+    if (!confirm('¿Está seguro de que desea eliminar este registro?')) {
+        return;
+    }
+
+    deleteEntries([id])
+        .then(success => {
+            if (success) {
+                removeRow(event.target);
+                alert('El registro se ha eliminado con éxito.');
+            } else {
+                alert('Error al eliminar el registro.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Envía una solicitud para eliminar las salidas
+function deleteEntries(ids) {
+    return fetch('/eliminar_multiples_salidas', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: ids })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al eliminar el registro.');
+        }
+        return response.json();
+    })
+    .then(data => data.success);
+}
+
+</script>
+

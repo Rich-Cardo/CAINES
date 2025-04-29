@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+</head>
+<body>
+    <header class="header">
+    </header>
+
+    <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+        <table id="tabla_salidas" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+            <thead class="thead-light text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Articulo</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Area</th>
+                    <th>Destino</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for group in grouped_salidas %}
+                {% set rowspan = group|length %}
+                {% for salida in group %}
+                <tr data-id="{{ salida[6] }}">
+                    {% if loop.index == 1 %}
+                        <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[6] }}</td>
+                        <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[1] }}</td>
+                    {% endif %}
+                    <td>{{ salida[2] }}</td>
+                    <td>{{ salida[3] }}</td>
+                    <td>{{ salida[4] }}</td>
+                    <td>{{ salida[5] }}</td>
+                    {% if loop.index == 1 %}
+                        <td rowspan="{{ rowspan }}" class="combined-cell">{{ salida[7] }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+<style>
+
+/* Estilo general del cuerpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilo de la tabla */
+.table-responsive {
+    max-width: 1000px;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Estilo de la tabla */
+.table {
+    width: 100%;
+}
+
+/* Estilo de los encabezados de la tabla */
+.thead-light {
+    background-color: #e9ecef;
+}
+
+/* Estilo de las celdas de la tabla */
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: center;
+    border: 1px solid #1b1b1b;
+}
+
+/* Estilo de las celdas combinadas */
+.combined-cell {
+    font-weight: bold;
+}
+
+/* Estilo de las filas de la tabla */
+.table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table tr:hover {
+    background-color: #d1e7dd;
+}
+
+/* Estilo del borde de la tabla */
+.border {
+    border: 1px solid #ddd;
+}
+
+.rounded {
+    border-radius: 8px;
+}
+/* Evitar que las filas combinadas se corten en la impresión */
+tr {
+    page-break-inside: avoid;
+}
+
+</style>

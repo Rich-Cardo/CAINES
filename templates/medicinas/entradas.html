@@ -1,0 +1,590 @@
+<!-- En tu template principal -->
+{% set body_class = 'fondo-medicinas' %}
+
+<body class="{{ body_class }}">
+    {% include 'header.html' %}
+    <!-- Resto del contenido -->
+</body>
+
+
+
+
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info  " style="margin-top: 10px; margin-right: 5px;">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div>
+    <h1 class="text-center mb-12" style="color: white;">Gestión de Entradas</h1>
+</div>
+
+<div class="align-items-center" style="display: flex;">
+  <a href="{{url_for('agregar_entrada_medicinas') }}" class="btn btn-success col-2" style="margin-right: 10px;">Agregar entrada...</a>
+  <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar entradas..." required class="form-control col-6" style="margin-right: 10px;">
+
+  <a href="javascript:void(0);" onclick="guardarPDF()" class="btn btn-warning col-3" style="margin: 10px;">Exportar a PDF</a>
+</div>
+
+<button onclick="Buscar()" style="display: none;" class="btn btn-info">Buscar</button>
+
+<div>
+  <div class="align-items-center" style="display: flex;">
+    <label for="fechaInicio" class="col-1 custom-label">Fecha Inicio:</label>
+    <input type="date" id="fechaInicio" class="form-control d-inline-block mb-2 mr-sm-2 col-3 custom-input" style="width: auto;">
+
+    <label for="fechaFin" class="col-1 custom-label" style="margin-left: 15px;">Fecha Final:</label>
+    <input type="date" id="fechaFin" class="form-control d-inline-block mb-2 mr-sm-2 col-3 custom-input" style="width: auto;">
+
+    <h3 style="color: white;"> Total: {{ cantidad_total }}</h3>
+  </div>
+</div>
+
+<div id="myTable" class="table-responsive" style="margin-right: 0 auto;">
+  <table id="tabla_entradas" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+    <thead class="thead-light text-center">
+      <tr>
+        <th><input type="checkbox" id="selectAll" style="display: none;"></th> <!-- Casilla para seleccionar/deseleccionar todas las filas -->
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Medicina</th>
+        <th>Marca</th>
+        <th>Dosis</th>
+        <th>Unidad</th>
+        <th>Cantidad</th>        
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+        {% for group in grouped_entradas %}
+            {% set rowspan = group|length %}
+            {% for entrada in group %}
+            <tr data-id="{{ entrada[7] }}">
+                {% if loop.index == 1 %}
+                    <td class="combined-cell" rowspan="{{ rowspan }}">
+                        <input type="checkbox" class="rowCheckbox" value="{{ entrada[7] }}">
+                    </td>
+                    <td rowspan="{{ rowspan }}" class="combined-cell">{{ entrada[7] }}</td>
+                    <td rowspan="{{ rowspan }}" class="combined-cell">{{ entrada[1] }}</td>
+                {% endif %}
+                <td style="max-width: 200px;">{{ entrada[2] }}</td>
+                <td class="text-center">{{ entrada[4] }}</td>
+                <td class="text-center">{{ entrada[5] }}</td>
+                <td class="text-center">{{ entrada[6] }}</td>
+                <td class="text-center">{{ entrada[3] }}</td>
+                {% if loop.index == 1 %}
+                    <td rowspan="{{ rowspan }}" class="combined-cell">
+                        <div class="btn-group">
+                            
+                            <button class="btn btn-success" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#articulosModal" onclick="showArticulosModal('{{ entrada[7] }}')">Ver</button>
+
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+
+  </table>
+    
+</div>
+
+<!-- Modal HTML -->
+<div class="modal fade" id="articulosModal" tabindex="-1" aria-labelledby="articulosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="articulosModalLabel">Detalles de la Entrada</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table id="modalArticulosTable" class="table table-light tablas border border-secondary rounded">
+            <thead class="thead-light text-center">
+              <tr>
+                <th>Medicina</th>
+                <th>Marca</th>
+                <th>Dosis</th>
+                <th>Unidad</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody class="table-scroll">
+              <!-- Los detalles serán insertados aquí por JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="modal-footer">           
+            <a id="btnEditar" class="btn btn-warning" href="#">Editar</a>
+            <a id="btnEliminar" class="btn btn-danger eliminar-individual" style="margin-left: 2px; color: white;" data-id="">Eliminar</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+        
+      </div>
+    </div>
+</div>
+
+
+
+
+
+<button id="deleteSelected" class="btn btn-danger" style="display: none; margin: 10px;">Eliminar Seleccionados</button>
+
+<!-- Barra inferior con los botones -->
+<div class="bottom-bar">
+    <button class="btn btn-secondary btn-bottom" disabled>Entradas</button>
+    <a class="btn btn-secondary btn-bottom" href="/medicinas/inventario">Inventario</a>
+    <a class="btn btn-secondary btn-bottom" href="/medicinas/salidas" >Salidas</a>
+</div>
+
+{% include 'footer.html' %}
+
+<script>
+
+let currentIdSalida = '';
+
+function showArticulosModal(id_entrada) {
+    const tableBody = document.querySelector('#modalArticulosTable tbody');
+    tableBody.innerHTML = ''; // Limpia el contenido existente
+
+    // Encuentra todas las filas correspondientes a la entrada
+    const rows = Array.from(document.querySelectorAll(`#tabla_entradas tr[data-id="${id_entrada}"]`));
+    
+    // Recorre las filas para extraer los detalles de la medicina
+    rows.forEach((row, index) => {
+        const cells = row.children;
+        
+        // Si es la primera fila, la tabla posee varias celdas
+        if (index === 0) {
+
+            const descripcion = cells[3].innerText; // Columna 3: Descripción de la medicina
+            const marca = cells[4] ? cells[4].innerText : ''; // Columna 4: Marca
+            const dosis = cells[5] ? cells[5].innerText : ''; // Columna 5: Dosis
+            const unidad = cells[6] ? cells[6].innerText : ''; // Columna 6: Unidad
+            const cantidad = cells[7] ? cells[7].innerText : ''; // Columna 7: Cantidad
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'text-center';
+            newRow.innerHTML = `
+                <td>${descripcion}</td>
+                <td>${marca}</td>
+                <td>${dosis}</td>
+                <td>${unidad}</td>
+                <td>${cantidad}</td>
+            `;
+            tableBody.appendChild(newRow);
+        } else {
+
+            const descripcion = cells[0].innerText; // Columna 3: Descripción de la medicina
+            const marca = cells[1] ? cells[1].innerText : ''; // Columna 4: Marca
+            const dosis = cells[2] ? cells[2].innerText : ''; // Columna 5: Dosis
+            const unidad = cells[3] ? cells[3].innerText : ''; // Columna 6: Unidad
+            const cantidad = cells[4] ? cells[4].innerText : ''; // Columna 7: Cantidad
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'text-center';
+            newRow.innerHTML = `
+                <td>${descripcion}</td>
+                <td>${marca}</td>
+                <td>${dosis}</td>
+                <td>${unidad}</td>
+                <td>${cantidad}</td>
+            `;
+            tableBody.appendChild(newRow);
+        }
+
+    });
+
+    // Actualiza el href del botón "Editar" con el id_entrada
+    const editButton = document.querySelector('#btnEditar');
+    editButton.href = `/medicinas/editar_entrada/${id_entrada}`;
+
+    // Actualiza el data-id del botón "Eliminar" con el id_entrada
+    const deleteButton = document.querySelector('#btnEliminar');
+    deleteButton.setAttribute('data-id', id_entrada);
+    deleteButton.setAttribute('onclick', `handleDeleteIndividual('${id_entrada}')`);
+}
+
+
+// Función para transformar la fecha a dd/mm/yyyy y convertirla a objeto Date
+function transformarFecha(fecha) {
+    var partes = fecha.split("-");
+    return new Date(partes[0], partes[1] - 1, partes[2]); // Año, Mes (0 indexado), Día
+}
+
+function Buscar() {
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var fechaInicio = document.getElementById("fechaInicio").value;
+    var fechaFin = document.getElementById("fechaFin").value;
+    var table = document.getElementById("tabla_entradas");
+    var tr = table.getElementsByTagName("tr");
+
+    function transformarFecha(fecha) {
+        var partes = fecha.split("-");
+        return new Date(partes[0], partes[1] - 1, partes[2]);
+    }
+
+    function transformarFechaTabla(fecha) {
+        var partes = fecha.split("/");
+        return new Date(partes[2], partes[1] - 1, partes[0]);
+    }
+
+    fechaInicio = fechaInicio ? transformarFecha(fechaInicio) : null;
+    fechaFin = fechaFin ? transformarFecha(fechaFin) : null;
+
+    // Crear un objeto para guardar si una fila del grupo debe ser mostrada
+    var filasAmostrar = {};
+
+    for (var i = 1; i < tr.length; i++) {
+        var tdArray = tr[i].getElementsByTagName("td");
+        var match = false;
+        var dateMatch = true;
+
+        // Verificar si la fecha de la fila está dentro del rango de fechas
+        if (fechaInicio || fechaFin) {
+            var fechasalida = transformarFechaTabla(tdArray[2].innerHTML); // La fecha está en la tercera columna
+            if ((fechaInicio && fechasalida < fechaInicio) || (fechaFin && fechasalida > fechaFin)) {
+                dateMatch = false;
+            }
+        }
+
+        // Verificar si la fila coincide con el filtro de búsqueda
+        for (var j = 0; j < tdArray.length; j++) {
+            var td = tdArray[j];
+            if (td) {
+                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        // Obtener el ID del grupo (primera columna y rowspan de la fila)
+        var id = tr[i].getAttribute('data-id');
+
+        // Determinar si mostrar la fila
+        if (match && dateMatch) {
+            filasAmostrar[id] = true;
+        }
+
+        // Inicializar el objeto si aún no existe
+        if (!filasAmostrar.hasOwnProperty(id)) {
+            filasAmostrar[id] = false;
+        }
+    }
+
+    // Ocultar o mostrar todas las filas del grupo basadas en la información del objeto
+    for (var i = 1; i < tr.length; i++) {
+        var id = tr[i].getAttribute('data-id');
+        if (filasAmostrar[id]) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+
+// function Buscar() {
+//     // Obtener los valores del input de búsqueda y los inputs de fecha
+//     var input = document.getElementById("searchInput");
+//     var filter = input.value.toUpperCase();
+//     var fechaInicio = document.getElementById("fechaInicio").value;
+//     var fechaFin = document.getElementById("fechaFin").value;
+//     var table = document.getElementById("tabla_entradas");
+//     var tr = table.getElementsByTagName("tr");
+
+//     // Función para transformar la fecha a dd/mm/yyyy y convertirla a objeto Date
+//     function transformarFecha(fecha) {
+//         var partes = fecha.split("-");
+//         return new Date(partes[0], partes[1] - 1, partes[2]); // Año, Mes (0 indexado), Día
+//     }
+
+//     // Función para transformar la fecha del formato dd/mm/yyyy a objeto Date
+//     function transformarFechaTabla(fecha) {
+//         var partes = fecha.split("/");
+//         return new Date(partes[2], partes[1] - 1, partes[0]); // Año, Mes (0 indexado), Día
+//     }
+
+//     // Transformar las fechas
+//     fechaInicio = fechaInicio ? transformarFecha(fechaInicio) : null;
+//     fechaFin = fechaFin ? transformarFecha(fechaFin) : null;
+
+//     // Recorrer todas las filas de la tabla y ocultar aquellas que no coincidan con la búsqueda o el rango de fechas
+//     for (var i = 1; i < tr.length; i++) {
+//         var tdArray = tr[i].getElementsByTagName("td");
+//         var match = false;
+//         var dateMatch = true; // Asume que coincide hasta que se pruebe lo contrario
+
+//         // Verificar si la fecha de la fila está dentro del rango de fechas
+//         if (fechaInicio || fechaFin) {
+//             var fechaentrada = transformarFechaTabla(tdArray[1].innerHTML); // Asumiendo que la fecha está en la segunda columna y en formato dd/mm/yyyy
+//             // console.log("Fecha de entrada es: ", fechaentrada);
+//             if ((fechaInicio && fechaentrada < fechaInicio) || (fechaFin && fechaentrada > fechaFin)) {
+//                 dateMatch = false;
+//             }
+//         }
+
+//         // Verificar si la fila coincide con el filtro de búsqueda
+//         for (var j = 0; j < tdArray.length; j++) {
+//             var td = tdArray[j];
+//             if (td) {
+//                 if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+//                     match = true;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         // Mostrar la fila si coincide con el filtro de búsqueda y el rango de fechas
+//         if (match && dateMatch) {
+//             tr[i].style.display = "";
+//         } else {
+//             tr[i].style.display = "none";
+//         }
+//     }
+// }
+
+// Agregar el evento change al input de búsqueda
+document.getElementById("searchInput").addEventListener("input", Buscar);
+
+
+function guardarPDF() {
+    var fechaInicio = document.getElementById("fechaInicio").value;
+    var fechaFin = document.getElementById("fechaFin").value;
+    var searchInput = document.getElementById("searchInput").value;
+
+    // Verificar si hay fechas seleccionadas
+    if (!fechaInicio || !fechaFin) {
+        alert("Por favor, seleccione ambas fechas.");
+        return;
+    }
+
+    // Realizar la petición AJAX
+    fetch('/medicinas/reportes/reporte_entradas_pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fechaInicio: fechaInicio,
+            fechaFin: fechaFin,
+            searchInput: searchInput
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Generar la URL del objeto Blob
+        const url = window.URL.createObjectURL(blob);
+        // Abrir el PDF en una nueva ventana
+        window.open(url, '_blank');
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+//Funciones para el filtrado de fechas
+
+//Convertir la fecha a DD MM YYYY
+function convertirFecha(fecha) {
+  var partes = fecha.split('/');
+  return partes[2] + '-' + partes[1] + '-' + partes[0]; // Asumiendo formato DD/MM/YYYY
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var hoy = new Date();
+  var primerDiaMes = new Date(2024, 0, 1); // Enero es el mes 0
+  var ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+  // Formato de fecha para establecer en los inputs (YYYY-MM-DD)
+  var primerDiaFormatted = primerDiaMes.toISOString().split('T')[0];
+  var ultimoDiaFormatted = ultimoDiaMes.toISOString().split('T')[0];
+
+  document.getElementById('fechaInicio').value = primerDiaFormatted;
+  document.getElementById('fechaFin').value = ultimoDiaFormatted;
+
+  // Llamar a la función de filtrado al cargar la página para mostrar los datos del mes actual
+  filtrarTablaPorFechas();
+});
+
+function filtrarTablaPorFechas() {
+    // Obtener y validar fechas de inicio y fin
+    const fechaInicioInput = document.getElementById("fechaInicio").value;
+    const fechaFinInput = document.getElementById("fechaFin").value;
+
+    // Si alguna fecha no es válida, salir de la función
+    if (!fechaInicioInput || !fechaFinInput) {
+        return;
+    }
+
+    const fechaInicio = new Date(fechaInicioInput);
+    const fechaFin = new Date(fechaFinInput);
+    const filas = document.querySelectorAll('#tabla_entradas tbody tr');
+
+    filas.forEach((fila) => {
+        if (esFilaPrincipal(fila)) {
+            const fecha = extraerFechaDeFila(fila);
+            if (fecha >= fechaInicio && fecha <= fechaFin) {
+                mostrarFilaConAdicionales(fila);
+            } else {
+                ocultarFilaConAdicionales(fila);
+            }
+        }
+    });
+}
+
+function esFilaPrincipal(fila) {
+    return fila.querySelector('[rowspan]') !== null;
+}
+
+function extraerFechaDeFila(fila) {
+    const fechaTexto = fila.children[2].textContent;
+    return new Date(fechaTexto.split('/').reverse().join('-'));
+}
+
+function mostrarFilaConAdicionales(fila) {
+    fila.style.display = '';
+    let siguiente = fila.nextElementSibling;
+    while (siguiente && !esFilaPrincipal(siguiente)) {
+        siguiente.style.display = '';
+        siguiente = siguiente.nextElementSibling;
+    }
+}
+
+function ocultarFilaConAdicionales(fila) {
+    fila.style.display = 'none';
+    let siguiente = fila.nextElementSibling;
+    while (siguiente && !esFilaPrincipal(siguiente)) {
+        siguiente.style.display = 'none';
+        siguiente = siguiente.nextElementSibling;
+    }
+}
+
+document.getElementById("fechaInicio").addEventListener("change", filtrarTablaPorFechas);
+document.getElementById("fechaFin").addEventListener("change", filtrarTablaPorFechas);
+
+//Codigo para el manejo de la eliminacion multiple
+
+    // Envía una solicitud para eliminar las entradas
+    function deleteEntries(ids) {
+        return fetch('/medicinas/eliminar_multiples_entradas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al eliminar las filas seleccionadas.');
+            }
+            return response.json();
+        })
+        .then(data => data.success);
+    }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
+    const deleteButton = document.getElementById('deleteSelected');
+
+    // Actualiza la visibilidad del botón de eliminar seleccionados
+    function updateDeleteButtonVisibility() {
+        const anyChecked = Array.from(rowCheckboxes).some(checkbox => checkbox.checked);
+        deleteButton.style.display = anyChecked ? 'block' : 'none';
+    }
+
+    // Maneja el cambio en la selección de "Seleccionar todo"
+    function handleSelectAllChange() {
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+        updateDeleteButtonVisibility();
+    }
+
+    // Maneja el cambio en cualquier casilla de verificación de fila
+    function handleRowCheckboxChange() {
+        updateDeleteButtonVisibility();
+    }
+
+    // Elimina las filas seleccionadas
+    function handleDeleteSelected() {
+        const selectedCheckboxes = document.querySelectorAll('.rowCheckbox:checked');
+        const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+
+        if (idsToDelete.length === 0) {
+            alert('Por favor, seleccione al menos una fila para eliminar.');
+            return;
+        }
+
+        if (!confirm('¿Está seguro de que desea eliminar las filas seleccionadas?')) {
+            return;
+        }
+
+        deleteEntries(idsToDelete)
+            .then(success => {
+                if (success) {
+                    selectedCheckboxes.forEach(checkbox => {
+                        const row = checkbox.closest('tr');
+                        row.remove();
+                    });
+                    alert('Las filas seleccionadas se han eliminado con éxito.');
+                    location.reload();
+                } else {
+                    alert('Error al eliminar las filas seleccionadas.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Event listeners
+    selectAllCheckbox.addEventListener('change', handleSelectAllChange);
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleRowCheckboxChange);
+    });
+    deleteButton.addEventListener('click', handleDeleteSelected);
+
+    // Inicialización de la visibilidad del botón
+    updateDeleteButtonVisibility();
+});
+
+
+// Maneja la eliminación de una entrada individual
+function handleDeleteIndividual(id_entrada) {
+
+    if (!confirm('¿Está seguro de que desea eliminar esta entrada?')) {
+        return;
+    }
+
+    deleteEntries([id_entrada])  // Enviar la ID como un array
+        .then(success => {
+            if (success) {
+                alert('La salida se ha eliminado con éxito.');
+                location.reload();  // Recargar la página para reflejar los cambios
+            } else {
+                alert('Error al eliminar la salida.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+
+
+// Elimina una fila del DOM
+function removeRow(target) {
+    const row = target.closest('tr');
+    row.remove();
+}
+
+
+</script>

@@ -1,450 +1,53 @@
-.fondo {    
-
-    background-image: url('../img/tijeras.jpg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    min-height:100vh;
-    padding-top:95px; 
-    
-    /* Este Padding necesario para que la barra de navegacion del
-     header no se superponga sobre los elementos */    
-}
-
-
-
-
-
-
-/* .nav{
-    background-color: white;
-} */
-
-
-
-
-
-/* Codigo para la pagina Gestion de Niños */
-/* Codigo para el scroll vertical de la tabla Niños */
-
-#input-buscar{
-
-    width: 55%;
-    margin-right: 1%;
-
-
-}
-
-#boton-buscar{
-
-    width: 15%;
-
-}
-
-#boton-ingresar{
-
-    width:25%;
-
-}
-
-
-
-.tablas{
-
-    max-width: 1052px;
-    margin: 0 auto;
-
-}
-
-
-
-.my-custom-scrollbar {
-    position: relative;
-    height: 730px;
-    overflow: auto;
-    }
-
-.table-wrapper-scroll-y {
-    display: block;
-}
-
-
-
-
-/* Inicio del codigo CSS DE ARIANA */
-
-
-.form-login{
-	padding: 20px;
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-    margin-bottom:20px;
-    width:600px;
-}
-
-
-
-
-.button-login {
-	cursor: pointer;
-	padding-top: 0.5rem!important;
-    padding-bottom: 0.5rem!important;
-    color: #fff;
-    display:block;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    text-decoration: none;
+.header {
     text-align: center;
-
-
-    background-color: #4619CD;
-    border: hidden;
-    transition-duration: 0.1s;
-    height: 40px;
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 4px 3px -2px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-
-
+    margin-bottom: 20px;
 }
 
-.button-login:hover{
-    text-decoration: none;
-    color: #fff;
-    background-color: #3612a3;
-}
-
-/* Fin del codigo CSS DE ARIANA */
-
-/* Codigo CSS para la pagina principal */
-
-.contenedor-terapia{
-
-    padding: 20px;
-    border-radius: 10px;
-    background-color: beige;
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-    margin-bottom:20px;
-
-    margin:10px;
-
-    justify-content: center;
-    align-items: center;
-
-
-}
-
-.principal {    
-
-    /* background-image: url('../img/ninos.jpg'); */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    border-radius: 10px;
-    position:relative;
-    
-    
-   
-    /* Codigo para oscurecer sólo la imagen y no el texto dentro */
-    background-image: linear-gradient(rgba(0, 0, 0, 0.4),
-    rgba(0, 0, 0, 0.4)), url("../img/ninos.jpg");
-
-    height:50vh;
-    margin: 1vh;
-
-
-}
-
-.contenedor-terapia h4{
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin:10px;
-}
-
-.image-container {
-    max-width: 100%;
-    text-align: center;
-  }
-  
-.image-container img {
+.header-img {
     max-width: 100%;
     height: auto;
-    display: inline-block;
-  }
-  
-
-.contenedor-terapia p {
-
-    text-align: justify;
-    font-size: 18px;
-    margin:10px;
 }
 
-
-.titulo{
-
-    color: white;
-    font-size:40px;
-    margin:35px;
-
-}
-
-.texto-principal{
-
-    color: white;
-    font-size:30px;
-    margin:35px;
-    font-style: italic;
-
-}
-
-.boton-principal{
-
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    margin-bottom: 10px; /* Espacio opcional para separar el botón del contenido de la sección */
-    margin-left: 10px; /* Espacio opcional para separar el botón del borde de la sección */
-}
-
-
-.container-parrafo {
-    background-color: beige;
-
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-}
-  
-.container-parrafo h3 {
-    font-size: 25px;
-    margin-bottom: 10px;
-    color: #333;
-}
-  
-.container-parrafo p {
-    font-size: 20px;
-    line-height: 1.5;
-    color: black;
-    text-align: justify;
-}
-  
-
-/* CSS de la plantilla Factura */
-
-/* Estilos para la sección del logo y título */
-
-#logo-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  /* Estilos para el logo */
-  #logo {
-    float: right;
-    margin-left: 10px;
-    max-width: 250px;
-  }
-  
-  /* Estilos para el título */
-#title {
-   position: relative;
-   display: inline-block;
-   font-family: Georgia, 'Times New Roman', Times, serif;
-   text-align: center;
-
-}
-
-#title::after {
-   content: "";
-   position: absolute;
-   display: block;
-   width: 100%;
-   height: 2px;
-   background-color: brown;
-   bottom: -2px;
-   left: 0;
-}
-  
-  /* Estilos para el párrafo */
-  #paragraph {
-    margin: 0;
-    font-size: 20px;
-  }
-  
-  /* Estilos para el texto del RIF */
-  #rif {
-    margin: 0;
-    font-size: 16px;
-  }
-
-
-.pie {
-
-
-    position: absolute;
-
+.styled-table {
     width: 100%;
-    height: 0px; /* ajustar la altura según sea necesario */
-    margin-bottom:0px;
-    text-align: center;
-
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 1em;
+    font-family: 'Arial', sans-serif;
+    min-width: 400px;
 }
 
-/* Codigo CSS para la crear facturas */
-
-.form-factura{
-	padding: 20px;
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-    margin-bottom:20px;
-    width:500px;
-}
-
-.form-productos{
-	padding: 20px;
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-    margin-bottom:20px;
-    width:400px;
-}
-
-/* Clase para las filas insertadas dinámicamente */
-.centrado {
-
-    text-align: center;
-      
-}
-
-/* Inicio del codigo CSS de ariana para Menu.html */
-
-
-
-h1{
-	margin: auto;
-	font-weight: bold;
-	
-}
-
-h2{
-	margin-left: 26px;
-
-}
-
-
-aside{
-	/* flex: 25px; */
-	background-color: #5856DA;
-	height: 800px;
-}
-
-section{
-	/* flex: 70%; */
-	padding: 20px;
-}
-
-.Usuario, .Salir{
-	margin: 5px;
-	height: 50px;
-	padding: 4px;
-
-
-}
-
-.Usuario img, .Salir img{
-	width: 40px;
-	height: 40px;
-	float: left;
-	margin-right: 5px;
-
-}
-
-
-
-.Cargo{
-margin: 6px;
-color: #fff;
-}
-
-
-
-.linea{
-	margin: auto;
-    width: 170px;
-    background-color: #3d3c99;
-    height: 2px;
-}
-
-.Salir{
-	border: 2px solid;
-	border-color: #3d3c99;
-	border-radius: 5px;
-	box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 4px 3px -2px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-
-}
-
-
-.main{
-	border-radius: 5px;
-	background-color: white;
-	flex-wrap: wrap;
-	box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
-	margin: 20px;
-	padding: 20px;
-}
-
-.boton{
-    margin: 10px; 
-    border: hidden; 
-    padding: 0; 
-    width: 200px; 
-    border-radius: 5px; 
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 4px 3px -2px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2); 
-    display: inline-block;
+.styled-table thead tr {
+    background-color: #3f87a6;
+    color: #ffffff;
     text-align: center;
 }
 
-.boton:hover, .banner:hover{
-	background-color: #403e9f;
-    text-decoration:none;
-    color: #fff;
+.styled-table th, 
+.styled-table td {
+
+    padding: 12px 5px;
+    border: 1px solid #ddd;
 }
 
-.banner{
-	color: #fff;
-	padding: 20px;
-	background-color: #5856DA;
-	    border-radius: 5px 5px 0px 0px;
-	    font-weight: bold;
+/* Ajustar ancho de columnas específicas */
+
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #ddd;
+    min-height: 40px; /* Ajusta el valor según tus necesidades */
 }
 
-/* .gestionar{
-	 font-weight: bold;
-} */
-
-footer{
-	background-color: #2c2c2c;
-	padding: 10px;
-	color: white;
-	position: fixed;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    display:none;
+.styled-table tbody tr:hover {
+    background-color: #d3e2f4;
+    cursor: pointer;
 }
 
-/* Modal del header */
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #3f87a6;
+}
 
-.modal-dialog-right {
-    position: fixed;
-    margin-right: 0;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 50%; /* Puedes ajustar el valor según el ancho deseado */
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #3f87a6;
 }

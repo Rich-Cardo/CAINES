@@ -94,8 +94,8 @@ class IDGenerator:
         campos_permitidos = {'id_salida', 'id_entrada', 'id_articulo'}
         if campo_id not in campos_permitidos:
             raise ValueError(f"Campo ID no válido: {campo_id}")
-        
-        # Inicio de la lógica de generación de IDs
+        ############################################################
+
         cursor = self.conn.cursor()
         query = f"SELECT {campo_id} FROM {tabla}"
         params = None
@@ -106,6 +106,8 @@ class IDGenerator:
         
         query += f" ORDER BY {campo_id} DESC LIMIT 1"
 
+        print("LA QUERY ES: ", query)
+        
         cursor.execute(query, params)
         last_id = cursor.fetchone()
         cursor.close()
@@ -170,18 +172,99 @@ class InventarioManager:
         self.cursor.close()
         self.conn.close()
 
-    ### Módulo de Gestión de Artículos ###
+    def obtener_totales(self, tabla_aux):
+        """
+        Obtiene los totales de entradas o salidas agrupados por artículo.
+        :param tabla_aux: Nombre de la tabla (aux_entradas_inventario o aux_salidas_inventario).
+        Este método se utiliza en el FrontEnd de las Entradas, Inventario y Salidas.
+        """
+        query = f"""
+            SELECT id_articulo, SUM(cantidad) AS total
+            FROM {tabla_aux}
+            GROUP BY id_articulo
+        """
+        self.cursor.execute(query)
+        
+        # Creamos un diccionario vacío para almacenar los resultados
+        totales = {}
+        
+        # Iteramos sobre cada fila del resultado
+        for row in self.cursor.fetchall():
+            id_articulo = row[0]  # Primera columna: id_articulo
+            total = row[1]        # Segunda columna: suma total
+            totales[id_articulo] = total
+        
+        return totales
 
-    def _insertar_nuevo_articulo(self, id_articulo, nombre, unidad, area, ubicacion):
-        """Inserta un nuevo artículo en la base de datos"""
+    def actualizar_stock(self, ubicacion):
+        """
+        Actualiza el stock de todos los artículos para una ubicación específica,
+        calculando el balance entre entradas y salidas registradas.
+        
+        Args:
+            ubicacion (str): Ubicación para la cual se actualizará el stock
+        """
+        with self.conn.cursor() as cursor:
+            # 1. Obtener todos los artículos de la ubicación
+            articulos = self._obtener_articulos_por_ubicacion(cursor, ubicacion)
+            
+            for id_articulo in articulos:
+                # 2. Calcular movimientos totales
+                total_entradas = self._calcular_total_movimientos(
+                    cursor, 
+                    'aux_entradas_inventario', 
+                    id_articulo
+                )
+                total_salidas = self._calcular_total_movimientos(
+                    cursor, 
+                    'aux_salidas_inventario', 
+                    id_articulo
+                )
+                
+                # 3. Calcular y actualizar stock
+                nuevo_stock = total_entradas - total_salidas
+                self._actualizar_registro_stock(
+                    cursor, 
+                    id_articulo, 
+                    nuevo_stock, 
+                    ubicacion
+                )
+            
+            self.conn.commit()
+
+    # Métodos auxiliares de Actualizar_Stock
+    def _obtener_articulos_por_ubicacion(self, cursor, ubicacion):
+        """Obtiene todos los IDs de artículos para una ubicación"""
+        cursor.execute(
+            "SELECT id_articulo FROM articulos WHERE ubicacion = %s",
+            (ubicacion,)
+        )
+        return [row[0] for row in cursor.fetchall()]
+
+    def _calcular_total_movimientos(self, cursor, tabla_movimientos, id_articulo):
+        """Calcula el total acumulado de movimientos para un artículo"""
+        query = f"""
+            SELECT COALESCE(SUM(cantidad), 0)
+            FROM {tabla_movimientos}
+            WHERE id_articulo = %s
+        """
+        cursor.execute(query, (id_articulo,))
+        return cursor.fetchone()[0]
+
+    def _actualizar_registro_stock(self, cursor, id_articulo, cantidad, ubicacion):
+        """Realiza el UPSERT del stock en la base de datos
+        Se prefiere usar UPSERT ya que se puede reutilizar cuando se está agregando
+        un nuevo artículo al inventario, sin crear otras funciones."""
 
         query = """
-            INSERT INTO articulos (id_articulo, articulo, unidad, area, ubicacion)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO stock_inventario (id_articulo, cantidad, ubicacion)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE cantidad = VALUES(cantidad)
         """
-        self.cursor.execute(query, (id_articulo, nombre, unidad, area, ubicacion))
+        cursor.execute(query, (id_articulo, cantidad, ubicacion))
 
-    ### Módulo de Adición de Salidas ###
+
+    ### Agregar Salidas ###
     def agregar_salida(self, fecha, destino, ubicacion, items):
         """Registra una nueva salida y sus artículos asociados"""
         # self._validate_location(ubicacion)
@@ -211,27 +294,26 @@ class InventarioManager:
     def _procesar_articulos_salida(self, id_salida, items, ubicacion):
         """Registra todos los artículos de la salida"""
         for item in items:
-
-            #Primero hay que obtener el ID de los artículos
-            id_articulo = self._obtener_id_articulo_existente(
-                item['articulo'],
-                item['unidad'],
+            # Obtener o registrar el artículo
+            id_articulo = self._registrar_articulo(
+                item['articulo'], 
+                item['unidad'], 
                 item['area'], 
-                ubicacion)
+                ubicacion
+            )
             
-            # Luego se procede a registrar en aux_salidas_inventario
+            # Registrar en aux_salidas_inventario
             self._registrar_detalle_salida(id_salida, id_articulo, item['cantidad'])
-            
-    # def _registrar_articulo(self, nombre, unidad, area, ubicacion):
-    #     """Ojo, esta función ya no es necesaria; se dividió su lógica del UPSERT."""
-    #     """Registra o recupera un artículo existente (optimizado)"""
-    #     id_articulo = self._obtener_id_articulo_existente(nombre, unidad, area, ubicacion)
+
+    def _registrar_articulo(self, nombre, unidad, area, ubicacion):
+        """Registra o recupera un artículo existente (optimizado)"""
+        id_articulo = self._obtener_id_articulo_existente(nombre, unidad, area, ubicacion)
         
-    #     if not id_articulo:
-    #         id_articulo = IDGenerator(self.conn).generar_id_articulo(ubicacion)
-    #         self._insertar_nuevo_articulo(id_articulo, nombre, unidad, area, ubicacion)
+        if not id_articulo:
+            id_articulo = IDGenerator(self.conn).generar_id_articulo(ubicacion)
+            self._insertar_nuevo_articulo(id_articulo, nombre, unidad, area, ubicacion)
         
-    #     return id_articulo
+        return id_articulo
     
     def _obtener_id_articulo_existente(self, nombre, unidad, area, ubicacion):
         """Busca un artículo existente basado en sus características"""
@@ -247,12 +329,17 @@ class InventarioManager:
         """
         self.cursor.execute(query, (nombre, unidad, area, ubicacion))
         result = self.cursor.fetchone()
-
-        if result:
-            return result[0]
-        else:
-            return None
+        return result[0] if result else None
     
+    def _insertar_nuevo_articulo(self, id_articulo, nombre, unidad, area, ubicacion):
+        """Inserta un nuevo artículo en la base de datos"""
+
+        query = """
+            INSERT INTO articulos (id_articulo, articulo, unidad, area, ubicacion)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        self.cursor.execute(query, (id_articulo, nombre, unidad, area, ubicacion))
+
     def _registrar_detalle_salida(self, id_salida, id_articulo, cantidad):
         """Inserta un artículo en aux_salidas_inventario"""
 
@@ -265,14 +352,32 @@ class InventarioManager:
     def registrar_articulo_extra(self, id_salida, articulo, cantidad, unidad, area):
         """Registra un artículo extra en la salida"""
 
-        self.cursor.execute(
-            "INSERT INTO articulos_extra_salida "
-            "(id_salida, articulo, cantidad, unidad, area) "
-            "VALUES (%s, %s, %s, %s, %s)",
-            (id_salida, articulo, cantidad, unidad, area)
-        )
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO articulos_extra_salida "
+                "(id_salida, articulo, cantidad, unidad, area) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                (id_salida, articulo, cantidad, unidad, area)
+            )
 
-    ### Módulo de Edición de Salidas ###
+    def obtener_articulos_extra_por_salida(self, id_salida):
+        """Obtiene los artículos extra para una salida dada"""
+
+        try:
+            cursor = self.conn.cursor()
+            query = """
+                SELECT articulo, cantidad, unidad, area
+                FROM articulos_extra_salida
+                WHERE id_salida = %s
+            """
+            cursor.execute(query, (id_salida,))
+            articulos_extra = cursor.fetchall()
+            return articulos_extra
+        except Exception as e:
+            self.conn.rollback()
+            raise e
+
+    ### Editar Salidas ###
 
     def actualizar_salida(self, id_salida, fecha, destino):
         """Actualiza la cabecera de una salida existente"""
@@ -281,62 +386,9 @@ class InventarioManager:
             "WHERE id_salida = %s",
             (fecha, destino, id_salida)
         )
-
-    def _actualizar_detalle_salida(self, id_salida, id_articulo, nueva_cantidad):
-        """Actualiza la cantidad de un artículo existente"""
-        self.cursor.execute(
-            "UPDATE aux_salidas_inventario SET cantidad = %s WHERE id_salida = %s AND id_articulo = %s",
-            (nueva_cantidad, id_salida, id_articulo)
-        )
     
-    # def registrar_articulos_extra(self, id_salida, articulos_extra):
-    #     """Registra múltiples artículos extra en una salida"""
-    #     for articulo in articulos_extra:
-    #         self.registrar_articulo_extra(
-    #             id_salida,
-    #             articulo['articulo'],
-    #             articulo['cantidad'],
-    #             articulo['unidad'],
-    #             articulo['area']
-    #         )
-
-    # def registrar_articulos_extra(self, id_salida, articulos):
-    #     """Registra uno o múltiples artículos extra usando ejecución masiva (executemany)"""
-    #     # Normalizar entrada: convertir artículo único a lista de un elemento
-    #     if not isinstance(articulos, list):
-    #         articulos = [articulos]
-        
-    #     # Construir datos para la query
-    #     valores = [
-    #         (
-    #             id_salida,
-    #             art["articulo"],
-    #             art["cantidad"],
-    #             art["unidad"],
-    #             art["area"]
-    #         ) 
-    #         for art in articulos
-    #     ]
-        
-    #     # Ejecutar inserción masiva (1 sola operación en BD)
-    #     self.cursor.executemany(
-    #         "INSERT INTO articulos_extra_salida "
-    #         "(id_salida, articulo, cantidad, unidad, area) "
-    #         "VALUES (%s, %s, %s, %s, %s)",
-    #         valores
-    #     )
-
-    ### Módulo de Eliminación ###
-
-    def _eliminar_articulo_salida(self, id_salida, id_articulo):
-        """Elimina sólo un (1) artículo específico de la salida"""
-        self.cursor.execute(
-            "DELETE FROM aux_salidas_inventario WHERE id_salida = %s AND id_articulo = %s",
-            (id_salida, id_articulo)
-        )
-
     def eliminar_articulos_salida(self, id_salida):
-        """Elimina TODOS los artículos (incluido los extras) asociados a una salida"""
+        """Elimina todos los artículos asociados a una salida"""
         self.cursor.execute(
             "DELETE FROM aux_salidas_inventario WHERE id_salida = %s",
             (id_salida,)
@@ -345,20 +397,30 @@ class InventarioManager:
             "DELETE FROM articulos_extra_salida WHERE id_salida = %s",
             (id_salida,)
         )
+    
+    def procesar_articulos_salida(self, id_salida, items, ubicacion):
+        """Procesa múltiples artículos para una salida"""
+        for item in items:
+            id_articulo = self._registrar_articulo(
+                item['articulo'],
+                item['unidad'],
+                item['area'],
+                ubicacion
+            )
+            self._registrar_detalle_salida(id_salida, id_articulo, item['cantidad'])
 
-    def eliminar_articulos_viejos(self, id_entrada, existing_articles, new_articles):
-        """
-        Elimina los artículos que ya no están en la lista y actualiza el stock.
-        """
-        articles_to_remove = set(existing_articles.keys()) - new_articles
-        for art_id in articles_to_remove:
-            old_cantidad = existing_articles[art_id]
+    def registrar_articulos_extra(self, id_salida, articulos_extra):
+        """Registra múltiples artículos extra en una salida"""
+        for articulo in articulos_extra:
+            self.registrar_articulo_extra(
+                id_salida,
+                articulo['articulo'],
+                articulo['cantidad'],
+                articulo['unidad'],
+                articulo['area']
+            )
 
-            # Reducir stock y eliminar artículo de la entrada
-            # self.cursor.execute("UPDATE stock_inventario SET cantidad = cantidad - %s WHERE id_articulo = %s", (old_cantidad, art_id))
-            self.cursor.execute("DELETE FROM aux_entradas_inventario WHERE id_entrada = %s AND id_articulo = %s", (id_entrada, art_id))
 
-    ### Módulo de Entradas ###
 
     ### Agregar Entradas ###
     def agregar_entrada(self, fecha, ubicacion, items):
@@ -404,6 +466,8 @@ class InventarioManager:
             (id_entrada, id_articulo, cantidad)
         )
 
+
+
     ### Editar Entradas ###
 
     def editar_entrada(self, id_entrada, fecha, articulos, cantidades, unidades, areas, ubicacion):
@@ -422,7 +486,7 @@ class InventarioManager:
 
         # Actualizar o insertar artículos nuevos
         for articulo, cantidad, unidad, area in zip(articulos, cantidades, unidades, areas):
-            id_articulo = self.agregar_articulo(articulo, unidad, area, ubicacion)
+            id_articulo = self.agregar_articulo(articulo, unidad, area,ubicacion)
             new_articles.add(id_articulo)
             cantidad = int(cantidad)
 
@@ -440,6 +504,13 @@ class InventarioManager:
         # Eliminar artículos que ya no están en la lista
         self.eliminar_articulos_viejos(id_entrada, existing_articles, new_articles)
 
+    def obtener_articulos_en_entrada(self, id_entrada):
+        """
+        Obtiene los artículos y cantidades de la entrada.
+        """
+        self.cursor.execute("SELECT id_articulo, cantidad FROM aux_entradas_inventario WHERE id_entrada = %s", (id_entrada,))
+        return self.cursor.fetchall()
+
     def actualizar_entrada(self, id_entrada, id_articulo, cantidad, diferencia):
         """
         Actualiza la cantidad de un artículo en la entrada y el stock.
@@ -454,101 +525,20 @@ class InventarioManager:
         self.cursor.execute("INSERT INTO aux_entradas_inventario (id_entrada, id_articulo, cantidad) VALUES (%s, %s, %s)", (id_entrada, id_articulo, cantidad))
         # self.cursor.execute("UPDATE stock_inventario SET cantidad = cantidad + %s WHERE id_articulo = %s", (cantidad, id_articulo))
 
-    ### Módulo de Consultas ###
+    def eliminar_articulos_viejos(self, id_entrada, existing_articles, new_articles):
+        """
+        Elimina los artículos que ya no están en la lista y actualiza el stock.
+        """
+        articles_to_remove = set(existing_articles.keys()) - new_articles
+        for art_id in articles_to_remove:
+            old_cantidad = existing_articles[art_id]
 
-    def obtener_totales(self, tabla_aux):
-        """
-        Obtiene los totales de entradas o salidas agrupados por artículo.
-        :param tabla_aux: Nombre de la tabla (aux_entradas_inventario o aux_salidas_inventario).
-        Este método se utiliza en el FrontEnd de las Entradas, Inventario y Salidas.
-        """
-        query = f"""
-            SELECT id_articulo, SUM(cantidad) AS total
-            FROM {tabla_aux}
-            GROUP BY id_articulo
-        """
-        self.cursor.execute(query)
-        
-        # Creamos un diccionario vacío para almacenar los resultados
-        totales = {}
-        
-        # Iteramos sobre cada fila del resultado
-        for row in self.cursor.fetchall():
-            id_articulo = row[0]  # Primera columna: id_articulo
-            total = row[1]        # Segunda columna: suma total
-            totales[id_articulo] = total
-        
-        return totales
-    
-    #Método para poner el stock al día (mover de este módulo en un futuro)
-    def actualizar_stock(self, ubicacion):
-        """
-        Actualiza el stock de todos los artículos para una ubicación específica,
-        calculando el balance entre entradas y salidas registradas.
-        
-        Parámetros:
-            ubicacion (str): Ubicación para la cual se actualizará el stock
-        """
-        with self.conn.cursor() as cursor:
-            # 1. Obtener todos los artículos de la ubicación
-            articulos = self._obtener_articulos_por_ubicacion(cursor, ubicacion)
-            
-            for id_articulo in articulos:
-                # 2. Calcular movimientos totales
-                total_entradas = self._calcular_total_movimientos(
-                    cursor, 
-                    'aux_entradas_inventario', 
-                    id_articulo
-                )
-                total_salidas = self._calcular_total_movimientos(
-                    cursor, 
-                    'aux_salidas_inventario', 
-                    id_articulo
-                )
-                
-                # 3. Calcular y actualizar stock
-                nuevo_stock = total_entradas - total_salidas
-                self._actualizar_registro_stock(
-                    cursor, 
-                    id_articulo, 
-                    nuevo_stock, 
-                    ubicacion
-                )
-            
-            self.conn.commit()
-    
-    #Métodos auxiliares de Actualizar_Stock    
-    def _obtener_articulos_por_ubicacion(self, cursor, ubicacion):
-        """Obtiene todos los IDs de artículos para una ubicación"""
-        cursor.execute(
-            "SELECT id_articulo FROM articulos WHERE ubicacion = %s",
-            (ubicacion,)
-        )
-        return [row[0] for row in cursor.fetchall()]
-    
-    def _calcular_total_movimientos(self, cursor, tabla_movimientos, id_articulo):
-        """Calcula el total acumulado de movimientos para un artículo"""
-        query = f"""
-            SELECT COALESCE(SUM(cantidad), 0)
-            FROM {tabla_movimientos}
-            WHERE id_articulo = %s
-        """
-        cursor.execute(query, (id_articulo,))
-        return cursor.fetchone()[0]
-    
-    def _actualizar_registro_stock(self, cursor, id_articulo, cantidad, ubicacion):
-        """Realiza el UPSERT del stock en la base de datos
-        Se prefiere usar UPSERT ya que se puede reutilizar cuando se está agregando
-        un nuevo artículo al inventario, sin crear otras funciones."""
+            # Reducir stock y eliminar artículo de la entrada
+            # self.cursor.execute("UPDATE stock_inventario SET cantidad = cantidad - %s WHERE id_articulo = %s", (old_cantidad, art_id))
+            self.cursor.execute("DELETE FROM aux_entradas_inventario WHERE id_entrada = %s AND id_articulo = %s", (id_entrada, art_id))
 
-        query = """
-            INSERT INTO stock_inventario (id_articulo, cantidad, ubicacion)
-            VALUES (%s, %s, %s)
-            ON DUPLICATE KEY UPDATE cantidad = VALUES(cantidad)
-        """
-        cursor.execute(query, (id_articulo, cantidad, ubicacion))
-    
-    ####
+
+    ### Consultar Inventario ###
 
     def obtener_inventario(self, ubicacion):
         """Obtiene todos los artículos en stock con su cantidad y detalles para una ubicación específica."""
@@ -569,29 +559,7 @@ class InventarioManager:
                 articulos.articulo ASC
         ''', (ubicacion,))
         return self.cursor.fetchall()
-    
-    def obtener_articulos_extra_por_salida(self, id_salida):
-        """Obtiene los artículos extra para una salida dada"""
-        try:
-            cursor = self.conn.cursor()
-            query = """
-                SELECT articulo, cantidad, unidad, area
-                FROM articulos_extra_salida
-                WHERE id_salida = %s
-            """
-            cursor.execute(query, (id_salida,))
-            articulos_extra = cursor.fetchall()
-            return articulos_extra
-        except Exception as e:
-            self.conn.rollback()
-            raise e
-        
-    def obtener_articulos_en_entrada(self, id_entrada):
-        """
-        Obtiene los artículos y cantidades de la entrada.
-        """
-        self.cursor.execute("SELECT id_articulo, cantidad FROM aux_entradas_inventario WHERE id_entrada = %s", (id_entrada,))
-        return self.cursor.fetchall()
+
 
     def obtener_total_cantidad(self, tipo, ubicacion):
         """
@@ -666,6 +634,9 @@ class InventarioManager:
 
         # Devolver los resultados
         return resultados
+
+
+
 
     def obtener_entradas_o_salidas(self, tipo, ubicacion):
         """
@@ -4613,7 +4584,7 @@ def eliminar_multiples_articulos():
 
         # Registrar cada eliminación en el historial de acciones
         _id_usuario = current_user.id
-        _area = "OFICINA"
+        _area = "FERRETERIA"
         _accion = "ELIMINACION"
 
         for articulo in articulos:
@@ -5020,6 +4991,59 @@ def oficina_editar_entrada_BD():
 
         return redirect('/oficina/entradas')
 
+# ## Gestión de Salidas (Oficina) ###
+# @app.route('/oficina/salidas')
+# @login_required
+# def oficina_salidas():
+#     """Consultar el FrontEnd de las Salidas en Oficina"""
+
+#     conn = mysql.connect()
+#     cursor = conn.cursor()
+
+#     query = '''
+#         SELECT
+#             salidas_inventario.id_salida,
+#             DATE_FORMAT(salidas_inventario.fecha, '%d/%m/%Y') AS fecha_formateada,
+#             salidas_inventario.destino,
+#             salidas_inventario.ubicacion,
+#             aux_salidas_inventario.id_articulo,
+#             aux_salidas_inventario.cantidad,
+#             articulos.articulo,
+#             articulos.unidad,
+#             articulos.area,
+#             articulos_extra_salida.articulo AS articulo_extra,
+#             articulos_extra_salida.cantidad AS cantidad_extra,
+#             articulos_extra_salida.unidad AS unidad_extra
+#         FROM
+#             salidas_inventario
+#         LEFT JOIN
+#             aux_salidas_inventario ON salidas_inventario.id_salida = aux_salidas_inventario.id_salida
+#         LEFT JOIN
+#             articulos ON aux_salidas_inventario.id_articulo = articulos.id_articulo
+#         LEFT JOIN
+#             articulos_extra_salida ON salidas_inventario.id_salida = articulos_extra_salida.id_salida
+#         WHERE
+#             salidas_inventario.ubicacion = 'oficina';
+# '''
+
+#     cursor.execute(query)
+#     grouped_salidas = cursor.fetchall()
+
+#     print("\n \n Salidas es: ", grouped_salidas, "\n \n")
+
+#     return render_template(
+#         '/oficina/salidas.html',
+#         grouped_salidas=grouped_salidas,
+#         cantidad_total=0
+#     )
+
+
+#     # Calcular la cantidad total de artículos en las salidas
+#     cantidad_total = 0 #sum(salida[3] for salida in salidas)  # Index 3 corresponde a cantidad
+
+
+#     # print("\n \n Grouped salidas es: ", grouped_salidas, "\n \n")
+
 ### Gestión de Salidas (Oficina) ###
 @app.route('/oficina/salidas')
 @login_required
@@ -5079,9 +5103,48 @@ def oficina_salidas():
         cantidad_total=cantidad_total
     )
 
+
+
+# @app.route('/oficina/salidas')
+# @login_required
+# def oficina_salidas():
+#     """Consultar el FrontEnd de las Salidas en Oficina"""
+
+#     conn = mysql.connect()
+#     manager = InventarioManager(conn)  # Instanciar la clase InventarioManager
+
+#     # Obtener las salidas agrupadas
+#     salidas = manager.obtener_entradas_o_salidas(tipo="salidas", ubicacion="oficina")
+#     print("Salidas es: ", salidas)
+#     # Agrupar las salidas por ID de salida
+#     grouped_salidas = []
+#     current_id_salida = None
+#     group = []
+
+#     for salida in salidas:
+#         if salida[6] != current_id_salida:  # Index 6 corresponde a id_salida
+#             if group:
+#                 grouped_salidas.append(group)
+#             group = [salida]
+#             current_id_salida = salida[6]
+#         else:
+#             group.append(salida)
+
+#     if group:
+#         grouped_salidas.append(group)
+
+#     # Calcular la cantidad total de artículos en las salidas
+#     cantidad_total = sum(salida[3] for salida in salidas)  # Index 3 corresponde a cantidad
+
+#     return render_template(
+#         '/oficina/salidas.html',
+#         grouped_salidas=grouped_salidas,
+#         cantidad_total=cantidad_total
+#     )
+
 @app.route('/oficina/agregar_salida')
 def agregar_salida_oficina():
-    """Accede al Front de Agregar las Salidas (Galpon)"""
+    """Accede al Front de Agregar las Salida (Galpon)"""
 
     conn = mysql.connect()
     inventario_manager = InventarioManager(conn)
@@ -5092,6 +5155,7 @@ def agregar_salida_oficina():
     inventario_manager.cerrar_conexion()
 
     return render_template('oficina/agregar_salida.html', articulos = articulos)
+
 
 
 def procesar_formulario_salida(form_data, es_edicion=False):
@@ -5127,7 +5191,7 @@ def procesar_formulario_salida(form_data, es_edicion=False):
             'cantidad': cantidad,
             'unidad': unidad,
             'area': area,
-            # 'orden': idx  # Mantener orden original si es necesario
+            'orden': idx  # Mantener orden original si es necesario
         }
 
         if extra == 'on':
@@ -5141,8 +5205,8 @@ def procesar_formulario_salida(form_data, es_edicion=False):
 @app.route('/oficina/agregar_salida_BD', methods=['POST'])
 @login_required
 def oficina_agregar_salida_BD():
-    """Controlador para registrar nuevas salidas de inventario en oficina"""
-    try:
+        """Controlador para registrar nuevas salidas de inventario en oficina"""
+    # try:
         ubicacion = "oficina"
         
         # 1. Procesamiento de datos del formulario
@@ -5158,8 +5222,6 @@ def oficina_agregar_salida_BD():
             form_data, 
             ubicacion
         )
-
-       # print("Form data es: ", form_data)
         
         # 4. Registrar artículos extra si existen
         if form_data['articulos_extra']:
@@ -5168,7 +5230,7 @@ def oficina_agregar_salida_BD():
                 id_salida,
                 form_data['articulos_extra']
             )
-
+        
         # 5. Actualización final del stock
         inventario_manager.actualizar_stock(ubicacion)
         conn.commit()
@@ -5176,9 +5238,9 @@ def oficina_agregar_salida_BD():
         flash('¡Salidas agregadas y stock actualizado exitosamente!', 'success')
         return redirect('/oficina/salidas')
 
-    except Exception as e:
-        print("Error: ", e)
-        conn.rollback()
+    # except Exception as e:
+    #     print(e)
+    #     conn.rollback()
         return redirect('/oficina/salidas')
 
 
@@ -5193,16 +5255,61 @@ def registrar_salida_principal(manager, form_data, ubicacion):
 
 def registrar_articulos_extra(manager, id_salida, articulos_extra):
     """Registra múltiples artículos extra asociados a una salida"""
-
-    for articulo_extra in articulos_extra:
-        
+    for articulo in articulos_extra:
         manager.registrar_articulo_extra(
-            id_salida = id_salida,
-            articulo = articulo_extra['articulo'],
-            cantidad = articulo_extra['cantidad'],
-            unidad = articulo_extra['unidad'],
-            area = articulo_extra['area'],
+            id_salida=id_salida,
+            **articulo
         )
+
+
+
+# @app.route('/oficina/agregar_salida_BD', methods=['POST'])
+# @login_required
+# def oficina_agregar_salida_BD():
+#         """ Agrega una salida de artículos a Oficina """
+#     # try:
+
+#         ubicacion = "oficina"
+
+#         # Recibir datos del formulario
+#         fecha = request.form['txtFecha']
+#         destino = request.form['txtDestino'].upper()
+#         articulos = [articulo.upper() for articulo in request.form.getlist('articulo[]')]
+#         cantidades = request.form.getlist('cantidad[]')
+#         unidades = [unidad.upper() for unidad in request.form.getlist('unidad[]')]
+#         areas = [area.upper() for area in request.form.getlist('area[]')]
+
+#         # Conectar a la base de datos
+#         conn = mysql.connect()
+#         inventario_manager = InventarioManager(conn)
+
+#         # Agregar salida con la ubicación
+#         inventario_manager.agregar_salida(fecha, articulos, cantidades, unidades, areas, ubicacion, destino)
+#         inventario_manager.actualizar_stock(ubicacion)
+
+#         # Registrar las acciones en el historial
+#         _id_usuario = current_user.id
+#         _accion = "REGISTRO"
+#         _area = "oficina"
+
+#         for articulo, cantidad, unidad, area in zip(articulos, cantidades, unidades, areas):
+#             _detalles = f'AGREGADA {cantidad} {unidad} DE "{articulo}", ÁREA: {area}'
+#             registrar_historial(conn, _id_usuario, _accion, _area, _detalles)
+
+#         # Confirmar cambios
+#         inventario_manager.commit()
+#         flash('¡salidas agregadas y stock actualizado exitosamente!', 'success')
+
+#     # except Exception as e:
+#         # # Revertir en caso de error
+#         # inventario_manager.rollback()
+#         # flash(f'Error al agregar salidas: {str(e)}', 'error')
+
+#     # finally:
+#         # Cerrar conexión
+#         inventario_manager.cerrar_conexion()
+
+#         return redirect('/oficina/salidas')
 
 @app.route('/oficina/editar_salida/<string:id_salida>')
 def editar_salida_oficina(id_salida):
@@ -5264,65 +5371,75 @@ def editar_salida_oficina(id_salida):
     return render_template('oficina/editar_salida.html', articulos=articulos, salidas=salidas, salidas_extra=salidas_extra)
 
 
+
 @app.route('/oficina/editar_salida_BD', methods=['POST'])
 @login_required
 def oficina_editar_salida_BD():
-    # try:
-        form_data = procesar_formulario_salida(request.form, es_edicion=True)
-        print("\n\n\n\n\n")
-        print("Los datos son: ", form_data)
-        print("\n\n\n\n")
-
+    """Controlador para editar salidas de inventario"""
+    try:
         ubicacion = "oficina"
+        # Para editar salida existente:
+        form_data = procesar_formulario_salida(request.form, es_edicion=True)
         conn = mysql.connect()
+
         with conn:
             manager = InventarioManager(conn)
             
-            # 1. Actualizar cabecera con control de versión
+            # 1. Actualizar cabecera de salida
             manager.actualizar_salida(
                 form_data['id_salida'],
                 form_data['fecha'],
                 form_data['destino']
             )
-
-            # 2. Eliminar registros antiguos
+            
+            # 2. Eliminar artículos existentes
             manager.eliminar_articulos_salida(form_data['id_salida'])
-
-            # 3. Insertar nuevamente los articulos
-
-            #3.1 Articulos comunes
-            for item in form_data['articulos_inventario']:
-                # Obtener el id_articulo usando el nombre del artículo (requiere una consulta a la base de datos)
-                id_articulo = manager._registrar_articulo(
-                    item['articulo'],
-                    item['unidad'],
-                    item['area'],
+            
+            # 3. Registrar nuevos artículos
+            if form_data['articulos_inventario']:
+                manager.procesar_articulos_salida(
+                    form_data['id_salida'],
+                    form_data['articulos_inventario'],
                     ubicacion
                 )
-                
-                # Registrar en detalle de salida
-                manager._registrar_detalle_salida(
-                    form_data['id_salida'], 
-                    id_articulo, 
-                    item['cantidad']
-                )
 
-            #3.2 Articulos extras
+            # Imprimir artículos de inventario
+            if form_data['articulos_inventario']:
+                print("\n=== Artículos de Inventario ===")
+                for idx, articulo in enumerate(form_data['articulos_inventario'], start=1):
+                    print(f"\nArtículo {idx}:")
+                    print(f"  Nombre: {articulo['articulo']}")
+                    print(f"  Cantidad: {articulo['cantidad']}")
+                    print(f"  Unidad: {articulo['unidad']}")
+                    print(f"  Área: {articulo['area']}")
+
+            # Imprimir artículos extra
             if form_data['articulos_extra']:
-                registrar_articulos_extra(
-                    manager,
+                print("\n=== Artículos Extra ===")
+                for idx, articulo in enumerate(form_data['articulos_extra'], start=1):
+                    print(f"\nArtículo Extra {idx}:")
+                    print(f"  Nombre: {articulo['articulo']}")
+                    print(f"  Cantidad: {articulo['cantidad']}")
+                    print(f"  Unidad: {articulo['unidad']}")
+                    print(f"  Área: {articulo['area']}")
+
+
+            
+            # 4. Registrar artículos extra
+            if form_data['articulos_extra']:
+                manager.registrar_articulos_extra(
                     form_data['id_salida'],
                     form_data['articulos_extra']
                 )
             
-            # 4. Actualizar stock general
+            # 5. Actualizar stock
             manager.actualizar_stock(ubicacion)
             
             flash('¡Salida actualizada exitosamente!', 'success')
             return redirect('/oficina/salidas')
 
-    # except Exception as e:
-    #     handle_database_error(e)
+    except Exception as e:
+        print(e)
         return redirect('/oficina/salidas')
 
 

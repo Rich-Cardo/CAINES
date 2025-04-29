@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario (Medicinas)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
+    <style>
+        /* Estilos existentes */
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin: 40px;
+            position: relative;
+        }
+
+        @page {
+            size: A4;
+            margin: 28mm 10mm 40mm 10mm; /* Márgenes generales con un mayor margen inferior */
+        }
+
+        /* Encabezado fijo que se repetirá en todas las páginas */
+        header {
+            position: fixed;
+            top: -20mm; /* Ajustar para que quede en la parte superior */
+            left: 0;
+            right: 0;
+            height: 20mm;
+            text-align: center;
+        }
+
+        header img {
+            width: 80%;
+            height: 100%;
+        }
+
+        /* Pie de página fijo que se repetirá en todas las páginas */
+        footer {
+            position: fixed;
+            bottom: -18mm; /* Ajustar para que quede en la parte inferior */
+            left: 90mm;
+            right: 0;
+            height: 15mm;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        footer img {
+            height: 110%;
+        }
+
+        .segundo_footer {
+            position: fixed;
+            bottom: -28mm; /* Ajustar para que quede en la parte inferior */
+            left: 0mm;
+            right: 90mm;
+            height: 15mm;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .tercer_footer {
+            position: fixed;
+            bottom: -35mm; /* Ajustar para que quede en la parte inferior */
+            left: 0mm;
+            right: 93mm;
+            height: 15mm;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        thead {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/encabezado_mejorado.png" alt="Encabezado">
+    </header>
+
+    <h2>Inventario de Medicinas: {{total}}</h2>
+    
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Medicina</th>
+                <th>Marca</th>
+                <th>Dosis</th>
+                <th>Unidad</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in datos %}
+            <tr>
+                <td>{{ loop.index }}</td> <!-- Índice consecutivo -->
+                <td>{{ item[0] }}</td> <!-- ID Medicina -->
+                <td>{{ item[1] }}</td> <!-- Descripción Medicina -->
+                <td>{{ item[2] }}</td> <!-- Marca -->
+                <td>{{ item[3] }}</td> <!-- Dosis -->
+                <td>{{ item[4] }}</td> <!-- Unidad -->
+                <td>{{ item[5] }}</td> <!-- Cantidad -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pie de página que se repetirá en cada página -->
+    <footer>
+        <div>
+            <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/pie_de_pagina_mejorado.png" alt="Pie de página">
+        </div>
+    </footer>
+
+    <p class="segundo_footer">Edificio, Palacio de Gobierno, calle Monagas,</p>
+    <p class="tercer_footer">Frente a la Plaza Bolívar, Estado Monagas.</p>
+
+</body>
+</html>

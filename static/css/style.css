@@ -3,45 +3,53 @@
 	box-sizing: border-box;
 }
 
+    .combined-cell {
+        border: 1px solid #ccc;  /* Borde gris claro y delgado */
+        text-align: center;      /* Centrando el contenido */
+        vertical-align: middle;  /* Centrando verticalmente */
+        padding: 10px;           /* Opcional: para dar un poco de espacio interno */
+    }
+
 
 
 body{
 	min-height: 100vh;
     display:flex;
 	flex-direction: column;
-
 }
-
 
 .modal-dialog{
 min-width: min-content;
 }    
 
-.fondo {    
-
-   
+.fondo {
+    background-image: url('../img/fondo.png');
+    background-attachment: fixed; /* Fija la imagen de fondo */
     background-position: center;
     background-repeat: no-repeat;
-    background-size: cover;
-    min-height:100vh;
-    padding-top:95px; 
-		 background-image: url('../img/tijeras.jpg');
-	box-sizing: border-box;
+    background-size: cover; /* Cubre todo el contenedor sin pixelarse */
+    min-height: 100vh;
+    padding-top: 70px;
+    box-sizing: border-box;
     position: relative;
-    
-    /* Este Padding necesario para que la barra de navegacion del
-     header no se superponga sobre los elementos */    
+
+    /* Este padding es necesario para que la barra de navegación del header no se superponga sobre los elementos */
 }
 
+.fondo-medicinas {
 
+    background-image: url('../img/fondo_verde.jpg');
+    background-attachment: fixed; /* Fija la imagen de fondo */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; /* Cubre todo el contenedor sin pixelarse */
+    min-height: 100vh;
+    padding-top: 70px;
+    box-sizing: border-box;
+    position: relative;
 
-
-
-
-/* .nav{
-    background-color: white;
-} */
-
+    /* Este padding es necesario para que la barra de navegación del header no se superponga sobre los elementos */
+}
 
 
 
@@ -49,47 +57,9 @@ min-width: min-content;
 /* Codigo para la pagina Gestion de Niños */
 /* Codigo para el scroll vertical de la tabla Niños */
 
-#input-buscar{
 
-    width: 55%;
-    margin-right: 1%;
-
-
-}
-
-#boton-buscar{
-
-    width: 15%;
-
-}
-
-#boton-ingresar{
-
-    width:25%;
-
-}
 
 .btn-success {min-width: max-content;}
-
-
-.tablas{
-
-    width: min-content;
-
-}
-
-
-
-.my-custom-scrollbar {
-    position: relative;
-    height: 730px;
-    overflow: auto;
-    }
-
-.table-wrapper-scroll-y {
-    display: block;
-}
-
 
 /* Inicio del codigo CSS DE ARIANA */
 
@@ -107,6 +77,14 @@ min-width: min-content;
 	max-width:500px;
 }
 
+.form-articulos {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.32), 0px 5px 9px 4px rgba(0, 0, 0, 0.35), 0px 0px 0px -2px rgba(0, 0, 0, 0.2);
+    width: 90%; /* Aumenta el ancho para pantallas más pequeñas */
+    margin: auto; /* Centra el formulario */
+}
 
 
 
@@ -160,22 +138,21 @@ width: 30%;
 justify-content: center;
 
 align-items: center;
+
 }
 
 .principal {
-    background-image: url('../img/ninos.jpg');
+
+    background-image: url('../img/landing.jpg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    border-radius: 10px;
-    
-    
-    
+    border-radius: 10px;   
    
     /* Codigo para oscurecer sólo la imagen y no el texto dentro */
     text-align: -webkit-center;
     background-image: linear-gradient(rgba(0, 0, 0, 0.4),
-    rgba(0, 0, 0, 0.4)), url("../img/ninos.jpg");
+    rgba(0, 0, 0, 0.4)), url("../img/landing.jpg");
     margin: 1vh;
     }
 
@@ -223,8 +200,6 @@ align-items: center;
     max-width: 540px;
 }
 
-
-
 .container {
     width: 100%;
     padding-right: 15px;
@@ -234,7 +209,6 @@ align-items: center;
     margin-left: auto;
     text-align: -webkit-center;
 }
-
 
 .container-parrafo {
     background-color: beige;
@@ -282,7 +256,6 @@ align-items: center;
    display: inline-block;
    font-family: Georgia, 'Times New Roman', Times, serif;
    text-align: center;
-
 }
 
 #title::after {
@@ -296,29 +269,26 @@ align-items: center;
    left: 0;
 }
   
-  /* Estilos para el párrafo */
-  #paragraph {
-    margin: 0;
-    font-size: 20px;
-  }
-  
-  /* Estilos para el texto del RIF */
-  #rif {
-    margin: 0;
-    font-size: 16px;
-  }
+/* Estilos para el párrafo */
+#paragraph {
+margin: 0;
+font-size: 20px;
+}
+
+/* Estilos para el texto del RIF */
+#rif {
+margin: 0;
+font-size: 16px;
+}
 
 
 .pie {
-
-
     position: absolute;
 
     width: 100%;
     height: 0px; /* ajustar la altura según sea necesario */
     margin-bottom:0px;
     text-align: center;
-
 }
 
 /* Codigo CSS para la crear facturas */
@@ -354,13 +324,11 @@ align-items: center;
 
 h1{
 	margin: auto;
-	font-weight: bold;
-	
+	font-weight: bold;	
 }
 
 h2{
 	margin-left: 26px;
-
 }
 
 
@@ -379,8 +347,6 @@ section{
 	margin: 5px;
 	height: 50px;
 	padding: 4px;
-
-
 }
 
 .Usuario img, .Salir img{
@@ -388,7 +354,6 @@ section{
 	height: 40px;
 	float: left;
 	margin-right: 5px;
-
 }
 
 
@@ -457,9 +422,8 @@ color: #fff;
 
 footer{
 	background-color: #2c2c2c;
-	padding: 10px;
+	padding: 0px;
 	color: white;
-
     bottom: 0;
     width: 100%;
 	text-align: center;
@@ -485,7 +449,25 @@ footer{
 	
 }
 
+.form-articulos .row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
 @media screen and (max-width: 768px){
+
+    .articulo-input {
+        width: 300px; /* Ajusta este valor según sea necesario */
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Asegura que haya scroll horizontal */
+    }
+
+    .table-responsive table {
+        min-width: 800px; /* Ajusta este valor según sea necesario para asegurar espacio suficiente */
+    }
 
 	.titulo {
 		font-size: 2em;
@@ -503,7 +485,6 @@ footer{
 	}
 }
 
-
 @media screen and (max-width:  480px){
 
 	.titulo {
@@ -519,3 +500,82 @@ footer{
 	}
 
 }
+
+.table-responsive {
+    max-height: 350px; /* Define la altura máxima deseada */
+    text-align: center;
+
+}
+
+
+
+
+
+
+.table-responsive table {
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    border-collapse: separate;
+}
+/* 
+.table-responsive::-webkit-scrollbar {
+    width: 12px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} */
+
+.custom-label {
+    color: white;
+    font-weight: bold;
+    font-size: 1em; /* Tamaño de fuente similar a <h2> */
+    text-align: center;
+}
+
+.custom-input {
+    font-size: 1em; /* Ajusta el tamaño según sea necesario */
+}
+
+.btn-bottom{
+    background-size: contain; /* Ajusta el tamaño de la imagen */
+    background-repeat: no-repeat; /* Evita la repetición de la imagen */
+    background-position: center; /* Centra la imagen en el botón */
+    background-color: rgb(41, 4, 34);
+
+    border: none; /* Opcional: quitar borde */
+    height: 50px; /* Ajusta la altura del botón */
+    width: 100px; /* Ajusta el ancho del botón */
+}
+
+.bottom-bar {
+    display: flex;
+    justify-content: center; /* Centra los botones horizontalmente */
+    gap: 10px; /* Ajusta el espacio entre los botones */
+    padding: 10px; /* Ajusta el padding si es necesario */
+}
+
+/* Modales HTML */
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #dc3545;
+    padding: 0.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  .btn-close:hover {
+    color: #b02a37;
+  }
+  

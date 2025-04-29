@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta de Entrega de Materiales</title>
+</head>
+<body>
+
+    <p>Maturín, {{ datos[0][1].strftime('%d/%m/%y') }}</p>
+
+    <h2>ACTA DE ENTREGA DE MATERIALES</h2>
+
+    <p>
+        Mediante la presente, hago constar que he recibido a través de la COORDINACION DE COMPRAS, adscrita a la DIRECCION DE ADMINISTRACION DE LA GOBERNACION DEL ESTADO MONAGAS, el siguiente material:
+    </p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>DESCRIPCION</th>
+                <th>CANTIDAD</th>
+                <th>UNIDADES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in datos %}
+            <tr>
+                <td>{{ loop.index }}</td> <!-- Número consecutivo -->
+                <td>{{ row[4] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[5] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <div class="row">
+        <h2>DESTINO DE LO SOLICITADO:</h2>
+        <p>{{ datos[0][2] }}</p>
+    </div>
+
+    <!-- Tabla para alinear las firmas en la misma línea -->
+    <table class="no-border" style="width: 100%; margin-top: 50px;">
+        <tr>
+            <td style="text-align: center;">
+                <p>Entregado por:</p>
+                <p>Nombre y Apellido: ___________________________</p>
+                <p>Firma y Sello: _______________________________</p>
+            </td>
+            <td style="text-align: center;">
+                <p>Recibido por:</p>
+                <p>Nombre y Apellido: ___________________________</p>
+                <p>Firma y Sello: _______________________________</p>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+<style>
+
+
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 13pt;
+        margin: 40px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    p {
+        text-align: justify;
+        line-height: 1.6;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #000; /* Borde para la tabla de materiales */
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+
+    thead {
+        background-color: #f2f2f2;
+    }
+
+    .no-border {
+        border: none;
+    }
+
+    .no-border td {
+        border: none; /* Sin borde para la tabla de firmas */
+    }
+
+    .row {
+        margin-top: 30px;
+    }
+
+
+
+</style>

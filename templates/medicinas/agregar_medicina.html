@@ -1,0 +1,147 @@
+<!-- En tu template principal -->
+{% set body_class = 'fondo-medicinas' %}
+
+<body class="{{ body_class }}">
+    {% include 'header.html' %}
+    <!-- Resto del contenido -->
+</body>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-articulos" onsubmit="return validarFormulario()" method="post" action="/agregar_medicina_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Agregar Medicinas</h1>
+
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-1 col-form-label text-center">Fecha:</label>
+        <div class="col-sm-8">
+            <input id="txtFecha" class="form-control" type="date" name="txtFecha" required>
+        </div>
+        <div class="col-sm-1 text-end">
+            <button type="button" class="btn btn-primary" onclick="agregarFila()">Nuevo Item...</button>
+        </div>
+    </div>    
+
+    <div class="table-responsive">
+        <table class="table" id="medicinasTable">
+            <thead class="text-center">
+                <tr>
+                    <th class="col-5">Descripcion</th>
+                    <th class="col-3">Marca</th>
+                    <th class="col-1">Dosis</th>
+                    <th class="col-1">Cantidad</th>
+                    <th class="col-1">Unidad</th>
+                    <th class="col-1">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" name="medicina[]" class="form-control medicina-input" maxlength="60" required></td>
+
+                    <td> <input type="text" name="marca[]" class="form-control" maxlength="30" required> </td>                   
+
+                    <td> <input type="text" name="dosis[]" class="form-control" maxlength="30" required> </td>       
+                    
+                    <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+                    <td>
+                        <select name="unidad[]" class="form-select" required>
+                            <option value="Seleccione..." selected >Seleccione...</option>
+                            <option value="UNIDAD">UNIDAD</option>
+                            <option value="BLISTER">BLISTER</option>
+                            <option value="AMP">AMP</option>
+                            <option value="SUSP">SUSP</option>
+                        </select>
+                    </td>
+                    <td><button type="button" class="btn btn-danger" onclick="eliminarFila(this)">X</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success w-50 mt-2">Agregar</button>
+        <button type="button" class="btn btn-secondary w-50 mt-2" onclick="cancelar()">Cancelar</button>
+    </div>
+</form>
+
+{% include 'footer.html' %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("max", today);
+        const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fechaInput = document.getElementById('txtFecha');
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const currentDate = `${year}-${month}-${day}`;
+        fechaInput.value = currentDate;
+    });
+
+    function agregarFila() {
+        const table = document.getElementById('medicinasTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+                    <td><input type="text" name="medicina[]" class="form-control medicina-input" maxlength="60" required></td>
+
+                    <td> <input type="text" name="marca[]" class="form-control" maxlength="30" required> </td>                   
+
+                    <td> <input type="text" name="dosis[]" class="form-control" maxlength="30" required> </td>       
+                    
+                    <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+                    <td>
+                        <select name="unidad[]" class="form-select" required>
+                            <option value="Seleccione..." selected >Seleccione...</option>
+                            <option value="UNIDAD">UNIDAD</option>
+                            <option value="BLISTER">BLISTER</option>
+                            <option value="AMP">AMP</option>
+                            <option value="SUSP">SUSP</option>
+                        </select>
+                    </td>
+                    <td><button type="button" class="btn btn-danger" onclick="eliminarFila(this)">X</button></td>
+        `;
+    }
+
+    function eliminarFila(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    function cancelar() {
+        window.location.href = "/medicinas/inventario";
+    }
+
+    function validarFormulario() {
+        const filas = document.getElementById('medicinasTable').getElementsByTagName('tbody')[0].rows;
+        for (let i = 0; i < filas.length; i++) {
+            const inputs = filas[i].getElementsByTagName('input');
+            const selects = filas[i].getElementsByTagName('select');
+            for (let input of inputs) {
+                if (input.value === "") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+            for (let select of selects) {
+                if (select.value === "Seleccione...") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+</script>

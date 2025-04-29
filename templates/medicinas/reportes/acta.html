@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta de Entrega de Materiales</title>
+</head>
+<body>
+
+    <!-- Encabezado que se repetirá en cada página -->
+    <header>
+        <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/encabezado_mejorado.png" alt="Encabezado">
+    </header>
+
+    <!-- El contenido del acta -->
+    <p class="fecha" style="font-style: italic;">
+        <!-- El contenido del acta -->
+<p class="fecha" style="font-style: italic;">
+    Maturín, {{ datos[0][1].strftime('%d de') }} {{ datos[0][1].strftime('%B').capitalize() }} de {{ datos[0][1].strftime('%Y') }}
+</p>
+
+    </p>
+
+    <h2>ACTA DE ENTREGA DE MATERIALES</h2>
+
+    <p>
+        Mediante la presente, hago constar que he recibido a través de la COORDINACION DE COMPRAS, adscrita a la DIRECCION DE ADMINISTRACION DE LA GOBERNACION DEL ESTADO MONAGAS, el siguiente material:
+    </p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>DESCRIPCION</th>
+                <th>CANTIDAD</th>
+                <th>UNIDADES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in datos %}
+            <tr>
+                <td>{{ loop.index }}</td> <!-- Número consecutivo -->
+                <td>{{ row[4] }} {{ row[5] }} {{ row[6] }}</td> <!-- Concatenación de descripción, marca y dosis -->
+                <td>{{ row[8] }}</td> <!-- Cantidad -->
+                <td>{{ row[7] }}</td> <!-- Unidad -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <div class="row">
+        <h2>DESTINO DE LO SOLICITADO:</h2>
+        <p>{{ datos[0][2] }}</p>
+    </div>
+
+    <!-- Tabla para alinear las firmas en la misma línea -->
+    <table class="no-border" style="width: 100%; margin-top: 50px;">
+        <tr>
+            <td style="text-align: center;">
+                <p>Entregado por:</p>
+                <p>Nombre y Apellido: </p>
+                <p>Firma y Sello: </p>
+            </td>
+            <td style="text-align: center;">
+                <p>Recibido por:</p>
+                <p>Nombre y Apellido: </p>
+                <p>Firma y Sello: </p>
+            </td>
+        </tr>
+    </table>
+
+
+
+</body>
+    <!-- Pie de página que se repetirá en cada página -->
+    <footer> <!-- primer footer -->
+        <div>
+            <img src="file:///C:/Users/USER/Documents/Ricardo/Sistema%20Web%20COMPRAS/pie_de_pagina_mejorado.png" alt="Pie de página">
+        </div>
+    </footer>
+
+    <p class="segundo_footer">Edificio, Palacio de Gobierno, calle Monagas,</p>
+    <p class="tercer_footer">Frente a la Plaza Bolívar, Estado Monagas.</p>
+
+
+
+
+
+</html>
+
+<style>
+
+    .fecha {
+        text-align: right;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        margin: 40px;
+        position: relative;
+    }
+
+    @page {
+        size: A4;
+        margin: 28mm 10mm 40mm 10mm; /* Márgenes generales con un mayor margen inferior */
+    }
+
+    /* Encabezado fijo que se repetirá en todas las páginas */
+    header {
+        position: fixed;
+        top: -20mm; /* Ajustar para que quede en la parte superior */
+        left: 0;
+        right: 0;
+        height: 20mm;
+        text-align: center;
+    }
+
+    header img {
+        width: 80%;
+        height: 100%;
+    }
+
+    /* Pie de página fijo que se repetirá en todas las páginas */
+    footer {
+        position: fixed;
+        bottom: -18mm; /* Ajustar para que quede en la parte inferior */
+        left: 90mm;
+        right: 0;
+        height: 15mm;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    footer img {
+
+        height: 110%;
+    }
+
+    .segundo_footer {
+        position: fixed;
+        bottom: -28mm; /* Ajustar para que quede en la parte inferior */
+        left: 0mm;
+        right: 90mm;
+        height: 15mm;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .tercer_footer {
+        position: fixed;
+        bottom: -35mm; /* Ajustar para que quede en la parte inferior */
+        left: 0mm;
+        right: 93mm;
+        height: 15mm;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    p {
+        text-align: justify;
+        line-height: 1.6;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+
+    table, th, td {
+        border: 1px solid #000;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+
+    thead {
+        background-color: #f2f2f2;
+    }
+
+    .no-border {
+        border: none;
+    }
+
+    .no-border td {
+        border: none;
+    }
+
+    .row {
+        margin-top: 30px;
+    }
+</style>

@@ -1,0 +1,362 @@
+<!-- En tu template principal -->
+{% set body_class = 'fondo-medicinas' %}
+
+<body class="{{ body_class }}">
+    {% include 'header.html' %}
+    <!-- Resto del contenido -->
+</body>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-articulos" onsubmit="return validarFormulario()" method="post" action="/medicinas/agregar_entrada_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Agregar Entrada</h1>
+
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-1 col-form-label text-center">Fecha:</label>
+        <div class="col-sm-8">
+            <input id="txtFecha" class="form-control" type="date" name="txtFecha" required>
+        </div>
+        <div class="col-sm-1 text-end">
+            <button type="button" class="btn btn-primary" onclick="agregarFila()">Nuevo...</button>
+        </div>
+    </div>    
+
+    <div class="table-responsive">
+        <table class="table" id="articulosTable">
+            <thead class="text-center">
+                <tr>
+                    <th></th>
+                    <th class="col-6">Descripcion</th>
+                    <th class="col-2">Marca</th>
+                    <th class="col-1">Dosis</th>
+                    <th class="col-1">Cantidad</th>
+                    <th class="col-1">Unidad</th>
+                    <th class="col-1">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="/static/img/lock-closed.png" class="lock-icon" onclick="toggleFilaEditable(this)" data-locked="true"></td>
+
+                    <td><input type="text" name="medicina[]" class="form-control medicina-input input-readonly" maxlength="60" required></td>
+                    <td><input type="text" name="marca[]" class="form-control input-readonly" maxlength="30" required> </td>
+                    <td><input type="text" name="dosis[]" class="form-control input-readonly" maxlength="30" required> </td>
+                    <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+                    <td>
+                        <select name="unidad[]" class="form-select input-readonly" required>
+                            <option value="Seleccione..." selected >Seleccione...</option>
+                            <option value="UNIDAD">UNIDAD</option>
+                            <option value="BLISTER">BLISTER</option>
+                            <option value="AMP">AMP</option>
+                            <option value="SUSP">SUSP</option>
+                        </select>
+                    </td>
+
+                    <td class="row">
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" style="margin-right: 2px;" onclick="guardarFilaActual(this)">...</button> 
+                        <button type="button" class="btn btn-danger"  onclick="eliminarFila(this)">X</button>                   
+                    </td>                    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success w-50 mt-2">Agregar</button>
+        <button type="button" class="btn btn-secondary w-50 mt-2" onclick="cancelar()">Cancelar</button>
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="articulosModal" tabindex="-1" aria-labelledby="articulosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="articulosModalLabel">Lista de Medicinas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+
+                <div class="row mb-3 text-center">
+                    <div class="col-12">
+                        <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar articulos..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                    </div>
+                </div>
+
+                <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                    <table id="tabla_articulos" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                        <thead class="thead-light text-center">
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Descripcion</th>
+                                <th>Marca</th>
+                                <th>Dosis</th>
+                                <th>Unidad</th>
+                                <th>Cantidad</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for articulo in medicinas %}
+                            <tr class="text-center">
+                                <td>{{ articulo[0]}}</td>
+                                <td>{{ articulo[1]}}</td>
+                                <td>{{ articulo[2]}}</td>
+                                <td>{{ articulo[3]}}</td>
+                                <td>{{ articulo[4]}}</td>
+                                <td>{{ articulo[5]}}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-success seleccionar-articulo"
+                                           href="#"
+                                           data-id="{{ articulo[0] }}"
+                                           data-descripcion="{{ articulo[1] }}"
+                                           data-marca="{{ articulo[2] }}"
+                                           data-dosis="{{ articulo[3] }}"
+                                           data-unidad="{{ articulo[4] }}"
+                                           onclick="seleccionarArticulo(this)">Seleccionar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<script>
+
+    function toggleFilaEditable(lockIcon) {
+
+        // Esta funcion es para abrir y cerrar el candado al lado del articulo
+
+        var row = lockIcon.closest('tr');
+        var inputs = row.querySelectorAll('input:not([name="cantidad[]"]), select'); // Excluir el campo cantidad[]
+        var isLocked = lockIcon.getAttribute('data-locked') === 'true'; // Determina si está bloqueado
+
+        // Cambia la imagen de candado según el estado
+        if (isLocked) {
+            lockIcon.src = "/static/img/lock-open.png"; // Cambia a la imagen de candado abierto
+            lockIcon.setAttribute('data-locked', 'false');
+        } else {
+            lockIcon.src = "/static/img/lock-closed.png"; // Cambia a la imagen de candado cerrado
+            lockIcon.setAttribute('data-locked', 'true');
+        }
+
+    inputs.forEach(function(input, index) {
+
+            if (isLocked) {
+                input.classList.remove('input-readonly');
+            } else {
+                input.classList.add('input-readonly');
+            }
+
+    });
+    }
+
+    //Variable global para guardar la fila y manejar eventos sobre la misma
+
+    let filaActual = null;
+    function guardarFilaActual(button) {
+        filaActual = button.closest('tr'); // Guarda la referencia a la fila actual
+    }
+
+    function agregarFila() {
+    const table = document.getElementById('articulosTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    newRow.innerHTML = `
+            <td><img src="/static/img/lock-closed.png" class="lock-icon" onclick="toggleFilaEditable(this)" data-locked="true"></td>
+
+            <td><input type="text" name="medicina[]" class="form-control medicina-input input-readonly" maxlength="60" required></td>
+            <td><input type="text" name="marca[]" class="form-control input-readonly" maxlength="30" required> </td>
+            <td><input type="text" name="dosis[]" class="form-control input-readonly" maxlength="30" required> </td>
+            <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+            <td>
+                <select name="unidad[]" class="form-select input-readonly" required>
+                    <option value="Seleccione..." selected >Seleccione...</option>
+                    <option value="UNIDAD">UNIDAD</option>
+                    <option value="BLISTER">BLISTER</option>
+                    <option value="AMP">AMP</option>
+                    <option value="SUSP">SUSP</option>
+                </select>
+            </td>
+
+            <td class="row">
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" style="margin-right: 2px;" onclick="guardarFilaActual(this)">...</button> 
+                <button type="button" class="btn btn-danger"  onclick="eliminarFila(this)">X</button>                   
+            </td>  
+    `;
+}
+
+
+    function eliminarFila(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    // Funcion para seleccionar los articulos del modal
+
+    function seleccionarArticulo(element) {
+        const descripcion = element.getAttribute('data-descripcion');
+        const marca = element.getAttribute('data-marca');
+        const dosis = element.getAttribute('data-dosis');
+        const unidad = element.getAttribute('data-unidad');
+
+        if (filaActual) {
+            filaActual.querySelector('input[name="medicina[]"]').value = descripcion;
+            filaActual.querySelector('input[name="marca[]"]').value = marca;
+            filaActual.querySelector('input[name="dosis[]"]').value = dosis;
+            filaActual.querySelector('select[name="unidad[]"]').value = unidad;
+            filaActual = null; // Restablecer la referencia a la fila actual
+        }
+
+        //Limpiar el input de busqueda despues de hacer click en algun articulo en el modal
+        document.getElementById("searchInput").value = '';
+
+        // Cerrar el modal
+        $('#articulosModal').modal('hide');
+    }
+
+    //buscar en el modal
+    function Buscar() {
+        var input = document.getElementById("searchInput");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementById("tabla_articulos");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdArray = tr[i].getElementsByTagName("td");
+            var match = false;
+
+            for (var j = 0; j < tdArray.length; j++) {
+                var td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    document.getElementById("searchInput").addEventListener("input", Buscar);
+
+
+    //Cargar las fechas
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("max", today);
+        const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fechaInput = document.getElementById('txtFecha');
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const currentDate = `${year}-${month}-${day}`;
+        fechaInput.value = currentDate;
+    });
+
+    function validarFormulario() {
+        const filas = document.getElementById('articulosTable').getElementsByTagName('tbody')[0].rows;
+        
+        // Verificar si hay al menos una fila en la tabla
+        if (filas.length === 0) {
+            alert("Debe agregar al menos una fila.");
+            return false;
+        }
+
+        const articulosSet = new Set(); // Para almacenar los artículos y verificar duplicados
+        for (let i = 0; i < filas.length; i++) {
+
+            // Obtener los valores de medicina, marca y dosis
+            const articulo = filas[i].querySelector('input[name="medicina[]"]').value;
+            const marca = filas[i].querySelector('input[name="marca[]"]').value;
+            const dosis = filas[i].querySelector('input[name="dosis[]"]').value;
+
+            // Concatenar medicina, marca y dosis para crear una clave única
+            const claveArticulo = `${articulo}-${marca}-${dosis}`.trim();
+
+            // Validar que no haya artículos duplicados (misma medicina, marca y dosis)
+            if (articulosSet.has(claveArticulo)) {
+                alert(`El artículo "${articulo}" con la marca "${marca}" y la dosis "${dosis}" está duplicado. Por favor, elimine o modifique uno de ellos.`);
+                return false;
+            }
+            articulosSet.add(claveArticulo); // Agregar el artículo al conjunto
+
+            // Validar que los inputs no estén vacíos
+            const inputs = filas[i].getElementsByTagName('input');
+            const selects = filas[i].getElementsByTagName('select');
+            for (let input of inputs) {
+                if (input.value === "") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+
+            // Validar que los selects tengan una opción válida
+            for (let select of selects) {
+                if (select.value === "Seleccione...") {
+                    alert("Por favor, rellene todos los campos.");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    function cancelar() {
+        if (confirm("¿Quiere volver a la página anterior?")) {
+            window.location.href = "/medicinas/entradas";
+        }
+    }
+
+</script>
+
+<style>
+
+.lock-icon {
+    width: 24px; /* Ajusta el tamaño de la imagen */
+    cursor: pointer;
+}
+
+    /* Estilo para inputs y selects deshabilitados */
+.input-readonly,
+.select-readonly {
+    background-color: #f6f6f6; /* Simular input deshabilitado */
+    color: #000000; /* Color del texto igual a los inputs normales */
+    border: 1px solid #ced4da; /* Borde igual a los inputs normales */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no es interactivo */
+    pointer-events: none; /* Previene cualquier interacción con el elemento */
+}
+
+</style>

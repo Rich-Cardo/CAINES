@@ -1,0 +1,211 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% for bomba in bomba %}
+
+<!-- Variable para utilizarla en JavaScript -->
+<input type="hidden" id="parroquiaValue" value="{{ bomba[9] }}">
+
+
+    <form class="form-login m-auto" method="post" action="/editar_bomba_BD" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 fw-normal text-center">Editar Bomba</h1>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <!-- <label for="floatingInput" class="col-3"> ID: </label> -->
+            <input id="txtID" value="{{bomba[0]}}" class="form-control col-8" type="hidden" name="txtID" maxlength="10" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Fecha: </label>
+            <input id="txtFecha" value="{{bomba[2]}}" class="form-control col-8" type="date" name="txtFecha" maxlength="10" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Solicitud: </label>
+            <input id="txtSolicitud" value="{{bomba[3]}}" class="form-control col-8" type="text" name="txtSolicitud" placeholder="Secretaria Social..." required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Municipio</label>
+            <select class="form-select form-select-lg" id="selectMunicipio" name="txtMunicipio" style="margin-right:14px">
+                {% for municipio in municipios %}
+                    <option value="{{ municipio[1] }}" {% if municipio[1] == bomba[8] %}selected{% endif %}>
+                        {{ municipio[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+          <label for="floatingInput" class="col-3">Parroquia: </label>
+          <select class="form-select form-select-lg" id="txtParroquia" name="txtParroquia" style="margin-right:14px">
+
+              <!-- El valor de la opcion es el codigo del municipio y el usuario ve el nombre -->
+
+              <option value="Seleccione...">Seleccione...</option>
+
+          </select>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Sector: </label>
+            <input id="txtSector" value="{{bomba[1]}}" class="form-control col-8" type="text" name="txtSector" maxlength="30" required>
+          </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+          <label for="floatingInput" class="col-3">Cantidad: </label>
+          <input id="txtCantidad" value ="{{bomba[4]}}" class="form-control col-8" type="text" name="txtCantidad" required>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+            <label for="floatingInput" class="col-3">Fuerza: </label>
+            <input id="txtFuerza" value ="{{bomba[5].split(' ')[0]}}" class="form-control col-8" type="text" name="txtFuerza" pattern="[0-9.,]+" title="Sólo se permiten números" placeholder="HP..." maxlength="3" required>
+        </div>
+        
+        <div class="row" style="margin-bottom: 10px;">
+          <label for="floatingInput" class="col-3">Tipo</label>
+          <select class="form-select form-select-lg" id="txtTipo" name="txtTipo" style="margin-right:14px">
+
+            <option value="{{bomba[6]}}" selected>{{bomba[6]}}</option>
+
+              <option value="MONOFASICO">MONOFASICO</option>
+              <option value="TRIFASICO">TRIFASICO</option>
+
+          </select>
+        </div>
+
+        <div class="row" style="margin-bottom: 10px;">
+          <label for="floatingInput" class="col-3">Voltios</label>
+          <select class="form-select form-select-lg" id="txtVoltios" name="txtVoltios" style="margin-right:14px">
+
+            <option value="{{bomba[7]}}" selected>{{bomba[7]}}</option>
+
+            <option value="220 V">220 V</option>
+            <option value="440 V">440 V</option>
+
+          </select>
+        </div>
+
+    {%endfor%}
+
+
+        <button type="submit" class="btn button-login w-100" style="background-color:green; margin-bottom:6px; margin-top:15px;">Modificar</button>
+        <button class="btn button-login w-100" style="background-color: brown;" onclick="goBack()">Cancelar</button> 
+
+
+
+
+    </form>
+
+   
+
+    
+
+
+{% include 'footer.html' %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Obtener el elemento selectMunicipio
+    var selectMunicipio = document.getElementById('selectMunicipio');
+
+    // Crear un nuevo evento 'change' y dispararlo
+    var event = new Event('change');
+    selectMunicipio.dispatchEvent(event);
+    });
+    
+      // Obtener el campo de texto
+      var txtCantidad = document.getElementById('txtCantidad');
+
+      // Agregar un evento 'input' para validar la entrada
+      txtCantidad.addEventListener('input', function() {
+          // Filtrar para permitir solo números
+          this.value = this.value.replace(/\D/g, '');
+      });
+
+      // Obtener el campo de texto
+      var txtFuerza = document.getElementById('txtFuerza');
+
+      // Agregar un evento 'input' para validar la entrada
+      txtFuerza.addEventListener('input', function() {
+          // Filtrar para permitir solo números
+          this.value = this.value.replace(/\D/g, '');
+      });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectMunicipio = document.getElementById('selectMunicipio'); // Obtener el elemento select de municipio
+        var parroquias = document.getElementById('txtParroquia');
+        var parroquiaValue = document.getElementById('parroquiaValue').value;
+
+        function actualizarParroquias() {
+            var parroquiasMaturin = ["ALTO DE LOS GODOS", "BOQUERON", "EL COROZO", "EL FURRIAL", "JUSEPIN", "LA CRUZ", "LA PICA", "LAS COCUIZAS", "SAN SIMON", "SAN VICENTE"];
+            var parroquiasCaripe = ["CARIPE", "EL GUACHARO", "LA GUANOTA", "SABANA DE PIEDRA", "SAN AGUSTIN", "TERESEN"];
+            var parroquiasAcosta = ["SAN ANTONIO DE MATURIN", "SAN FRANCISCO DE MATURIN"];
+            var parroquiasBolivar = ["CARIPITO"];
+            var parroquiasCedeño = ["AREO", "CAPITAL CEDEÑO", "SAN FELIX DE CANTALICIO", "VIENTO FRESCO"];
+            var parroquiasLibertador = ["CHAGUARAMAS", "LAS ALHUACAS", "TABASCA", "TEMBLADOR"];
+            var parroquiasPiar = ["APARICIO", "ARAGUA DE MATURIN", "CHAGUARAMAL", "EL PINTO", "GUANAGUANA", "LA TOSCANA", "TAGUAYA"];
+            var parroquiasSantaBarbara = ["MORON", "SANTA BARBARA"];
+            var parroquiasSotillo = ["BARRANCAS", "LOS BARRANCOS DE FAJARDO"];
+            var parroquiasPunceres = ["QUIRIQUIRE", "CACHIPO"];
+            var parroquiasUracoa = ["URACOA"];
+            var parroquiasEzequielZamora = ["EL TEJERO", "PUNTA DE MATA"];
+            var parroquiasAguasay = ["AGUASAY"];
+
+            var parroquiasMap = {
+                "MATURIN": parroquiasMaturin,
+                "CARIPE": parroquiasCaripe,
+                "ACOSTA": parroquiasAcosta,
+                "BOLÍVAR": parroquiasBolivar,
+                "CEDEÑO": parroquiasCedeño,
+                "LIBERTADOR": parroquiasLibertador,
+                "PIAR": parroquiasPiar,
+                "SANTA BARBARA": parroquiasSantaBarbara,
+                "SOTILLO": parroquiasSotillo,
+                "PUNCERES": parroquiasPunceres,
+                "URACOA": parroquiasUracoa,
+                "EZEQUIEL ZAMORA": parroquiasEzequielZamora,
+                "AGUASAY": parroquiasAguasay
+            };
+
+            var selectedMunicipio = selectMunicipio.value;
+            var parroquiasOptions = parroquiasMap[selectedMunicipio] || [];
+
+            parroquias.innerHTML = '';
+
+            parroquiasOptions.forEach(function(parroquia) {
+                var option = document.createElement('option');
+                option.value = parroquia;
+                option.text = parroquia;
+                parroquias.appendChild(option);
+            });
+
+            if (parroquiaValue) {
+                for (var i = 0; i < parroquias.options.length; i++) {
+                    if (parroquias.options[i].value === parroquiaValue) {
+                        parroquias.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        selectMunicipio.addEventListener('change', actualizarParroquias);
+
+        // Llama a actualizarParroquias cuando la página se cargue para establecer la parroquia seleccionada
+        actualizarParroquias();
+    });
+    
+
+
+
+  </script>

@@ -1,0 +1,199 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-login m-auto" onsubmit="return validarFormulario()" method="post" action="/agregar_bomba_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Agregar Entrega</h1>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Fecha: </label>
+        <input id="txtFecha" class="form-control col-8" type="date" name="txtFecha" required>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Solicitud de: </label>
+        <input id="txtSolicitud" class="form-control col-8" type="text" name="txtSolicitud" placeholder="Gestión Pública..." maxlength="25" required>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Municipio</label>
+        <select class="form-select form-select-lg" id="selectMunicipio" name="txtMunicipio" style="margin-right:14px">
+            <option value="Seleccione...">Seleccione...</option>
+            {% for municipio in municipios %}
+                <option value="{{ municipio[1] }}">{{ municipio[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Parroquia: </label>
+        <select class="form-select form-select-lg" id="txtParroquia" name="txtParroquia" style="margin-right:14px">
+            <option value="Seleccione...">Seleccione...</option>
+        </select>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Sector: </label>
+        <input id="txtSector" class="form-control col-8" type="text" name="txtSector" maxlength="35" required>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Cantidad: </label>
+        <input id="txtCantidad" class="form-control col-8" maxlength="3" type="text" name="txtCantidad" required>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Fuerza: </label>
+        <input id="txtFuerza" class="form-control col-8" type="text" maxlength="4" name="txtFuerza" placeholder="HP..." required>
+    </div>
+    
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Tipo</label>
+        <select class="form-select form-select-lg" id="txtTipo" name="txtTipo" style="margin-right:14px">
+            <option value="Seleccione...">Seleccione...</option>
+            <option value="Monofasico">Monofasico</option>
+            <option value="Trifasico" selected>Trifasico</option>
+        </select>
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <label for="floatingInput" class="col-3">Voltios</label>
+        <select class="form-select form-select-lg" id="txtVoltios" name="txtVoltios" style="margin-right:14px">
+            <option value="Seleccione...">Seleccione...</option>
+            <option value="220 V" selected>220 V</option>
+            <option value="440 V">440 V</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn button-login w-100" id="formSubmitButton" style="background-color:green; margin-bottom:6px; margin-top:15px;">Agregar</button>
+    <button class="btn button-login w-100" style="background-color: brown;" onclick="cancelar()">Cancelar</button>
+</form>
+
+{% include 'footer.html' %}
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+    // Establecer la fecha máxima para el input de fecha
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("txtFecha").setAttribute("max", today);
+
+    // Establecer la fecha mínima para el input de fecha (primer día del año actual)
+    const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+    document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    
+    });
+
+    // Establecer la fecha actual en el campo de fecha
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fechaInput = document.getElementById('txtFecha');
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const currentDate = `${year}-${month}-${day}`;
+        fechaInput.value = currentDate;
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectMunicipio = document.getElementById('selectMunicipio'); // Obtener el elemento select de municipio
+        var parroquias = document.getElementById('txtParroquia');
+
+        function actualizarParroquias() {
+            var parroquiasMaturin = ["ALTO DE LOS GODOS", "BOQUERON", "EL COROZO", "EL FURRIAL", "JUSEPIN", "LA CRUZ", "LA PICA", "LAS COCUIZAS", "SAN SIMON", "SAN VICENTE"];
+            var parroquiasCaripe = ["CARIPE", "EL GUACHARO", "LA GUANOTA", "SABANA DE PIEDRA", "SAN AGUSTIN", "TERESEN"];
+            var parroquiasAcosta = ["SAN ANTONIO DE MATURIN", "SAN FRANCISCO DE MATURIN"];
+            var parroquiasBolivar = ["CARIPITO"];
+            var parroquiasCedeño = ["AREO", "CAPITAL CEDEÑO", "SAN FELIX DE CANTALICIO", "VIENTO FRESCO"];
+            var parroquiasLibertador = ["CHAGUARAMAS", "LAS ALHUACAS", "TABASCA", "TEMBLADOR"];
+            var parroquiasPiar = ["APARICIO", "ARAGUA DE MATURIN", "CHAGUARAMAL", "EL PINTO", "GUANAGUANA", "LA TOSCANA", "TAGUAYA"];
+            var parroquiasSantaBarbara = ["MORON", "SANTA BARBARA"];
+            var parroquiasSotillo = ["BARRANCAS", "LOS BARRANCOS DE FAJARDO"];
+            var parroquiasPunceres = ["QUIRIQUIRE", "CACHIPO"];
+            var parroquiasUracoa = ["URACOA"];
+            var parroquiasEzequielZamora = ["EL TEJERO", "PUNTA DE MATA"];
+            var parroquiasAguasay = ["AGUASAY"];
+
+            var parroquiasMap = {
+                "MATURIN": parroquiasMaturin,
+                "CARIPE": parroquiasCaripe,
+                "ACOSTA": parroquiasAcosta,
+                "BOLÍVAR": parroquiasBolivar,
+                "CEDEÑO": parroquiasCedeño,
+                "LIBERTADOR": parroquiasLibertador,
+                "PIAR": parroquiasPiar,
+                "SANTA BARBARA": parroquiasSantaBarbara,
+                "SOTILLO": parroquiasSotillo,
+                "PUNCERES": parroquiasPunceres,
+                "URACOA": parroquiasUracoa,
+                "EZEQUIEL ZAMORA": parroquiasEzequielZamora,
+                "AGUASAY": parroquiasAguasay
+            };
+
+            var selectedMunicipio = selectMunicipio.value;
+            var parroquiasOptions = parroquiasMap[selectedMunicipio] || [];
+
+            parroquias.innerHTML = '';
+
+            parroquiasOptions.forEach(function(parroquia) {
+                var option = document.createElement('option');
+                option.value = parroquia;
+                option.text = parroquia;
+                parroquias.appendChild(option);
+            });
+        }
+
+        selectMunicipio.addEventListener('change', actualizarParroquias);
+        
+        // Inicializa las parroquias al cargar la página si hay un municipio seleccionado
+        if (selectMunicipio.value !== "Seleccione...") {
+            actualizarParroquias();
+        }
+    });
+
+    // Validar entrada para solo permitir números en los campos cantidad y fuerza
+    var txtCantidad = document.getElementById('txtCantidad');
+    txtCantidad.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    var txtFuerza = document.getElementById('txtFuerza');
+    txtFuerza.addEventListener('input', function() {
+        // Permite solo dígitos y puntos
+        this.value = this.value.replace(/[^0-9.]/g, '');
+
+        // Evita que haya más de un punto en la entrada
+        var parts = this.value.split('.');
+        if (parts.length > 2) {
+            this.value = parts[0] + '.' + parts.slice(1).join('');
+        }
+    });
+
+        // // Funcion para retroceder
+
+        function cancelar() {
+        // Función JavaScript opcional para realizar alguna acción al cancelar
+        // Por ejemplo, redireccionar a otra página
+        window.location.href = "/entregas";
+    }
+
+    function validarFormulario() {
+    const tipo = document.getElementById('txtTipo').value;
+    const voltios = document.getElementById('txtVoltios').value;
+    const municipio = document.getElementById('txtMunicipio').value;
+    const parroquia = document.getElementById('txtParroquia').value;
+    
+    if (tipo === "Seleccione..." || voltios === "Seleccione..." || municipio === "Seleccione..." || parroquia === "Seleccione...") {
+        alert("Por favor, rellene todos los campos.");
+        return false; // Prevenir el envío del formulario
+    }
+    return true; // Permitir el envío del formulario
+}
+    
+</script>

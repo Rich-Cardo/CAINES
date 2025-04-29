@@ -1,0 +1,436 @@
+{% include 'header.html' %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">
+      {{ messages[0] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form class="form-articulos" onsubmit="return validarFormulario()" method="post" action="/ferreteria/agregar_salida_BD" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal text-center">Agregar Salida</h1>
+
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-1 col-form-label text-center">Fecha:</label>
+        <div class="col-sm-8">
+            <input id="txtFecha" class="form-control" type="date" name="txtFecha" required>
+        </div>
+        <div class="col-sm-1 text-end">
+            <button type="button" class="btn btn-primary" onclick="agregarFila()">Nuevo...</button>
+        </div>
+    </div> 
+
+    <div class="mb-3 row">  
+        <label for="txtDestino" class="col-sm-1 col-form-label text-center">Destino:</label>
+        <div class="col-sm-10">
+            <input id="txtDestino" class="form-control" type="text" name="txtDestino" maxlength="100" required>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" id="articulosTable">
+            <thead class="text-center">
+                <tr>
+                    <th></th>
+                    <th class="col-8">Articulo</th>
+                    <th class="col-1">Cantidad</th>
+                    <th class="col-1">Unidad</th>
+                    <th class="col-1">Area</th>
+                    <th class="col-1">Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+
+                    <td><img src="/static/img/lock-closed.png" class="lock-icon" onclick="toggleFilaEditable(this)" data-locked="true"></td>
+
+                    <!-- <td><input type="checkbox" class="form-check-input" onclick="toggleFilaEditable(this)"></td> -->
+                    <td><input type="text" name="articulo[]" class="form-control articulo-input input-readonly" maxlength="60" required ></td>
+
+                    <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'');"></td>
+
+                    <td>
+                        <select name="unidad[]" class="form-select input-readonly" required>
+                            <option value="Seleccione...">Seleccione...</option>
+                            <option value="1/4 GALON">1/4 GALON</option>
+                            <option value="1/2 GALON">1/2 GALON</option>
+                            <option value="3/4 GALON">3/4 GALON</option>
+                            <option value="CAJA">CAJA</option>
+                            <option value="CUNETE">CUNETE</option>
+                            <option value="GALON">GALON</option>
+                            <option value="KILO">KILO</option>
+                            <option value="LITRO">LITRO</option>
+                            <option value="M2">M2</option>
+                            <option value="ML">ML</option>
+                            <option value="PAR">PAR</option>
+                            <option value="PLIEGO">PLIEGO</option>
+                            <option value="ROLLO">ROLLO</option>
+                            <option value="SACO">SACO</option>
+                            <option value="UNIDAD" selected>UNIDAD</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="area[]" class="form-select input-readonly" required>
+                            <option value="Seleccione...">Seleccione...</option>
+                            <option value="ALBANILERIA">ALBANILERIA</option>
+                            <option value="CARPINTERIA">CARPINTERIA</option>
+                            <option value="ELECTRICIDAD">ELECTRICIDAD</option>
+                            <option value="GENERAL">GENERAL</option>
+                            <option value="HERRERIA">HERRERIA</option>
+                            <option value="PINTURA">PINTURA</option>
+                            <option value="PLOMERIA">PLOMERIA</option>
+                            <option value="REFRIGERACION">REFRIGERACION</option>
+                        </select>
+                    </td>
+                    <td class="row">
+                        
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" onclick="guardarFilaActual(this)">...</button>
+                        <button type="button" class="btn btn-danger" style="margin-left: 2px;" onclick="eliminarFila(this)">X</button>
+                    </td>                    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success w-50 mt-2">Agregar</button>
+        <button type="button" class="btn btn-secondary w-50 mt-2" onclick="cancelar()">Cancelar</button>
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="articulosModal" tabindex="-1" aria-labelledby="articulosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="articulosModalLabel">Lista de Articulos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+
+                <div class="row mb-3 text-center">
+                    <div class="col-12">
+                        <input type="text" id="searchInput" title="Escribe..." maxlength="80" placeholder="Buscar articulos..." required class="form-control d-inline-block w-auto" style="max-width: 400px;">
+                    </div>
+                </div>
+
+                <div id="myTable" class="table-responsive" style="margin: 0 auto;">
+                    <table id="tabla_articulos" class="table table-light tablas border border-secondary rounded" cellspacing="0">
+                        <thead class="thead-light text-center">
+                            <tr>
+                                <th>ID</th>
+                                <th>Articulo</th>
+                                <th>Cantidad</th>
+                                <th>Unidad</th>
+                                <th>Area</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for articulo in articulos %}
+                            <tr class="text-center">
+                                <td>{{ articulo[0]}}</td>
+                                <td>{{ articulo[1]}}</td>
+                                <td>{{ articulo[4]}}</td>
+                                <td>{{ articulo[2]}}</td>
+                                <td>{{ articulo[3]}}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-success seleccionar-articulo"
+                                           href="#"
+                                           data-id="{{ articulo[0] }}"
+                                           data-articulo="{{ articulo[1] }}"
+                                           data-unidad="{{ articulo[2] }}"
+                                           data-area="{{ articulo[3] }}"
+                                           onclick="seleccionarArticulo(this)">Seleccionar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<script>
+
+    function toggleFilaEditable(lockIcon) {
+
+        var row = lockIcon.closest('tr');
+        var inputs = row.querySelectorAll('input, select');
+        var isLocked = lockIcon.getAttribute('data-locked') === 'true'; // Determina si está bloqueado
+
+        // Cambia la imagen de candado según el estado
+        if (isLocked) {
+            lockIcon.src = "/static/img/lock-open.png"; // Cambia a la imagen de candado abierto
+            lockIcon.setAttribute('data-locked', 'false');
+        } else {
+            lockIcon.src = "/static/img/lock-closed.png"; // Cambia a la imagen de candado cerrado
+            lockIcon.setAttribute('data-locked', 'true');
+        }
+
+        // Función para determinar si un input debe ser editable o no
+        function esEditable(input, index) {
+            return index !== 1 // Omitir cantidad
+        }
+
+        inputs.forEach(function(input, index) {
+            if (esEditable(input, index)) {
+                if (isLocked) {
+                    input.classList.remove('input-readonly');
+                } else {
+                    input.classList.add('input-readonly');
+                }
+            }
+        });
+    }
+
+
+    //Variable global para guardar la fila y manejar eventos sobre la misma
+
+    let filaActual = null;
+    function guardarFilaActual(button) {
+        filaActual = button.closest('tr'); // Guarda la referencia a la fila actual
+    }
+
+    function agregarFila() {
+    const table = document.getElementById('articulosTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    newRow.innerHTML = `
+        <td><img src="/static/img/lock-closed.png" class="lock-icon" onclick="toggleFilaEditable(this)" data-locked="true"></td>
+        <td><input type="text" name="articulo[]" class="form-control input-readonly" maxlength="40" required></td>
+        <td><input type="text" name="cantidad[]" class="form-control" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9.]/g,'');"></td>
+        <td>
+            <select name="unidad[]" class="form-select form-select-lg input-readonly" required>
+                <option value="Seleccione...">Seleccione...</option>
+                <option value="1/4 GALON">1/4 GALON</option>
+                <option value="1/2 GALON">1/2 GALON</option>
+                <option value="3/4 GALON">3/4 GALON</option>
+                <option value="CAJA">CAJA</option>
+                <option value="CUNETE">CUNETE</option>
+                <option value="GALON">GALON</option>
+                <option value="KILO">KILO</option>
+                <option value="LITRO">LITRO</option>
+                <option value="M2">M2</option>
+                <option value="ML">ML</option>
+                <option value="PAR">PAR</option>
+                <option value="PLIEGO">PLIEGO</option>
+                <option value="ROLLO">ROLLO</option>
+                <option value="SACO">SACO</option>
+                <option value="UNIDAD" selected>UNIDAD</option>
+            </select>
+        </td>
+        <td>
+            <select name="area[]" class="form-select form-select-lg input-readonly" required>
+                <option value="Seleccione...">Seleccione...</option>
+                <option value="ALBANILERIA">ALBANILERIA</option>
+                <option value="CARPINTERIA">CARPINTERIA</option>
+                <option value="ELECTRICIDAD">ELECTRICIDAD</option>
+                <option value="GENERAL">GENERAL</option>
+                <option value="HERRERIA">HERRERIA</option>
+                <option value="PINTURA">PINTURA</option>
+                <option value="PLOMERIA">PLOMERIA</option>
+                <option value="REFRIGERACION">REFRIGERACION</option>
+            </select>
+        </td>
+        <td class="row">
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#articulosModal" onclick="guardarFilaActual(this)">...</button>
+            <button type="button" class="btn btn-danger" style="margin-left: 2px;" onclick="eliminarFila(this)">X</button> 
+        </td>
+    `;
+}
+
+
+    function eliminarFila(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+
+    // Funcion para seleccionar los articulos del modal
+
+    function seleccionarArticulo(element) {
+    const articulo = element.getAttribute('data-articulo');
+    const unidad = element.getAttribute('data-unidad');
+    const area = element.getAttribute('data-area');
+    const cantidadDisponible = element.closest('tr').getElementsByTagName('td')[2].textContent;
+
+    if (filaActual) {
+        filaActual.querySelector('input[name="articulo[]"]').value = articulo;
+        filaActual.querySelector('select[name="unidad[]"]').value = unidad;
+        filaActual.querySelector('select[name="area[]"]').value = area;
+        
+        // Guardar la cantidad disponible como un atributo en el input de cantidad
+        const cantidadInput = filaActual.querySelector('input[name="cantidad[]"]');
+        cantidadInput.setAttribute('data-cantidad-disponible', cantidadDisponible.trim());
+
+        filaActual = null; // Restablecer la referencia a la fila actual
+    }
+
+    // Limpiar el input de búsqueda después de hacer clic en algún artículo en el modal
+    document.getElementById("searchInput").value = '';
+
+    // Cerrar el modal
+    $('#articulosModal').modal('hide');
+}
+
+    //buscar en el modal
+    function Buscar() {
+        var input = document.getElementById("searchInput");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementById("tabla_articulos");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdArray = tr[i].getElementsByTagName("td");
+            var match = false;
+
+            for (var j = 0; j < tdArray.length; j++) {
+                var td = tdArray[j];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    document.getElementById("searchInput").addEventListener("input", Buscar);
+
+
+    //Cargar las fechas
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("max", today);
+        const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
+        document.getElementById("txtFecha").setAttribute("min", firstDayOfYear);
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const fechaInput = document.getElementById('txtFecha');
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const currentDate = `${year}-${month}-${day}`;
+        fechaInput.value = currentDate;
+    });
+
+    function validarFormulario() {
+    const filas = document.getElementById('articulosTable').getElementsByTagName('tbody')[0].rows;
+    const articulosSet = new Set(); // Para almacenar los artículos y verificar duplicados
+
+    for (let i = 0; i < filas.length; i++) {
+        const inputs = filas[i].getElementsByTagName('input');
+        const selects = filas[i].getElementsByTagName('select');
+
+        for (let input of inputs) {
+            if (input.value === "") {
+                alert("Por favor, rellene todos los campos.");
+                return false;
+            }
+        }
+        for (let select of selects) {
+            if (select.value === "Seleccione...") {
+                alert("Por favor, rellene todos los campos.");
+                return false;
+            }
+        }
+
+        // Validar que la cantidad ingresada no sea mayor a la cantidad disponible
+        const cantidadInput = filas[i].querySelector('input[name="cantidad[]"]');
+        const cantidadIngresada = parseFloat(cantidadInput.value);
+        const cantidadDisponible = parseFloat(cantidadInput.getAttribute('data-cantidad-disponible'));
+
+        if (cantidadIngresada === 0) {
+            alert(`La cantidad no puede ser igual a cero en el artículo ${filas[i].querySelector('input[name="articulo[]"]').value}.`);
+            return false;
+        }
+
+        if (cantidadIngresada > cantidadDisponible) {
+            alert(`La cantidad ingresada (${cantidadIngresada}) es mayor que la cantidad disponible (${cantidadDisponible}) para el artículo ${filas[i].querySelector('input[name="articulo[]"]').value}.`);
+            return false;
+        }
+
+        // Validar que no haya artículos duplicados
+        const articulo = filas[i].querySelector('input[name="articulo[]"]').value;
+        if (articulosSet.has(articulo)) {
+            alert(`El artículo "${articulo}" está duplicado. Por favor, elimine o modifique uno de ellos.`);
+            return false;
+        }
+        articulosSet.add(articulo); // Agregar el artículo al conjunto
+    }
+
+    return true; // Si pasa todas las validaciones, permite el envío del formulario
+}
+
+
+    function cancelar() {
+        if (confirm("¿Quiere volver a la página anterior?")) {
+            window.location.href = "/ferreteria/salidas";
+        }
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    // Evento que se dispara cuando el modal se abre
+    $('#articulosModal').on('show.bs.modal', function () {
+        // Limpiar el campo de búsqueda
+        document.getElementById("searchInput").value = '';
+        
+        // Mostrar todas las filas de la tabla
+        var table = document.getElementById("tabla_articulos");
+        var tr = table.getElementsByTagName("tr");
+        for (var i = 1; i < tr.length; i++) {
+            tr[i].style.display = "";
+        }
+    });
+});
+
+</script>
+
+<style>
+
+.lock-icon {
+    width: 24px; /* Ajusta el tamaño de la imagen */
+    cursor: pointer;
+}
+
+/* Estilo para inputs y selects deshabilitados (readonly) */
+.input-readonly,
+.select-readonly {
+    background-color: #f6f6f6; /* Simular input deshabilitado */
+    /*background-color: #ffffff !important;  Fondo igual al de los inputs normales */
+    color: #000000; /* Color del texto igual al de los inputs normales */
+    border: 1px solid #ced4da; /* Borde igual al de los inputs normales */
+    cursor: default; /* Cambia el cursor para que no muestre el "no permitido" */
+    pointer-events: none; /* Previene cualquier interacción con el elemento */
+    opacity: 1; /* Asegura que el elemento no se vea desactivado */
+}
+
+.input-readonly:focus,
+.select-readonly:focus {
+    border-color: #80bdff; /* Mantener el estilo del borde en foco */
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Sombra alrededor del borde al hacer foco */
+}
+
+
+</style>
